@@ -38,7 +38,7 @@ public class PacketTypes{
 }
 public enum MessageTypes
 {
-    CHAT, PRIVATE_MESSAGE, EVERYONE
+    CHAT, PRIVATE_MESSAGE, EVERYONE, SERVER
 };
 public enum NPCTalkType
 {

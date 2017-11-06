@@ -45,6 +45,15 @@ public class playerNetwork : NetworkBehaviour{
     }
 
 
+    //#Spawn monster
+    public void spawnMobFromClient(int mobId, int amount)
+    {
+        MobInfo mobInfo = new MobInfo();
+        mobInfo.mobId = mobId;
+        mobInfo.amount = amount;
+        con.Send(PacketTypes.MONSTER_SPAWN, mobInfo);
+    }
+
     //#Skill
     public void sendProjectile(string path, string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler)
     {
@@ -236,6 +245,10 @@ public class playerNetwork : NetworkBehaviour{
         msg.message = message;
         msg.type = type;
         con.Send(PacketTypes.SEND_MESSAGE, msg);
+
+        if (message.StartsWith("/")) {
+            this.player.getCommandManager().listenForCommand(message);
+        }
     }
 	void onLoadInventory(NetworkMessage msg){
         InventoryInfo info = msg.ReadMessage<InventoryInfo>();

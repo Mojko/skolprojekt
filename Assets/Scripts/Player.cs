@@ -21,6 +21,7 @@ public class Player : NetworkBehaviour
     public GameObject skillEffectPrefab;
     private PlayerMovement movement;
     public GameObject skillTreeUi;
+    private CommandManager commandManager;
     
 
     public List<Skill> skills = new List<Skill>();
@@ -34,6 +35,7 @@ public class Player : NetworkBehaviour
     public override void OnStartLocalPlayer ()
 	{
         if(!isLocalPlayer) return;
+        commandManager = new CommandManager(this);
 		for (int i = 0; i < prefabsToRegister.Length; i++) {
 			ClientScene.RegisterPrefab (prefabsToRegister [i]);
 		}
@@ -70,6 +72,10 @@ public class Player : NetworkBehaviour
 
 		camera.GetComponent<MainCamera> ().player = this.gameObject;
 		camera.GetComponent<MainCamera> ().setState ((int)e_cameraStates.DEFAULT);
+    }
+    public CommandManager getCommandManager()
+    {
+        return this.commandManager;
     }
     public GameObject getSkillTreeUi()
     {

@@ -80,6 +80,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkills);
 		NetworkServer.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
         NetworkServer.RegisterHandler(PacketTypes.PROJECTILE_CREATE, onProjectTileCreate);
+        NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         resourceStructure = new ResourceStructure();
         
         //Create system objects
@@ -87,6 +88,13 @@ public class Server : NetworkManager
 
     }
 
+    private void onMonsterSpawn(NetworkMessage netMsg)
+    {
+        MobInfo mobInfo = netMsg.ReadMessage<MobInfo>();
+        for(int i=0;i<mobInfo.amount;i++){
+            spawnMonster(mobInfo.mobId);
+         }
+    }
 
     public ResourceStructure getResourceStructure()
     {
@@ -339,6 +347,9 @@ public class Server : NetworkManager
         }
         else if (message.type == MessageTypes.CHAT)
         {
+            NetworkServer.SendToAll(PacketTypes.SEND_MESSAGE, message);
+        } else if(message.type == MessageTypes.SERVER) {
+            message.message = "SERVER: " + message.message;
             NetworkServer.SendToAll(PacketTypes.SEND_MESSAGE, message);
         }
     }
