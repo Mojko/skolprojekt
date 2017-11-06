@@ -16,16 +16,6 @@ public class MouseOverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 		}
 	}
 	void Update () {
-
-        if(transform.parent.GetComponent<MouseOverUI>() != null) {
-            if (!mouseOver) {
-                transform.parent.GetComponent<MouseOverUI>().inChild = false;
-            } else {
-                transform.parent.GetComponent<MouseOverUI>().inChild = true;
-            }
-        }
-
-
 		/*if(transform.parent.GetComponent<MouseOverUI>() != null){
 			if(mouseOver){
 				transform.parent.GetComponent<MouseOverUI>().inChild = true;
@@ -48,7 +38,7 @@ public class MouseOverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 	}
 
 	public bool isMouseOver(){
-		return mouseOver && !inChild;
+		return mouseOver;
 	}
     public Vector2 position() {
         return new Vector2(Input.mousePosition.x, Input.mousePosition.y);

@@ -54,6 +54,7 @@ public class Server : NetworkManager
             playerID.Remove(connections[conn.connectionId]);
             connections.Remove(conn.connectionId);
             characterConnections.Remove(conn.connectionId);
+            playerObjects.Remove(conn.connectionId);
             conns.Remove(name);
         }
         base.OnServerDisconnect(conn);
@@ -62,6 +63,7 @@ public class Server : NetworkManager
     //#SETUP
     public override void OnStartServer()
     {
+        Application.targetFrameRate = 60;
         connectionString = "Server=" + host + ";Database=" + database + ";Uid=" + username + ";Pwd=" + password + ";";
         base.OnStartServer();
         NetworkServer.RegisterHandler(PacketTypes.LOAD_PLAYER, onLoadCharacter);
@@ -432,6 +434,7 @@ public class Server : NetworkManager
         int[] dataArray = data.ToArray();
         player.addItems(dataArray);
         conn.Close();
+        Debug.Log("inventory array: " + dataArray);
         return dataArray;
     }
 

@@ -218,9 +218,9 @@ public class Inventory : MonoBehaviour
                 }
             }
             //Debug.Log(activeCanvas);
-            if(Input.GetMouseButtonDown(0))
+            if(Input.GetMouseButtonDown(0) && !mouse.isEmpty())
             {
-                Debug.Log("is over?: " + activeCanvas);
+                Debug.Log("is over?: " + canvas[activeCanvas]);
             }
             if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())
             {
