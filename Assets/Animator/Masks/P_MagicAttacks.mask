@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!319 &31900000
+AvatarMask:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: P_MagicAttacks
+  m_Mask: 00000000010000000000000000000000000000000100000001000000010000000100000000000000000000000000000000000000
+  m_Elements:
+  - m_Path: 
+    m_Weight: 1
+  - m_Path: Area
+    m_Weight: 1
+  - m_Path: Area.001
+    m_Weight: 1
+  - m_Path: Armature
+    m_Weight: 1
+  - m_Path: Armature/armL sholder
+    m_Weight: 1
+  - m_Path: Armature/armL sholder/armL arm
+    m_Weight: 1
+  - m_Path: Armature/armL sholder/armL arm/armL hand
+    m_Weight: 1
+  - m_Path: Armature/armL sholder/armL arm/armL hand/armL hand_end
+    m_Weight: 1
+  - m_Path: Armature/armR sholder
+    m_Weight: 1
+  - m_Path: Armature/armR sholder/armR arm
+    m_Weight: 1
+  - m_Path: Armature/armR sholder/armR arm/armR hand
+    m_Weight: 1
+  - m_Path: Armature/armR sholder/armR arm/armR hand/armR hand_end
+    m_Weight: 1
+  - m_Path: Armature/body
+    m_Weight: 1
+  - m_Path: Armature/body/body_end
+    m_Weight: 1
+  - m_Path: Armature/Bone
+    m_Weight: 1
+  - m_Path: Armature/Bone/Bone.001
+    m_Weight: 1
+  - m_Path: Armature/Bone/Bone.001/Bone.001_end
+    m_Weight: 1
+  - m_Path: Armature/Bone/Bone.002
+    m_Weight: 1
+  - m_Path: Armature/Bone/Bone.002/Bone.002_end
+    m_Weight: 1
+  - m_Path: Armature/legL top
+    m_Weight: 1
+  - m_Path: Armature/legL top/Bone.008
+    m_Weight: 1
+  - m_Path: Armature/legL top/Bone.008/Bone.008_end
+    m_Weight: 1
+  - m_Path: Armature/legR top
+    m_Weight: 1
+  - m_Path: Armature/legR top/legL bot
+    m_Weight: 1
+  - m_Path: Armature/legR top/legL bot/legL bot_end
+    m_Weight: 1
+  - m_Path: Camera
+    m_Weight: 1
+  - m_Path: Cube
+    m_Weight: 1
+  - m_Path: Cube.001
+    m_Weight: 1
+  - m_Path: Cube.002
+    m_Weight: 1
+  - m_Path: Cube.003
+    m_Weight: 1
+  - m_Path: Cube.004
+    m_Weight: 1
+  - m_Path: Cube.005
+    m_Weight: 1
+  - m_Path: Cube.006
+    m_Weight: 1
+  - m_Path: Cube.007
+    m_Weight: 1
+  - m_Path: Lamp
+    m_Weight: 1

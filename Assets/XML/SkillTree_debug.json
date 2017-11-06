@@ -1,0 +1,272 @@
+{
+	"Potrait":
+	[
+		{
+			"id": 100,
+			"name": "Fireball", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"children":
+			[
+				{
+					"id": 101,
+					"name": "Fireball1", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"children": 
+					[
+						{
+							"id": 104,
+							"name": "Fireball4", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 0,
+							"children":
+							[
+								{
+									"id": 105,
+									"name": "Fireball5", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 0,
+									"children":[]
+								}
+							]
+						}
+					]
+				},
+
+				{
+					"id": 103,
+					"name": "Fireball3", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 0,
+					"children": 
+					[
+						{
+							"id": 106,
+							"name": "Fireball6", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						},
+						{
+							"id": 107,
+							"name": "Fireball7", 
+							"enhancementSkill": false,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						}
+
+					]
+				}
+			]
+		},
+
+		{
+			"id": 200,
+			"name": "Fireball200", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"children":
+			[
+				{
+					"id": 201,
+					"name": "Fireball201", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"children": 
+					[
+						{
+							"id": 204,
+							"name": "Fireball204", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 0,
+							"children":
+							[
+								{
+									"id": 205,
+									"name": "Fireball205", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 0,
+									"children":[]
+								}
+							]
+						}
+					]
+				},
+
+				{
+					"id": 203,
+					"name": "Fireball203", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 0,
+					"children": 
+					[
+						{
+							"id": 206,
+							"name": "Fireball206", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						},
+						{
+							"id": 207,
+							"name": "Fireball207", 
+							"enhancementSkill": false,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						}
+
+					]
+				}
+			]
+		},
+
+		{
+			"id": 300,
+			"name": "Fireball300", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"children":
+			[
+				{
+					"id": 301,
+					"name": "Fireball301", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"children": 
+					[
+						{
+							"id": 304,
+							"name": "Fireball304", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 0,
+							"children":
+							[
+								{
+									"id": 305,
+									"name": "Fireball305", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 0,
+									"children":[]
+								}
+							]
+						}
+					]
+				},
+
+				{
+					"id": 303,
+					"name": "Fireball303", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 0,
+					"children": 
+					[
+						{
+							"id": 306,
+							"name": "Fireball306", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						},
+						{
+							"id": 307,
+							"name": "Fireball307", 
+							"enhancementSkill": false,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						}
+
+					]
+				}
+			]
+		},
+
+		{
+			"id": 400,
+			"name": "Fireball400", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"children":
+			[
+				{
+					"id": 401,
+					"name": "Fireball401", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"children": 
+					[
+						{
+							"id": 404,
+							"name": "Fireball404", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 0,
+							"children":
+							[
+								{
+									"id": 405,
+									"name": "Fireball405", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 0,
+									"children":[]
+								}
+							]
+						}
+					]
+				},
+
+				{
+					"id": 403,
+					"name": "Fireball403", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 0,
+					"children": 
+					[
+						{
+							"id": 406,
+							"name": "Fireball406", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						},
+						{
+							"id": 407,
+							"name": "Fireball407", 
+							"enhancementSkill": false,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 1,
+							"children":[]
+						}
+
+					]
+				}
+			]
+		}
+	]
+}

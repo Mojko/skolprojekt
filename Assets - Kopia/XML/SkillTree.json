@@ -1,0 +1,265 @@
+{
+	"Potrait":
+	[
+		{
+			"id": 100,
+			"name": "Default", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+			"cooldown": 1,
+			"type": "projectile",
+			"children":
+			[
+				{
+					"id": 101,
+					"name": "Default", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+						{
+							"id": 103,
+							"name": "Default", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 5,
+							"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+							"cooldown": 1,
+							"type": "projectile",
+							"children":
+							[
+								{
+									"id": 104,
+									"name": "Default", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 1,
+									"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+									"cooldown": 1,
+									"type": "projectile",
+									"children":
+									[
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 102,
+					"name": "Default", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+					]
+				}
+			]
+		},
+		{
+			"id": 200,
+			"name": "Default", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+			"cooldown": 1,
+			"type": "projectile",
+			"children":
+			[
+				{
+					"id": 201,
+					"name": "Default", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+						{
+							"id": 203,
+							"name": "Default", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 5,
+							"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+							"cooldown": 1,
+							"type": "projectile",
+							"children":
+							[
+								{
+									"id": 204,
+									"name": "Default", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 1,
+									"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+									"cooldown": 1,
+									"type": "projectile",
+									"children":
+									[
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 202,
+					"name": "Default", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+					]
+				}
+			]
+		},
+		{
+			"id": 300,
+			"name": "Default", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+			"cooldown": 1,
+			"type": "projectile",
+			"children":
+			[
+				{
+					"id": 301,
+					"name": "Default", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+						{
+							"id": 303,
+							"name": "Default", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 5,
+							"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+							"cooldown": 1,
+							"type": "projectile",
+							"children":
+							[
+								{
+									"id": 304,
+									"name": "Default", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 1,
+									"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+									"cooldown": 1,
+									"type": "projectile",
+									"children":
+									[
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 302,
+					"name": "Default", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+					]
+				}
+			]
+		},
+		{
+			"id": 400,
+			"name": "Default", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+			"cooldown": 1,
+			"type": "projectile",
+			"children":
+			[
+				{
+					"id": 401,
+					"name": "Default", 
+					"enhancementSkill": true,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+						{
+							"id": 403,
+							"name": "Default", 
+							"enhancementSkill": true,
+							"maxPoints": 5,
+							"pointsNeededFromParentToActivate": 5,
+							"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+							"cooldown": 1,
+							"type": "projectile",
+							"children":
+							[
+								{
+									"id": 404,
+									"name": "Default", 
+									"enhancementSkill": true,
+									"maxPoints": 5,
+									"pointsNeededFromParentToActivate": 1,
+									"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+									"cooldown": 1,
+									"type": "projectile",
+									"children":
+									[
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"id": 402,
+					"name": "Default", 
+					"enhancementSkill": false,
+					"maxPoints": 5,
+					"pointsNeededFromParentToActivate": 5,
+					"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+					"cooldown": 1,
+					"type": "projectile",
+					"children":
+					[
+					]
+				}
+			]
+		}
+	]
+}

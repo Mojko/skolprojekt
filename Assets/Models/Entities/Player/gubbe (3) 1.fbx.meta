@@ -1,0 +1,166 @@
+fileFormatVersion: 2
+guid: e8121c690704c204c9b3ffccc5d3e477
+timeCreated: 1509660580
+licenseType: Free
+ModelImporter:
+  serializedVersion: 21
+  fileIDToRecycleName:
+    100000: Armature
+    100002: armL arm
+    100004: armL hand
+    100006: armL hand_end
+    100008: armL sholder
+    100010: armR arm
+    100012: armR hand
+    100014: armR hand_end
+    100016: armR sholder
+    100018: body
+    100020: body_end
+    100022: Bone
+    100024: Bone.001
+    100026: Bone.001_end
+    100028: Bone.002
+    100030: Bone.002_end
+    100032: Bone.008
+    100034: Bone.008_end
+    100036: Cube
+    100038: Cube.001
+    100040: Cube.002
+    100042: Cube.003
+    100044: Cube.004
+    100046: Cube.005
+    100048: Cube.006
+    100050: Cube.007
+    100052: //RootNode
+    100054: legL bot
+    100056: legL bot_end
+    100058: legL top
+    100060: legR top
+    400000: Armature
+    400002: armL arm
+    400004: armL hand
+    400006: armL hand_end
+    400008: armL sholder
+    400010: armR arm
+    400012: armR hand
+    400014: armR hand_end
+    400016: armR sholder
+    400018: body
+    400020: body_end
+    400022: Bone
+    400024: Bone.001
+    400026: Bone.001_end
+    400028: Bone.002
+    400030: Bone.002_end
+    400032: Bone.008
+    400034: Bone.008_end
+    400036: Cube
+    400038: Cube.001
+    400040: Cube.002
+    400042: Cube.003
+    400044: Cube.004
+    400046: Cube.005
+    400048: Cube.006
+    400050: Cube.007
+    400052: //RootNode
+    400054: legL bot
+    400056: legL bot_end
+    400058: legL top
+    400060: legR top
+    4300000: Cube.001
+    4300002: Cube.004
+    4300004: Cube.005
+    4300006: Cube.002
+    4300008: Cube.003
+    4300010: Cube
+    4300012: Cube.006
+    4300014: Cube.007
+    7400000: Armature|ArmatureAction
+    7400002: Armature|ArmatureAction.002
+    7400004: Armature|Attack
+    7400006: Armature|MagicAttack
+    7400008: Armature|Slash
+    9500000: //RootNode
+    13700000: Cube
+    13700002: Cube.001
+    13700004: Cube.002
+    13700006: Cube.003
+    13700008: Cube.004
+    13700010: Cube.005
+    13700012: Cube.006
+    13700014: Cube.007
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,21 @@
+{
+	"Potrait":
+	[
+		{
+			"id": 100,
+			"name": "DebugSkill", 
+			"enhancementSkill": false,
+			"maxPoints": 5,
+			"pointsNeededFromParentToActivate": 0,
+			"pathToSkillModel": "Particles/Skills/S_DebugParticle",
+			"cooldown": 1,
+			"type": "cast",
+			"children":
+			[
+			{
+			
+			}
+			]
+		}
+	]
+}

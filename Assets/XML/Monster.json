@@ -1,0 +1,13 @@
+{
+	"Monsters":
+	[
+		{
+			"id": 10000,
+			"name": "Racoon",
+			"level": 1,
+			"stats": [{  }],
+			"pathToModel": "Prefabs/Meshes/E_Squirrle"
+				
+		}
+	]
+}
