@@ -89,13 +89,10 @@ namespace GlobalTools
 {
     class ToolsGlobal
     {
-	    public Quaternion rotateTowards(Vector3 yourPosition, Vector3 targetPosition) {
-		    float x = (targetPosition - yourPosition).normalized.x;
-		    float y = 0;
-		    float z = (targetPosition - yourPosition).normalized.z;
-
-		    Quaternion r = Quaternion.LookRotation(new Vector3(x,y,z));
-		    return r;
+		public Quaternion rotateTowards(Transform transform, Vector3 targetPosition) {
+			Quaternion r = Quaternion.LookRotation(targetPosition - transform.position);
+			//transform.rotation = Quaternion.Slerp(transform.rotation, r, damping * Time.deltaTime);
+			return r;
 	    }
     }
 }

@@ -48,6 +48,8 @@ public class PlayerMovement : NetworkBehaviour {
 	Rigidbody rb;
 	Vector3 positionFromServer;
 
+	bool jumpFlag;
+
 	void Start () {
 		animator = GetComponent<Animator>();
 		rb = GetComponent<Rigidbody>();
@@ -59,6 +61,11 @@ public class PlayerMovement : NetworkBehaviour {
 		float y = rb.velocity.y;
 		y = 6f;
 		rb.velocity = new Vector3 (rb.velocity.x, y, rb.velocity.z);
+		isTouchingFloor = false;
+	}
+
+	public void setState(int state){
+		this.state = state;
 	}
 
 	void FixedUpdate () {
@@ -70,7 +77,7 @@ public class PlayerMovement : NetworkBehaviour {
 				state = (int)e_PlayerStates.MOVE;
 			}
 			break;
-	case (int)e_PlayerStates.MOVE:
+		case (int)e_PlayerStates.MOVE:
 			rb.velocity = new Vector3 (xAxis, 0, zAxis) * movespeed + (Vector3.up * rb.velocity.y);			
 
 			if(!isFreezed()){
@@ -100,18 +107,21 @@ public class PlayerMovement : NetworkBehaviour {
 		case (int)e_PlayerStates.ATTACK:
 
 			AnimatorStateInfo stateInfo0 = animator.GetCurrentAnimatorStateInfo (0);
-			if(stateInfo0.IsName("Slash")){
+
+			freezeMovementAndJumpingButNotFalling();
+
+			if(stateInfo0.IsName("Slash") && isTouchingFloor){
 				if (stateInfo0.normalizedTime > 0f) {
 					damageInRange (this.attackRange);
 				}
-				if(stateInfo0.normalizedTime > 1f){
+				if(stateInfo0.normalizedTime > 1f ){
 					animator.SetBool("slash", false);
 					unfreeze();
 					state = (int)e_PlayerStates.IDLE;
 				}
 			}
 
-			if (animator.GetBool ("slash")) {
+			if (animator.GetBool ("slash") && isTouchingFloor) {
 				freeze ();
 			}
 			break;
@@ -189,10 +199,17 @@ public class PlayerMovement : NetworkBehaviour {
 		}
 		return false;
 	}
-	void freeze (){
+	public void freezeMovementAndJumpingButNotFalling(){
+		jumpFlag = false;
+		rb.constraints = RigidbodyConstraints.FreezePositionX | 
+			RigidbodyConstraints.FreezePositionZ |
+			RigidbodyConstraints.FreezeRotation;
+
+	}
+	public void freeze (){
 		rb.constraints = RigidbodyConstraints.FreezeAll;
 	}
-	void unfreeze(){
+	public void unfreeze(){
 		rb.constraints = RigidbodyConstraints.FreezeRotation;
 	}
 
@@ -217,12 +234,6 @@ public class PlayerMovement : NetworkBehaviour {
 			//.velocity = -transform.forward * 2f;
 		}
 		//rb.AddForce(-transform.forward * 200f);
-	}
-
-	void OnCollisionExit (Collision col) {
-		if (col.gameObject.CompareTag ("Ground")) {
-			isTouchingFloor = false;
-		}		
 	}
 
 	Quaternion rotateTowards(Vector3 pos) {

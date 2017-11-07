@@ -16,6 +16,7 @@ public class MobManager : NetworkBehaviour {
 	public GameObject part;
     public GameObject target;
 
+
     float flashTimer = 1;
 
     public Vector3 rootPos;

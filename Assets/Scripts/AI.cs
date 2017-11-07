@@ -128,6 +128,11 @@ public class AI : MobManager {
     void idle()
     {
         startTimerIfNotStarted(4);
+
+		if(this.target != null){
+			setState(e_States.CHASE);
+		}
+
         if (this.timer.isFinished()) {
             setNewDestination(chooseDestination());
         }
@@ -135,21 +140,25 @@ public class AI : MobManager {
     void chase()
     {
         followTarget(this.target);
-        if(isTargetOutOfRange(this.target, 5)) {
+        if(isTargetOutOfRange(this.target, 25)) {
             setState(e_States.IDLE);
+			return;
         }
         if (canAttack()) {
             //Then attack lol
-            state = e_States.ATTACK;
+			setState(e_States.ATTACK);
+			return;
         }
     }
     void attack()
     {
-        startTimerIfNotStarted(2);
+		followTarget(this.target);
 
-		animator.SetBool ("attack", true);
+		/*animator.SetBool ("attack", true);
 		bool isName = animator.GetCurrentAnimatorStateInfo (1).IsName ("Attack");
-		bool finished = animator.GetCurrentAnimatorStateInfo (1).normalizedTime > 1f;
+		bool finished = animator.GetCurrentAnimatorStateInfo (1).normalizedTime > 1f;*/
+		animator.Play("Bite");
+		bool finished = !animator.GetCurrentAnimatorStateInfo(0).IsName("Bite");
 
 		if (finished) {
 			//Deal damage
