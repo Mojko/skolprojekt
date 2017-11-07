@@ -258,6 +258,8 @@ public class playerNetwork : NetworkBehaviour{
     }
 	void onLoadInventory(NetworkMessage msg){
         InventoryInfo info = msg.ReadMessage<InventoryInfo>();
+        List<int[]> equipments = (List<int[]>)(Tools.byteArrayToObject(info.equipment));
+        Debug.Log("equipment: " + equipments.Count);
         player.setInventory (info.items);
         Debug.Log ("inventory loaded");
         Debug.Log(info.items.Length);

@@ -315,7 +315,7 @@ public class Server : NetworkManager
         PlayerInfo packet = msg.ReadMessage<PlayerInfo>();
         int id = getCharacterID(packet.characterName);
         //PlayerServer player = getPlayerObject(msg.conn.connectionId);
-        PlayerServer player = PlayerServer.getDefaultCharacter(msg.conn.connectionId);
+        PlayerServer player = PlayerServer.GetDefaultCharacter(msg.conn.connectionId);
 
         connections.Add(msg.conn.connectionId, packet.name);
         conns.Add(packet.name, msg.conn.connectionId);
@@ -367,6 +367,7 @@ public class Server : NetworkManager
         Debug.Log("loaded inventory outside");
         InventoryInfo inf = msg.ReadMessage<InventoryInfo>();
         inf.items = getInventoryFromDatabase(inf.name, msg.conn.connectionId);
+        inf.equipment = playerObjects[msg.conn.connectionId].GetEquipBytes();
         Debug.Log(inf.items.Length);
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_INVENTORY, inf);
     }
@@ -393,6 +394,7 @@ public class Server : NetworkManager
             if (invType == 0)
             {
                 int position = reader.GetInt32("position");
+                Debug.Log("item psotions: " + position);
                 if (position >= 0)
                 {
                     data.Add(reader.GetInt32("itemID"));
@@ -427,6 +429,7 @@ public class Server : NetworkManager
                         invType,
                         position
                     };
+                    Debug.Log("position: " + Math.Abs(position + 1));
                     player.addEquip(Math.Abs(position + 1), item);
                 }
             }
