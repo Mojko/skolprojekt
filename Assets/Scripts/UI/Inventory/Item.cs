@@ -8,6 +8,10 @@ public class Item {
 		this.id = stats[0];
 		this.stats = stats;
 	}
+    public int getPosition()
+    {
+        return this.stats[Tools.ITEM_PROPERTY_SIZE-1];
+    }
     public void setItem(int[] items) {
         this.stats = items;
     }

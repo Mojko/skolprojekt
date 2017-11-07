@@ -81,11 +81,18 @@ public class Server : NetworkManager
 		NetworkServer.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
         NetworkServer.RegisterHandler(PacketTypes.PROJECTILE_CREATE, onProjectTileCreate);
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
+        NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
         resourceStructure = new ResourceStructure();
         
         //Create system objects
         Instantiate(ResourceStructure.getGameObjectFromObject(e_Objects.SYSTEM_RESPAWNER));
 
+    }
+
+    private void onSpawnItem(NetworkMessage netMsg)
+    {
+        ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
+        playerObjects[netMsg.conn.connectionId].addItem(itemInfo.item);
     }
 
     private void onMonsterSpawn(NetworkMessage netMsg)

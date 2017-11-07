@@ -678,7 +678,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 224537332532720746}
-  - component: {fileID: 114098504657040388}
+  - component: {fileID: 114684423828196248}
   m_Layer: 5
   m_Name: Login_UI
   m_TagString: Untagged
@@ -1051,7 +1051,7 @@ GameObject:
   - component: {fileID: 224641907625559102}
   - component: {fileID: 222367689961178384}
   - component: {fileID: 114689423528816678}
-  - component: {fileID: 114071789467416534}
+  - component: {fileID: 114067259054591300}
   m_Layer: 5
   m_Name: Equipment_UI
   m_TagString: Untagged
@@ -1269,7 +1269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mover: {fileID: 1480556895207130}
-  inventory: {fileID: 0}
+  tabsGameObjects: {fileID: 0}
 --- !u!114 &114025325648845914
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1427,7 +1427,7 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114071789467416534
+--- !u!114 &114067259054591300
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -1435,7 +1435,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1833367328239798}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b74ba8c07d69ac46bb432ccaed77d87, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a93403a3d465f1468643c10d22b24a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mover: {fileID: 1281101940861334}
@@ -1509,17 +1509,6 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
   m_ChildControlHeight: 0
---- !u!114 &114098504657040388
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1520671628395266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114116381912293192
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3261,6 +3250,18 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114684423828196248
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1520671628395266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b74ba8c07d69ac46bb432ccaed77d87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mover: {fileID: 1633324917727870}
 --- !u!114 &114684857743622340
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -3515,6 +3516,7 @@ MonoBehaviour:
   camera: {fileID: 0}
   charSelect: {fileID: 0}
   charCreate: {fileID: 0}
+  pickChar: {fileID: 0}
   playerModel: {fileID: 1382847793555972, guid: 227071bcec131ce408cc60c6bd860901,
     type: 2}
   skillProperties: 

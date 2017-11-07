@@ -6,6 +6,11 @@ public class DisconnectPacket : MessageBase{
     public string name = "";
 }
 
+public class ItemInfo : MessageBase
+{
+    public int[] item;
+}
+
 public class MobInfo : MessageBase
 {
     public int mobId;

@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 57d6081ca2abcc0499a57df7aad45799
+  - enabled: 0
+    path: Assets/Game_Jesper_Real.unity
+    guid: e4aa4e56cc9288f45811580f8e78f00e
   - enabled: 1
     path: Assets/Game.unity
-    guid: e4aa4e56cc9288f45811580f8e78f00e
+    guid: 83d15a42f41461a4cbb971b49836babc

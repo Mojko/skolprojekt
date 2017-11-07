@@ -18,6 +18,16 @@ public class PlayerServer {
     public void addItems(int[] items) {
         this.items = items;
     }
+    public void addItem(int[] item)
+    {
+        int[] tempItem = new int[this.items.Length+item.Length];
+        for(int i = 0; i < this.items.Length; i++) {
+            tempItem[i] = this.items[i];
+        }
+        for(int i = this.items.Length; i < item.Length; i++) {
+            tempItem[i] = item[i];
+        }
+    }
     public void addEquip(int type, int[] equip) {
         Debug.Log("added equip: " + type);
         equips[type] = equip;

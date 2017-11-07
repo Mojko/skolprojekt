@@ -167,10 +167,15 @@ public class Inventory : MonoBehaviour
         information.gameObject.transform.SetParent(canvas[0].transform.parent.parent.parent);
         information.gameObject.transform.SetAsLastSibling();
         this.player.getNetwork().loadInventory();
+        //addItem(new Item().getEmptyItem(0));
     }
 
     public bool addItem(Item item)
     {
+        InventorySlot slot = new InventorySlot();
+        slot.setItem(item.getPosition(), item);
+        itemsOwned.Add(slot);
+        player.getNetwork().sendItem(item.getStats());
         return true;
     }
 

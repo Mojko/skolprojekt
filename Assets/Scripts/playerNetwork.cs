@@ -225,6 +225,12 @@ public class playerNetwork : NetworkBehaviour{
 		msg.name = player.playerName;
 		con.Send (PacketTypes.SAVE_INVENTORY, msg);
 	}
+    public void sendItem(int[] item)
+    {
+        ItemInfo itemInfo = new ItemInfo();
+        itemInfo.item = item;
+        con.Send(PacketTypes.SPAWN_ITEM, itemInfo);
+    }
     public void moveItem(int[] itemMoved, int[] itemReplaced, short packetType, Player player) {
         moveItem item = new moveItem();
         item.item1 = itemMoved;
