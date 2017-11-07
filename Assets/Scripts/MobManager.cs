@@ -6,8 +6,9 @@ using UnityEngine.AI;
 
 public class MobManager : NetworkBehaviour {
 	
-	int health = 3;
- 	int mana;
+	[SyncVar] int health = 3;
+	[SyncVar] int mana;
+
 	public Vector3 newPos;
 	public Respawner respawner;
     public Spawner spawner;
@@ -64,8 +65,7 @@ public class MobManager : NetworkBehaviour {
 	}
 
 	void toggleFlash(int state){
-		this.transform.GetChild (1).GetChild (0).GetComponent<Renderer> ().material.SetFloat ("_Flash", state);
-		this.transform.GetChild (1).GetComponent<Renderer> ().material.SetFloat ("_Flash", state);
+		this.transform.Find("Body").GetComponent<Renderer>().material.SetFloat("_Flash", state);
 	}
 
     [ClientRpc]

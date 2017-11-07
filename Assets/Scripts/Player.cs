@@ -143,5 +143,22 @@ public class Player : NetworkBehaviour
     public void damage(int dmg)
     {
         this.health -= dmg;
+		StartCoroutine(flash());
     }
+
+	[ClientRpc]
+	void RpcToggleFlash(int state)
+	{
+		GameObject[] children = Tools.getChildrenByTag(this.gameObject, "Body");
+		foreach(GameObject o in children) {
+			o.GetComponent<Renderer>().sharedMaterial.SetFloat("_Flash", state);
+		}
+	}
+
+	IEnumerator flash()
+	{
+		RpcToggleFlash(0);
+		yield return new WaitForSeconds(0.1f);
+		RpcToggleFlash(1);
+	}
 }
