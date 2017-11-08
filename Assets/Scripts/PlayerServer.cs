@@ -14,6 +14,9 @@ public class PlayerServer {
     public PlayerServer( int databaseID, int connectionID) {
         this.databaseID = databaseID;
         this.connectionID = connectionID;
+        for (int i = 0; i < 9; i++) {
+            equips.Add(null);
+        }
     }
     public void addItems(int[] items) {
         this.items = items;
@@ -30,7 +33,8 @@ public class PlayerServer {
     }
     public void addEquip(int type, int[] equip) {
         Debug.Log("added equip: " + type);
-        equips.Insert(type,equip);
+        Debug.Log("count size: " + equips.Count);
+        equips[type] = equip;
     }
     public void setSkills(int[] skills) {
         this.skills = skills;

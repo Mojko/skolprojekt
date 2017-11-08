@@ -18,7 +18,6 @@ public class Server : NetworkManager
 {
     delegate bool Mark();
     ResourceStructure resourceStructure;
-    Tools tools;
     private Dictionary<string, int> playerID = new Dictionary<string, int>();
     private Dictionary<string, int> charactersOnline = new Dictionary<string, int>();
     private Dictionary<int, string> characterConnections = new Dictionary<int, string>();
@@ -367,6 +366,7 @@ public class Server : NetworkManager
         Debug.Log("loaded inventory outside");
         InventoryInfo inf = msg.ReadMessage<InventoryInfo>();
         inf.items = getInventoryFromDatabase(inf.name, msg.conn.connectionId);
+        Debug.Log("inf.quipment.COunt: " + inf.equipment.Length);
         inf.equipment = playerObjects[msg.conn.connectionId].GetEquipBytes();
         Debug.Log(inf.items.Length);
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_INVENTORY, inf);
@@ -409,6 +409,9 @@ public class Server : NetworkManager
                     data.Add(-1);
                     data.Add(-1);
                     data.Add(-1);
+                    data.Add(reader.GetInt32("id"));
+                    data.Add(invType);
+                    data.Add(reader.GetInt32("position"));
                 }
                 else {
                     int pos = reader.GetInt32("position");
@@ -429,7 +432,7 @@ public class Server : NetworkManager
                         invType,
                         position
                     };
-                    Debug.Log("position: " + Math.Abs(position + 1));
+                    Debug.Log("position in an item from a database: " + Math.Abs(position + 1));
                     player.addEquip(Math.Abs(position + 1), item);
                 }
             }
@@ -447,10 +450,10 @@ public class Server : NetworkManager
                 data.Add(-1);
                 data.Add(-1);
                 data.Add(-1);
+                data.Add(reader.GetInt32("id"));
+                data.Add(invType);
+                data.Add(reader.GetInt32("position"));
             }
-            data.Add(reader.GetInt32("id"));
-            data.Add(invType);
-            data.Add(reader.GetInt32("position"));
         }
         int[] dataArray = data.ToArray();
         player.addItems(dataArray);

@@ -22,7 +22,9 @@ public class Player : NetworkBehaviour
     private PlayerMovement movement;
     public GameObject skillTreeUi;
     private CommandManager commandManager;
-    
+    private Login login;
+
+    private GameObject[] worlds = new GameObject[2];
 
     public List<Skill> skills = new List<Skill>();
     public List<Skill> skillsToVerifyWithFromServer = new List<Skill>();
@@ -47,7 +49,7 @@ public class Player : NetworkBehaviour
         ClientScene.RegisterPrefab(skillEffectPrefab);*/
 
          UICanvas = GameObject.Find("UI");
-
+        login = Tools.findInactiveChild(UICanvas,"Login_UI").GetComponent<Login>();
         this.movement = GetComponent<PlayerMovement>();
 
         this.skillUi = GameObject.Find("Actionbar_UI").GetComponent<SkillUIManager>();
@@ -70,8 +72,14 @@ public class Player : NetworkBehaviour
 		this.inventory = this.GetComponent<Inventory> ();
 		this.inventory.init (this);
 
+        equip.setEquipmentUI(Tools.getChild(UICanvas, "Equipment_UI"));
+        equip.setPlayer(this);
 		camera.GetComponent<MainCamera> ().player = this.gameObject;
 		camera.GetComponent<MainCamera> ().setState ((int)e_cameraStates.DEFAULT);
+
+        worlds[0] = GameObject.Find("login_World");
+        worlds[1] = GameObject.Find("World");
+
     }
     public CommandManager getCommandManager()
     {
@@ -113,6 +121,22 @@ public class Player : NetworkBehaviour
 	}
     public Inventory getInventory() {
         return inventory;
+    }
+    public void reloadScene() {
+        inventory.clearInventory();
+        inventory.gameObject.SetActive(false);
+        equip.clear();
+        equip.gameObject.SetActive(false);
+        chat.clear();
+        login.gameObject.SetActive(true);
+        worlds[0].SetActive(true);
+        worlds[1].SetActive(false);
+
+        Debug.Log("reloaded scene.");
+    }
+    public void setEquips(List<int[]> equips) {
+        equip.setEquips(equips);
+        equip.updateSlots();
     }
     public void Update() {
         if (!isLocalPlayer) return;
