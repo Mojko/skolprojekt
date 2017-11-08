@@ -14,9 +14,9 @@ public class EquipmentHandler : UIHandler {
         if (!hasLoaded) return;
         for (int i = 0; i < slotsMouse.Length; i++)
         {
-            if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0))
+            if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0) && equips[i] != null)
             {
-                onClick(equips[i]);
+                onClick(i, equips[i]);
             }
         }
     }
@@ -35,26 +35,32 @@ public class EquipmentHandler : UIHandler {
         slotsMouse = new MouseOverUI[slots.Length];
         for (int i = 0; i < slotsMouse.Length; i++)
         {
-            slotsMouse[i] = slots[i].AddComponent<MouseOverUI>();
+            slotsMouse[i] = slots[i].GetComponent<MouseOverUI>();
         }
         hasLoaded = true;
     }
-    public void onClick(int[] itemStats) {
+    public void onClick(int pos, int[] itemStats) {
         Inventory inventory = player.getInventory();
         int closestFree = inventory.getClosestSlot((int)inventoryTabs.EQUIP);
         itemStats[Tools.ITEM_PROPERTY_SIZE - 1] = closestFree;
+        Debug.Log("slot: " + closestFree);
         inventory.addItem(new Item(itemStats));
-        Debug.Log("clicked!!!!");
-
+        clearSlot(pos); 
+        this.equips.Remove(itemStats);
+        updateSlots();
+    }
+    private void clearSlot(int slot) {
+        Image image = slots[slot].transform.GetChild(0).GetComponent<Image>();
+        image.sprite = null;
+        image.color = new Color(0, 0, 0, 0);
     }
     public void updateSlots() {
-        Debug.Log("equipment: " + equips);
         int countSize = 0;
+        GameObject slot;
         for (int i = 0; i < equips.Count; i++) {
             if (equips[i] == null) continue;
-            Debug.Log("position is not empty wewewewew: " + equips[i][Tools.ITEM_PROPERTY_SIZE - 1]);
             Image image = slots[Mathf.Abs(equips[i][Tools.ITEM_PROPERTY_SIZE - 1] + 1)].transform.GetChild(0).GetComponent<Image>();
-            image.sprite = (Sprite)stringTools.sprites[equips[i][0] - 999];
+            image.sprite = (Sprite)stringTools.spriteObjects[equips[i][0] / 1000 - 1][equips[i][0] % 1000 + 1];
             image.color = Color.white;
         }
     }

@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: 1d656812f7ecaad4b9d83805082f8e38
-timeCreated: 1508142543
+guid: 7dacbef49c83cad4f91a57743063e031
+timeCreated: 1510173874
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: weapons_0
-    21300002: weapons_1
+    21300000: use_0
+    21300002: use_1
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -58,25 +58,25 @@ TextureImporter:
   textureFormatSet: 0
   platformSettings:
   - buildTarget: DefaultTexturePlatform
-    maxTextureSize: 8192
+    maxTextureSize: 2048
     textureFormat: -1
-    textureCompression: 2
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
   - buildTarget: Standalone
-    maxTextureSize: 8192
+    maxTextureSize: 2048
     textureFormat: -1
-    textureCompression: 2
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
   - buildTarget: Android
-    maxTextureSize: 8192
+    maxTextureSize: 2048
     textureFormat: -1
-    textureCompression: 2
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -85,13 +85,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: weapons_0
+      name: use_0
       rect:
         serializedVersion: 2
-        x: 12
-        y: 53
-        width: 29
-        height: 44
+        x: 17
+        y: 156
+        width: 100
+        height: 108
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -99,13 +99,13 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: weapons_1
+      name: use_1
       rect:
         serializedVersion: 2
-        x: 56
-        y: 55
-        width: 44
-        height: 41
+        x: 152
+        y: 140
+        width: 123
+        height: 137
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

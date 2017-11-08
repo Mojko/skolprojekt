@@ -45,13 +45,18 @@ public enum ItemIDs {
 	STAFF = 9200,
 	WAND = 9300
 }
-public static class stringTools{
+public static class stringTools {
     public static string[] Items = new string[]{
         "Stick",
         "Fyring pan",
         "Wand"
     };
-    public static UnityEngine.Object[] sprites = Resources.LoadAll("weapons");
+    public static UnityEngine.Object[][] spriteObjects = new UnityEngine.Object[][] {
+        Resources.LoadAll("use"),
+        new UnityEngine.Object[0],
+        new UnityEngine.Object[0],
+        Resources.LoadAll("weapons"),
+    };
 }
 [System.Serializable]
 public class jsonRead{
@@ -64,8 +69,10 @@ public class jsonRead{
 [System.Serializable]
 public class ItemString{
     public static Dictionary<int, string> itemNames = new Dictionary<int, string> {
-        { 1000, "Pan" },
-        { 1001, "Stick" },
+        { 1000, "Mana" },
+        { 1001, "Hp" },
+        { 4001, "Stick" },
+        { 4000, "Stick" },
     };
 }
 public class Inventory : MonoBehaviour
@@ -171,15 +178,17 @@ public class Inventory : MonoBehaviour
     }
     public int getClosestSlot(int storeType) {
         bool isEmpty = true;
-        for (int a = 0; a < MAX_INVENTORY_SIZE; a++) {
-            for (int i = 0; i < itemsOwned.Count; i++) {
-                if (itemsOwned[i].getItem().getType() == storeType && itemsOwned[i].getItem().getPosition() == a) {
+        for (int i = 0; i < MAX_INVENTORY_SIZE; i++) {
+            isEmpty = true;
+            for (int j = 0; j < itemsOwned.Count; j++) {
+                if (itemsOwned[j].getItem().getType() == storeType && itemsOwned[j].getItem().getPosition() == i) {
                     isEmpty = false;
                     break;
                 }
             }
-            if (isEmpty)
-                return a;
+            if (isEmpty) {
+                return i;
+            }
         }
         return -1;
     }
@@ -187,8 +196,16 @@ public class Inventory : MonoBehaviour
     {
         InventorySlot slot = new InventorySlot();
         slot.setItem(item.getPosition(), item);
+        Debug.Log("item added " + item);
+        GameObject instansiatedSlot = (GameObject)Instantiate(InventorySlot);
+        slot = instansiatedSlot.GetComponent<InventorySlot>();
+        slot.setID(itemsOwned.Count);
+        slot.setItem(item.getPosition(), item);
+        slot.setImage(slot.getItem());
+        slot.transform.SetParent(canvas[activeCanvas].transform);
         itemsOwned.Add(slot);
-        player.getNetwork().sendItem(item.getStats());
+        recalcPos(itemsOwned.Count - 1, item.getPosition());
+        player.getNetwork().moveItem(item.getStats(),Item.getEmptyItem(-1).stats, PacketTypes.INVENTORY_MOVE_ITEM, this.player);
         return true;
     }
 

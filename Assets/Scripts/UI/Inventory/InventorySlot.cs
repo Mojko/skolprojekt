@@ -34,7 +34,8 @@ public class InventorySlot : MonoBehaviour {
             this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = null;
         }
         else {
-            this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = (Sprite)stringTools.sprites[item.getID() - 1000 + 1];
+            Debug.Log("id: " + (item.getID() / 1000 - 1) + " item i n array: " + (item.getID() % 1000));
+            this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = (Sprite)stringTools.spriteObjects[item.getID() / 1000 - 1][item.getID() % 1000 + 1];
         }
     }
 
