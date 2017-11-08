@@ -48,7 +48,8 @@ public class MobManager : NetworkBehaviour {
         GameObject o = Instantiate(prefab);
         Drop drop = o.GetComponent<Drop>();
         drop.setName(nameOfDrop);
-        drop.setItem(Item.getEmptyItem(0));
+        Item item = Item.getEmptyItem(0);
+        drop.setItem(item);
         o.transform.position = position;
         NetworkServer.Spawn(o);
     }

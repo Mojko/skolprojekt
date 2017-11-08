@@ -14,7 +14,7 @@ public enum EquipSlot {
 
 public static class Tools
 {
-    public static readonly int ITEM_PROPERTY_SIZE = 16;
+    public static readonly int ITEM_PROPERTY_SIZE = 15;
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);

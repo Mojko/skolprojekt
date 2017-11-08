@@ -67,6 +67,7 @@ public class Drop : MonoBehaviour {
         }
 		if (col.gameObject.CompareTag("Player") && Input.GetKey(KeyCode.B)) {
 			Player player = col.gameObject.GetComponent<Player>();
+            Debug.Log("ISPLAYER: " + player + " | " + " ISITEM: " + item);
             player.pickup(item, this.item.getItemType());
             NetworkServer.Destroy(this.gameObject);
 		}

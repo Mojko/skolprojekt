@@ -38,12 +38,12 @@ public class Item {
 	public Item getItem(){
 		return this;
 	}
-    public static Item getEmptyItem(int i) {
+    public static Item getEmptyItem(int position) {
         int[] a = new int[Tools.ITEM_PROPERTY_SIZE];
         for (int j = 0; j < a.Length; j++) {
             a[j] = -1;
         }
-        a[Tools.ITEM_PROPERTY_SIZE - 1] = i;
+        a[Tools.ITEM_PROPERTY_SIZE - 1] = position;
 
         return new Item(a);
     }

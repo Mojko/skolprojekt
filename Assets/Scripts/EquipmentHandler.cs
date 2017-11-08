@@ -9,7 +9,6 @@ public class EquipmentHandler : UIHandler {
     MouseOverUI[] slotsMouse;
     Player player;
     MouseOverUI mouse;
-    List<>
     public void Start() {
         base.Start();
         mouse = this.GetComponent<MouseOverUI>();
@@ -56,7 +55,4 @@ public class EquipmentHandler : UIHandler {
     public void clear() {
         equips.Clear();
     }
-}
-private class equipSlot {
-
 }
