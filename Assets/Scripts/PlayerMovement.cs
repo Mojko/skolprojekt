@@ -250,6 +250,15 @@ public class PlayerMovement : NetworkBehaviour {
 		return r;
 	}
 
+	Quaternion rotateTowards(Transform transform, Transform target, float speed) {
+		float x = (target.position - transform.position).normalized.x;
+		float y = 0;
+		float z = (target.position - transform.position).normalized.z;
+
+		Quaternion r = Quaternion.LookRotation((target.position - transform.position));
+		return Quaternion.Slerp(transform.rotation, r, speed * Time.deltaTime);
+	}
+
 	[Command]
 	void CmdDamageEnemy(GameObject enemy, GameObject damager, int dmg){
         if(enemy != null){

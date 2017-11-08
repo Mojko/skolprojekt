@@ -25,12 +25,17 @@ public class AI : MobManager {
 	
 	//Oldpos behövs för att veta vart enemyn spawnade, så den kan patrullera runt där
 	public Vector3 oldPos;
+
+	private float speed;
+	private float angularSpeed;
 	private Animator animator;
-    private float attackRange = 2f;
+    private float attackRange = 1f;
 	private bool coroutineStarted = false;
     private Timer timer;
-	private bool freeze;
+	private bool isFreezed;
     private bool hasDamaged;
+	private NavMeshAgent agent;
+	private bool shouldRotate;
 
 
 	void Start () {
@@ -40,6 +45,9 @@ public class AI : MobManager {
         setNewDestination(chooseDestination());
         this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
         this.respawner = GameObject.FindWithTag("Respawner").GetComponent<Respawner>();
+		this.agent = this.GetComponent<NavMeshAgent>();
+		this.speed = agent.speed;
+		this.angularSpeed = agent.angularSpeed;
 	}
 
 	void Update () {
@@ -53,14 +61,14 @@ public class AI : MobManager {
         
 		switch (state) {
 		case e_States.IDLE:
-            idle();
+			idleState();
 			break;
 		case e_States.CHASE:
-			chase ();
+			chaseState();
 			break;
 
 		case e_States.ATTACK:
-            attack();
+			attackState();
 			break;
 		}
 
@@ -83,57 +91,18 @@ public class AI : MobManager {
 		return false;
 	}
 
-	/*IEnumerator attack () {
-		coroutineStarted = true;
-		yield return new WaitForSeconds(2);
-		coroutineStarted = false;
-
-
-		animator.SetBool ("attack", true);
-		bool isName = animator.GetCurrentAnimatorStateInfo (1).IsName ("Attack");
-		bool finished = animator.GetCurrentAnimatorStateInfo (1).normalizedTime > 1f;
-
-		if (finished) {
-			//Deal damage
-			target.GetComponent<Player>().damage(5);
-		}
-
-        Debug.Log("attacking!!!");
-	}
-
-	IEnumerator idle(){
-		coroutineStarted = true;
-		setNewPos(chooseDestination());
-		
-		yield return new WaitForSeconds(this.range);
-		coroutineStarted = false;
-	}
-	
-	void chase () {
-        float attackRange = 2f;
-		if (target != null) {
-			setNewPos(target.transform.position - this.transform.forward * attackRange);
-		}
-
-		if (Vector3.Distance (this.transform.position, target.transform.position) > 5f) {
-			state = (int)e_states.IDLE;
-		}
-
-		bool isDistanceCloseEnough = Vector3.Distance (transform.position, target.transform.position) < attackRange;
-		if (isDistanceCloseEnough) {
-			state = (int)e_states.ATTACK;
-		}
-	}*/
     public void startTimerIfNotStarted(int time)
     {
         if(this.timer == null) this.timer = new Timer(time, true);
     }
 
-    void idle()
+    void idleState()
     {
         startTimerIfNotStarted(4);
 
-		animator.SetBool("walk", true);
+		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+			animator.Play("Idle", 0, 0);
+		}
 
 		if(this.target != null){
 			setState(e_States.CHASE);
@@ -143,10 +112,14 @@ public class AI : MobManager {
             setNewDestination(chooseDestination());
         }
     }
-    void chase()
+    void chaseState()
     {
-		animator.SetBool("walk", true);
-        followTarget(this.target);
+    	followTarget(this.target);
+
+		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+			animator.Play("Idle", 0, 0);
+		}
+
         if(isTargetOutOfRange(this.target, 25)) {
             setState(e_States.IDLE);
 			return;
@@ -154,51 +127,87 @@ public class AI : MobManager {
         if (canAttack()) {
             //Then attack lol
 			setState(e_States.ATTACK);
-            animator.SetBool("walk", false);
 			return;
         }
     }
-    void attack()
+
+	Quaternion rotateTowards(Transform transform, Transform target, float speed) {
+		Quaternion r = Quaternion.LookRotation((target.position - transform.position));
+		return Quaternion.Slerp(transform.rotation, r, speed * Time.deltaTime);
+	}
+
+    void attackState()
     {
-		if(!canAttack()){
-			animator.SetBool("attack", false);
-			setState(e_States.IDLE);
-			return;
+		followTarget(this.target);
+		if(shouldRotate){
+			this.transform.rotation = rotateTowards(this.transform, target.transform, 10);
+			RaycastHit rayHit;
+			if(Physics.Raycast(this.transform.position, this.transform.forward, out rayHit, 2)){
+				if(rayHit.transform.CompareTag("Player")){
+					shouldRotate = false;
+				}
+			}
+		}
+		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
+			animator.Play("Bite", 0, 0);
+			shouldRotate = true;
+		} else {
+			freeze();
+			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.8f && !hasDamaged){
+				if(canAttack()) this.target.GetComponent<Player>().damage(5);
+				hasDamaged = true;
+			}
+			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f){
+				if(canAttack()){
+					animator.Play("Bite", 0, 0);
+				} else {
+					setState(e_States.IDLE);
+					unfreeze();
+				}
+				hasDamaged = false;
+			}
 		}
 
-		if(isFreezed()){
-			followTarget(this.target);
+
+		/*if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
+			animator.Play("Bite");
+			freeze();
 		}
 
-		/*animator.SetBool ("attack", true);
-		bool isName = animator.GetCurrentAnimatorStateInfo (1).IsName ("Attack");
-		bool finished = animator.GetCurrentAnimatorStateInfo (1).normalizedTime > 1f;*/
-		animator.SetBool("attack", true);
-
-		if(animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
-			setFreeze(true);
+		if(animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
+			freeze();
 		}
-  
-		if(!hasDamaged && animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.8f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
+
+		if(!hasDamaged && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.8f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
 			target.GetComponent<Player>().damage(5);
-            hasDamaged = true;
+			hasDamaged = true;
 		}
 
-		if (animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")) {
+		if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")) {
 			//Deal damage
-			setFreeze(false);
-			animator.SetBool("attack", false);
 			target.GetComponent<Player>().damage(5);
+			animator.Play("Bite", 0, 0);
+
+			if(!canAttack()){
+				setState(e_States.IDLE);
+				unfreeze();
+			}
+
 			Debug.Log("attacking!!!");
-            animator.Play("Bite", 0, 0);
-		}
+		}*/
     }
 
-	void setFreeze(bool status){
-		this.freeze = status;
+	public void freeze(){
+		agent.speed = 0;
+		agent.angularSpeed = 0;
+
+		this.isFreezed = true;
 	}
-	bool isFreezed(){
-		return this.freeze;
+
+	public void unfreeze(){
+		agent.speed = this.speed;
+		agent.angularSpeed = this.angularSpeed;
+		this.isFreezed = false;
 	}
 
     void setState(e_States newState)
