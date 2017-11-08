@@ -36,6 +36,7 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkill);
         con.RegisterHandler(PacketTypes.ERROR_SKILL, onErrorSkill);
 		con.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
+        con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
         login.transform.parent.GetComponent<UIHandler>().removeThisFromParent();
@@ -44,7 +45,11 @@ public class playerNetwork : NetworkBehaviour{
         Destroy(login_world);
     }
 
-
+    public void OnDisconnectFromServer(NetworkMessage netMsg) {
+        if (isLocalPlayer) {
+            player.reloadScene();
+        }
+    }
     //#Spawn monster
     public void spawnMobFromClient(int mobId, int amount)
     {
@@ -133,7 +138,6 @@ public class playerNetwork : NetworkBehaviour{
 	public void sendSkills(Skill skill){
 		con = connectionToServer;
 		SkillInfo msg = new SkillInfo();
-		Debug.Log("Skills sent");
 
 		msg.id = skill.id;
 		msg.playerName = this.player.playerName;
@@ -258,7 +262,10 @@ public class playerNetwork : NetworkBehaviour{
     }
 	void onLoadInventory(NetworkMessage msg){
         InventoryInfo info = msg.ReadMessage<InventoryInfo>();
+        List<int[]> equipments = (List<int[]>)(Tools.byteArrayToObject(info.equipment));
+        Debug.Log("equipment: " + equipments.Count);
         player.setInventory (info.items);
+        player.setEquips(equipments);
         Debug.Log ("inventory loaded");
         Debug.Log(info.items.Length);
 	}

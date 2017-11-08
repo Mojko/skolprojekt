@@ -29,6 +29,9 @@ public class Item {
 	public int[] getStats(){
 		return stats;
 	}
+    public int getType() {
+        return stats[Tools.ITEM_PROPERTY_SIZE - 2];
+    }
 	public int getID(){
 		return stats[0];
 	}

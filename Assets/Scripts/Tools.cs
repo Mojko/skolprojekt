@@ -4,11 +4,15 @@ using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
+public enum inventoryTabs {
+    EQUIP = 0, USE, ETC, QUEST, MONEY
+};
+
 public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
 };
 
-public class Tools
+public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 16;
 
@@ -82,6 +86,23 @@ public class Tools
         int b = hex & 0xFF;
         Debug.Log(r + " + " + g + " + " + b);
         return new Color(r / 255f, g / 255f, b / 255f, 1);
+    }
+    public static Transform[] getAllChildren(this Transform parent)
+    {
+        Transform[] children = new Transform[parent.childCount];
+        for (int i = 0; i < children.Length; i++)
+        {
+            children[i] = parent.GetChild(i);
+        }
+        return children;
+    }
+    public static GameObject[] transformsToObject(this Transform[] transforms) {
+        GameObject[] children = new GameObject[transforms.Length];
+        for (int i = 0; i < children.Length; i++)
+        {
+            children[i] = transforms[i].gameObject;
+        }
+        return children;
     }
 }
 

@@ -59,4 +59,7 @@ public class Chat : UIHandler {
         }
         text.text += message + "\n";
     }
+    public void clear() {
+        text.text = "";
+    }
 }

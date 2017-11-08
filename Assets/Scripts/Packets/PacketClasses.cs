@@ -44,6 +44,7 @@ public class InventoryInfo : MessageBase
 {
     public NetworkInstanceId id;
     public int[] items;
+    public byte[] equipment;
     public string name = "";
 }
 
