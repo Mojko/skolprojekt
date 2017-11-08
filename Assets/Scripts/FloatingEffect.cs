@@ -13,6 +13,6 @@ public class FloatingEffect : MonoBehaviour {
 	void Update () {
 		v += periodSpeed;
 		this.transform.position += new Vector3(0,Mathf.Sin(v/period) * amp,0);
-		this.transform.rotation = Quaternion.Euler(this.transform.rotation.x,this.transform.rotation.y+rotSpeed,this.transform.rotation.z);
+		this.transform.Rotate(new Vector3(0,rotSpeed,0));
 	}
 }

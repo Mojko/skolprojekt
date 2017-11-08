@@ -10,7 +10,7 @@ public enum EquipSlot {
 
 public class Tools
 {
-    public static readonly int ITEM_PROPERTY_SIZE = 15;
+    public static readonly int ITEM_PROPERTY_SIZE = 16;
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
@@ -89,9 +89,13 @@ namespace GlobalTools
 {
     class ToolsGlobal
     {
+		public Quaternion rotateTowards(Transform transform, Vector3 targetPosition, float damping) {
+			Quaternion r = Quaternion.LookRotation(targetPosition - transform.position);
+			transform.rotation = Quaternion.Slerp(transform.rotation, r, damping * Time.deltaTime);
+			return r;
+	    }
 		public Quaternion rotateTowards(Transform transform, Vector3 targetPosition) {
 			Quaternion r = Quaternion.LookRotation(targetPosition - transform.position);
-			//transform.rotation = Quaternion.Slerp(transform.rotation, r, damping * Time.deltaTime);
 			return r;
 	    }
     }
