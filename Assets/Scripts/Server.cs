@@ -414,6 +414,7 @@ public class Server : NetworkManager
                     data.Add(reader.GetInt32("position"));
                 }
                 else {
+
                     int pos = reader.GetInt32("position");
                     int[] item = new int[] {
                         reader.GetInt32("itemID"),

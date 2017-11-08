@@ -8,19 +8,19 @@ public class EquipmentHandler : UIHandler {
     GameObject[] slots;
     MouseOverUI[] slotsMouse;
     Player player;
-    MouseOverUI mouse;
-    List<>
-    public void Start() {
+    bool hasLoaded = false;
+    new void Start() {
         base.Start();
-        mouse = this.GetComponent<MouseOverUI>();
-        for (int i = 0; i < slots.Length; i++) {
-            slots[i].AddComponent<MouseOverUI>();
-        }
     }
-    public void Update() {
+    new void Update() {
         base.Update();
-        if (mouse.isMouseOver()) {
-
+        if (!hasLoaded) return;
+        for (int i = 0; i < slotsMouse.Length; i++)
+        {
+            if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0))
+            {
+                onClick(equips[i]);
+            }
         }
     }
     public void setPlayer(Player player) {
@@ -35,12 +35,20 @@ public class EquipmentHandler : UIHandler {
     public void setEquipmentUI(GameObject equipment) {
         equip = equipment;
         slots = equip.transform.GetChild(0).getAllChildren().transformsToObject();
+        slotsMouse = new MouseOverUI[slots.Length];
+        for (int i = 0; i < slotsMouse.Length; i++)
+        {
+            slotsMouse[i] = slots[i].AddComponent<MouseOverUI>();
+        }
+        hasLoaded = true;
     }
     public void onClick(int[] itemStats) {
         Inventory inventory = player.getInventory();
         int closestFree = inventory.getClosestSlot((int)inventoryTabs.EQUIP);
         itemStats[Tools.ITEM_PROPERTY_SIZE - 1] = closestFree;
         inventory.addItem(new Item(itemStats));
+        Debug.Log("clicked!!!!");
+
     }
     public void updateSlots() {
         Debug.Log("equipment: " + equips);
@@ -56,7 +64,4 @@ public class EquipmentHandler : UIHandler {
     public void clear() {
         equips.Clear();
     }
-}
-private class equipSlot {
-
 }
