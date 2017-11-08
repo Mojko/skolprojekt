@@ -9,9 +9,6 @@ public class EquipmentHandler : UIHandler {
     MouseOverUI[] slotsMouse;
     Player player;
     bool hasLoaded = false;
-    new void Start() {
-        base.Start();
-    }
     new void Update() {
         base.Update();
         if (!hasLoaded) return;

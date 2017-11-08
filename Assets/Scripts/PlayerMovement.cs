@@ -28,7 +28,7 @@ public class PlayerMovement : NetworkBehaviour {
 	float movespeed = 3;
 	float attackRange = 1;
 	float jumpspeed = 6;
-	float rotationSpeed = 6;
+	float rotationSpeed = 15;
 
 	float xAxis;
 	float zAxis;

@@ -94,6 +94,7 @@ public class loadCharacters : MessageBase{
 	public string[] names;
 	public int[] stats;
     public int[] skillProperties;
+    public int money;
     //public byte[] skillClassInBytes;
 }
 public class NPCInteractPacket : MessageBase

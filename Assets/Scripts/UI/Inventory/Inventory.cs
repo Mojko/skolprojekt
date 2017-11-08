@@ -255,7 +255,7 @@ public class Inventory : MonoBehaviour
                 }
                 else
                 {
-                    temp = new Item(-1).getEmptyItem(newPos);
+                    temp = Item.getEmptyItem(newPos);
                 }
                 itemsOwned[mouse.holdingID].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 1] = newPos;
                 recalcPos(mouse.holdingID, newPos);

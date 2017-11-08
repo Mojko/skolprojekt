@@ -31,6 +31,7 @@ public class Player : NetworkBehaviour
 
     public int health = 100;
     public int mana = 100;
+    public int money = 0;
     public GameObject[] prefabsToRegister;
     private EquipmentHandler equip;
 
@@ -163,6 +164,14 @@ public class Player : NetworkBehaviour
 	}
     public Chat getChat() {
         return chat;
+    }
+    public void pickup(Item item, e_ItemTypes type)
+    {
+        switch (type) {
+            case e_ItemTypes.MONEY:
+                this.money += 10;
+                break;
+        }
     }
     public void damage(int dmg)
     {
