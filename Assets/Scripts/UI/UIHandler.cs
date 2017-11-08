@@ -46,10 +46,19 @@ public class UIHandler : MonoBehaviour {
         lastClick = Time.time;
         return false;
     }
+
+	public bool canFocus(){
+		if (!resizeActive && this.gameObject.activeSelf && Input.GetMouseButtonDown(0))
+		{
+			return true;
+		}
+		return false;
+	}
+
     protected void setFocused()
     {
         //om man har klickat på ui elementet.
-        if (!resizeActive && this.gameObject.activeSelf && Input.GetMouseButtonDown(0))
+		if (canFocus())
         {
             if (isClickingInsideUI() && mouseHandler.canClick(this))
             {

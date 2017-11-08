@@ -27,6 +27,13 @@ public class Chat : UIHandler {
     public void Update() {
         onMove();
         setFocused();
+
+		if(canFocus()){
+			this.player.getPlayerMovement().freeze();
+		} else {
+			this.player.getPlayerMovement().unfreeze();
+		}
+
         if (field.IsActive() && field.text != "" && Input.GetKeyDown(KeyCode.Return)) {
             
             this.player.getNetwork().sendMessage(field.text,MessageTypes.CHAT,"");

@@ -225,6 +225,12 @@ public class playerNetwork : NetworkBehaviour{
 		msg.name = player.playerName;
 		con.Send (PacketTypes.SAVE_INVENTORY, msg);
 	}
+    public void sendItem(int[] item)
+    {
+        ItemInfo itemInfo = new ItemInfo();
+        itemInfo.item = item;
+        con.Send(PacketTypes.SPAWN_ITEM, itemInfo);
+    }
     public void moveItem(int[] itemMoved, int[] itemReplaced, short packetType, Player player) {
         moveItem item = new moveItem();
         item.item1 = itemMoved;
@@ -252,6 +258,8 @@ public class playerNetwork : NetworkBehaviour{
     }
 	void onLoadInventory(NetworkMessage msg){
         InventoryInfo info = msg.ReadMessage<InventoryInfo>();
+        List<int[]> equipments = (List<int[]>)(Tools.byteArrayToObject(info.equipment));
+        Debug.Log("equipment: " + equipments.Count);
         player.setInventory (info.items);
         Debug.Log ("inventory loaded");
         Debug.Log(info.items.Length);

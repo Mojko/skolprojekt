@@ -29,6 +29,7 @@ public class AI : MobManager {
     private float attackRange = 2f;
 	private bool coroutineStarted = false;
     private Timer timer;
+	private bool freeze;
 
 
 	void Start () {
@@ -61,6 +62,8 @@ public class AI : MobManager {
             attack();
 			break;
 		}
+
+		Debug.Log("STATE: " + state);
 
         if(newPos != null) {
             this.GetComponent<NavMeshAgent>().destination = newPos;
@@ -128,36 +131,68 @@ public class AI : MobManager {
     void idle()
     {
         startTimerIfNotStarted(4);
+
+		animator.SetBool("walk", true);
+
+		if(this.target != null){
+			setState(e_States.CHASE);
+		}
+
         if (this.timer.isFinished()) {
             setNewDestination(chooseDestination());
         }
     }
     void chase()
     {
+		animator.SetBool("walk", true);
         followTarget(this.target);
-        if(isTargetOutOfRange(this.target, 5)) {
+        if(isTargetOutOfRange(this.target, 25)) {
             setState(e_States.IDLE);
+			return;
         }
         if (canAttack()) {
             //Then attack lol
-            state = e_States.ATTACK;
+			setState(e_States.ATTACK);
+			return;
         }
     }
     void attack()
     {
-        startTimerIfNotStarted(2);
-
-		animator.SetBool ("attack", true);
-		bool isName = animator.GetCurrentAnimatorStateInfo (1).IsName ("Attack");
-		bool finished = animator.GetCurrentAnimatorStateInfo (1).normalizedTime > 1f;
-
-		if (finished) {
-			//Deal damage
-			target.GetComponent<Player>().damage(5);
+		if(!canAttack()){
+			animator.SetBool("attack", false);
+			setState(e_States.IDLE);
+			return;
 		}
 
-        Debug.Log("attacking!!!");
+		if(isFreezed()){
+			followTarget(this.target);
+		}
+
+		/*animator.SetBool ("attack", true);
+		bool isName = animator.GetCurrentAnimatorStateInfo (1).IsName ("Attack");
+		bool finished = animator.GetCurrentAnimatorStateInfo (1).normalizedTime > 1f;*/
+		animator.SetBool("attack", true);
+
+		if(animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
+			setFreeze(true);
+		}
+
+		if (animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.8f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")) {
+			//Deal damage
+			setFreeze(false);
+			animator.SetBool("attack", false);
+			target.GetComponent<Player>().damage(5);
+			Debug.Log("attacking!!!");
+			animator.Play("Bite", 0, 0);
+		}
     }
+
+	void setFreeze(bool status){
+		this.freeze = status;
+	}
+	bool isFreezed(){
+		return this.freeze;
+	}
 
     void setState(e_States newState)
     {
@@ -180,7 +215,7 @@ public class AI : MobManager {
     void followTarget(GameObject target)
     {
         if(target != null) {
-            setNewDestination(target.transform.position - this.transform.forward * attackRange);
+			setNewDestination(target.transform.position - this.transform.forward * (attackRange/2));
         }
     }
     bool isTargetOutOfRange(GameObject target, float range)

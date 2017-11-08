@@ -35,6 +35,9 @@ public class PacketTypes{
 
     //SKILL
     public static readonly short PROJECTILE_CREATE = 1018;
+
+    public static readonly short SPAWN_ITEM = 1019;
+
 }
 public enum MessageTypes
 {

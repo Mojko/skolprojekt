@@ -4,7 +4,7 @@ using UnityEngine;
 using MySql.Data.MySqlClient;
 public class PlayerServer {
     public int[] items;
-    public int[][] equips = new int[9][];
+    public List<int[]> equips = new List<int[]>();
     public int databaseID;
     public int connectionID;
 
@@ -18,9 +18,19 @@ public class PlayerServer {
     public void addItems(int[] items) {
         this.items = items;
     }
+    public void addItem(int[] item)
+    {
+        int[] tempItem = new int[this.items.Length+item.Length];
+        for(int i = 0; i < this.items.Length; i++) {
+            tempItem[i] = this.items[i];
+        }
+        for(int i = this.items.Length; i < item.Length; i++) {
+            tempItem[i] = item[i];
+        }
+    }
     public void addEquip(int type, int[] equip) {
         Debug.Log("added equip: " + type);
-        equips[type] = equip;
+        equips.Insert(type,equip);
     }
     public void setSkills(int[] skills) {
         this.skills = skills;
@@ -34,7 +44,8 @@ public class PlayerServer {
         if (equips[equipSlot] == null) return false;
         return true;
     }
-    public int[] getEquip() {
+    public int[] getEquips() {
+        /*
         int[] equips = new int[this.equips.Length * Tools.ITEM_PROPERTY_SIZE];
         for (int i = 0; i < this.equips.Length; i++) {
             for (int j = 0; j < Tools.ITEM_PROPERTY_SIZE; j++)
@@ -43,8 +54,17 @@ public class PlayerServer {
             }
         }
         return equips;
+        */
+        return null;
     }
-    public static PlayerServer getDefaultCharacter(int connectionID)
+    public byte[] GetEquipBytes()
+    {
+        return Tools.objectToByteArray(equips);
+    }
+    public void SetEquipsFromBytes(byte[] bytes) {
+        this.equips = (List<int[]>)Tools.byteArrayToObject(bytes);
+    }
+    public static PlayerServer GetDefaultCharacter(int connectionID)
     {
         return new PlayerServer(-1, connectionID);
         

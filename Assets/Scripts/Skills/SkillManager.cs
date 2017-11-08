@@ -23,9 +23,6 @@ public class SkillManager : NetworkBehaviour {
 	private string currentAnimationPlayingName;
 	private bool hasInit;
 
-    [SyncVar] public NetworkInstanceId parentNetId;
-    [SyncVar] public NetworkInstanceId childNetId;
-
 	public void init(Player player, SkillUIManager skillUiManager)
     {
         this.player = player;
@@ -48,22 +45,22 @@ public class SkillManager : NetworkBehaviour {
         Quaternion rot = Quaternion.Euler(new Vector3(rotInFloat[0], rotInFloat[1], rotInFloat[2]));
 
 		GameObject skillEffect = Instantiate((GameObject)Resources.Load(pathToSkillEffect));
-        GameObject activationEffect = Instantiate(skillEffect.GetComponent<SkillMovement>().activationEffect);
 
         skillEffect.transform.position = pos;
-        activationEffect.transform.position = pos;
         skillEffect.transform.rotation = rot;
 		
         NetworkServer.Spawn(skillEffect);
     }
     //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
+
+
     private void Update () 
     {
 		if(!hasInit || animator == null) return;
 
 		if(isAnimationFinished(this.currentAnimationPlayingName)) {
             float[] pos = { player.transform.position.x, player.transform.position.y + 1f, player.transform.position.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-            float[] rot = { player.transform.rotation.eulerAngles.x, player.transform.rotation.eulerAngles.y, player.transform.rotation.eulerAngles.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
+            float[] rot = { player.getPlayerMovement().rot.eulerAngles.x, player.getPlayerMovement().rot.eulerAngles.y, player.getPlayerMovement().rot.eulerAngles.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
             CmdSendSkillServerToServer(this.skill.pathToSkillModel, pos, rot);
             stopCooldown();
         }
