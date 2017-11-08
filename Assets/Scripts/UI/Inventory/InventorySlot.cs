@@ -6,11 +6,15 @@ public class InventorySlot : MonoBehaviour {
 	public int ID;
     public int itemID;
 	public Item item;
-	public bool isMouseOver(){
-		return GetComponent<MouseOverUI> ().isMouseOver();
+    MouseOverUI mouse;
+    public void Start() {
+        mouse = GetComponent<MouseOverUI>();
+    }
+    public bool isMouseOver(){
+		return mouse.isMouseOver();
 	}
     public MouseOverUI getMouse() {
-        return GetComponent<MouseOverUI>();
+        return mouse;
     }
 	public int getID(){
 		return this.ID;

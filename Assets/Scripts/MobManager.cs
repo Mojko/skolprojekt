@@ -33,11 +33,27 @@ public class MobManager : NetworkBehaviour {
 	public void damage (int damage, GameObject damager) {
         StartCoroutine(flash());
 		health -= 1;
-        target = damager;
+        if(damager != null){
+            target = damager;
+        }
 		if (health <= 0) {
 			kill();
 		}
 	}
+
+    [Command]
+    void CmdSpawnDrop(string nameOfDrop, Vector3 position)
+    {
+        GameObject prefab = (GameObject)Resources.Load("Prefabs/Drops/"+nameOfDrop);
+        GameObject o = Instantiate(prefab);
+        Drop drop = o.GetComponent<Drop>();
+        drop.setName(nameOfDrop);
+        Item item = Item.getEmptyItem(0);
+        drop.setItem(item);
+        o.transform.position = position;
+        NetworkServer.Spawn(o);
+    }
+
 	void kill(){
 		if(!isServer) return;
         if(this.respawner == null) this.respawner = GameObject.FindWithTag("Respawner").GetComponent<Respawner>();
@@ -45,6 +61,9 @@ public class MobManager : NetworkBehaviour {
 
         Vector3 pos = new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward;
         Server.spawnObject(e_Objects.PARTICLE_DEATH, pos);
+        for(int i=0;i<4;i++){
+            CmdSpawnDrop("Coin_gold", pos);
+        }
 		//Server.spawnObject(drop, this.transform.position);
 		//Server.spawnObject(part, new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward);
         spawner.totalEnemiesInArea--;

@@ -72,7 +72,7 @@ public class Inventory : MonoBehaviour
 {
 
     private bool shouldUpdateInventory = true;
-    public const int MAX_INVENTORY_SIZE = 12;
+    public const int MAX_INVENTORY_SIZE = 16;
     private readonly int EMPTY = -1;
     private int ItemAmounts = 0;
     Mouse mouse = new Mouse();
@@ -169,7 +169,20 @@ public class Inventory : MonoBehaviour
         this.player.getNetwork().loadInventory();
         //addItem(new Item().getEmptyItem(0));
     }
-
+    public int getClosestSlot(int storeType) {
+        bool isEmpty = true;
+        for (int a = 0; a < MAX_INVENTORY_SIZE; a++) {
+            for (int i = 0; i < itemsOwned.Count; i++) {
+                if (itemsOwned[i].getItem().getType() == storeType && itemsOwned[i].getItem().getPosition() == a) {
+                    isEmpty = false;
+                    break;
+                }
+            }
+            if (isEmpty)
+                return a;
+        }
+        return -1;
+    }
     public bool addItem(Item item)
     {
         InventorySlot slot = new InventorySlot();
@@ -242,7 +255,7 @@ public class Inventory : MonoBehaviour
                 }
                 else
                 {
-                    temp = new Item(-1).getEmptyItem(newPos);
+                    temp = Item.getEmptyItem(newPos);
                 }
                 itemsOwned[mouse.holdingID].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 1] = newPos;
                 recalcPos(mouse.holdingID, newPos);
@@ -289,10 +302,14 @@ public class Inventory : MonoBehaviour
         }
         return new Item(items);
     }
+    public void clearInventory() {
+        foreach (InventorySlot slot in itemsOwned) {
+            Destroy(slot.gameObject);
+        }
+        itemsOwned.Clear();
+    }
     public void setInventory(int[] items)
     {
-
-        Debug.Log("inventory loaded wewewewwe: " + items.Length);
         this.items = items;
         for (int i = 0; i < items.Length; i += Tools.ITEM_PROPERTY_SIZE)
         {

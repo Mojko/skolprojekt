@@ -30,6 +30,7 @@ public class AI : MobManager {
 	private bool coroutineStarted = false;
     private Timer timer;
 	private bool freeze;
+    private bool hasDamaged;
 
 
 	void Start () {
@@ -153,6 +154,7 @@ public class AI : MobManager {
         if (canAttack()) {
             //Then attack lol
 			setState(e_States.ATTACK);
+            animator.SetBool("walk", false);
 			return;
         }
     }
@@ -176,14 +178,19 @@ public class AI : MobManager {
 		if(animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
 			setFreeze(true);
 		}
+  
+		if(!hasDamaged && animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.8f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
+			target.GetComponent<Player>().damage(5);
+            hasDamaged = true;
+		}
 
-		if (animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.8f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")) {
+		if (animator.GetBool("attack") && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")) {
 			//Deal damage
 			setFreeze(false);
 			animator.SetBool("attack", false);
 			target.GetComponent<Player>().damage(5);
 			Debug.Log("attacking!!!");
-			animator.Play("Bite", 0, 0);
+            animator.Play("Bite", 0, 0);
 		}
     }
 

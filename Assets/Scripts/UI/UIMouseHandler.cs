@@ -22,7 +22,7 @@ public class UIMouseHandler : MonoBehaviour {
     }
     public bool isUnderUI(UIHandler handler) {
         for (int i = 0; i < uiElemnts.Count; i++) {
-            if (uiElemnts[i] == handler) continue;
+            if (uiElemnts[i] == handler || !uiElemnts[i].gameObject.activeSelf) continue;
             //Debug.Log("item: " + uiElemnts[i].gameObject.name + "index: " + uiElemnts[i].gameObject.transform.GetSiblingIndex() + " current index: " + handler.gameObject.transform.GetSiblingIndex());
             if (uiElemnts[i].isClickingInsideUI() && uiElemnts[i].gameObject.transform.GetSiblingIndex() > handler.gameObject.transform.GetSiblingIndex()) {
                 return true;
