@@ -82,6 +82,9 @@ public class Player : NetworkBehaviour
         worlds[1] = GameObject.Find("World");
 
     }
+    public EquipmentHandler getEquipHandler() {
+        return equip;
+    }
     public CommandManager getCommandManager()
     {
         return this.commandManager;

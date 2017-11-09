@@ -260,6 +260,8 @@ public class playerNetwork : NetworkBehaviour{
             this.player.getCommandManager().listenForCommand(message);
         }
     }
+
+    //körs när spelaren har fått tillbaka sitt inventory från servern. 
 	void onLoadInventory(NetworkMessage msg){
         InventoryInfo info = msg.ReadMessage<InventoryInfo>();
         List<int[]> equipments = (List<int[]>)(Tools.byteArrayToObject(info.equipment));

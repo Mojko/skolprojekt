@@ -60,7 +60,7 @@ public class EquipmentHandler : UIHandler {
         for (int i = 0; i < equips.Count; i++) {
             if (equips[i] == null) continue;
             Image image = slots[Mathf.Abs(equips[i][Tools.ITEM_PROPERTY_SIZE - 1] + 1)].transform.GetChild(0).GetComponent<Image>();
-            image.sprite = (Sprite)stringTools.spriteObjects[equips[i][0] / 1000 - 1][equips[i][0] % 1000 + 1];
+            image.sprite = (Sprite)stringTools.spriteObjects[equips[i][0] / 500][equips[i][0] % 500 + 1];
             image.color = Color.white;
         }
     }

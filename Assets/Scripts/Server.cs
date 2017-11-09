@@ -328,7 +328,6 @@ public class Server : NetworkManager
         List<int> skillProperties = new List<int>();
         Debug.Log("SERVER: wew");
         while (reader.Read()) {
-
             skillProperties.Add(reader.GetInt16("skillId"));
             skillProperties.Add(reader.GetInt16("currentPoints"));
             skillProperties.Add(reader.GetInt16("maxPoints"));
@@ -361,6 +360,7 @@ public class Server : NetworkManager
     }
     //# INVENTORY
 
+    //körs när en spelare laddar in sitt inventory.
     void onLoadInventory(NetworkMessage msg)
     {
         Debug.Log("loaded inventory outside");

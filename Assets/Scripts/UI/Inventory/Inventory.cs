@@ -55,6 +55,11 @@ public static class stringTools {
         Resources.LoadAll("use"),
         new UnityEngine.Object[0],
         new UnityEngine.Object[0],
+        new UnityEngine.Object[0],
+        new UnityEngine.Object[0],
+        new UnityEngine.Object[0],
+        new UnityEngine.Object[0],
+        new UnityEngine.Object[0],
         Resources.LoadAll("weapons"),
     };
 }
@@ -69,8 +74,8 @@ public class jsonRead{
 [System.Serializable]
 public class ItemString{
     public static Dictionary<int, string> itemNames = new Dictionary<int, string> {
-        { 1000, "Mana" },
-        { 1001, "Hp" },
+        { 0, "Mana" },
+        { 1, "Hp" },
         { 4001, "Stick" },
         { 4000, "Stick" },
     };
@@ -91,6 +96,7 @@ public class Inventory : MonoBehaviour
     Text[] itemIDString = new Text[MAX_INVENTORY_SIZE];
     public GameObject InventorySlot;
     public GameObject canvasPrefab;
+    private UIHandler handler;
     private GameObject[] canvas = new GameObject[4];
     bool isShowing = false;
     int[] items;
@@ -173,6 +179,7 @@ public class Inventory : MonoBehaviour
         information = g.GetComponent<inventoryInformation>();
         information.gameObject.transform.SetParent(canvas[0].transform.parent.parent.parent);
         information.gameObject.transform.SetAsLastSibling();
+        handler = parentCanvas.GetComponent<UIHandler>();
         this.player.getNetwork().loadInventory();
         //addItem(new Item().getEmptyItem(0));
     }
@@ -281,6 +288,15 @@ public class Inventory : MonoBehaviour
                 player.getNetwork().moveItem(mouse.getItem().stats, temp.stats, PacketTypes.INVENTORY_MOVE_ITEM, this.player);
                 mouse.empty();
                 break;
+            }
+            if (itemsOwned[i].isMouseOver() && Input.GetMouseButtonDown(0)) {
+                Debug.Log("clicking");
+                if (handler.hasDoubleClicked())
+                {
+                    mouse.empty();
+                    Debug.Log("double click");
+                    this.player.getEquipHandler().setEquip(itemsOwned[i].getID() / 1000, itemsOwned[i].getItem().getStats());
+                }
             }
             /*
             else if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && !canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())
