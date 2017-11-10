@@ -37,6 +37,12 @@ public class PacketTypes{
     public static readonly short PROJECTILE_CREATE = 1018;
 
     public static readonly short SPAWN_ITEM = 1019;
+    public static readonly short NPC_ACESS_STATE = 1020;
+
+    //QUESTS
+    public static readonly short QUEST_START = 1021;
+    public static readonly short QUEST_END = 1022;
+    
 
 }
 public enum MessageTypes

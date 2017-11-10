@@ -18,6 +18,9 @@ public class Server : NetworkManager
 {
     delegate bool Mark();
     ResourceStructure resourceStructure;
+
+    public GameObject npcManagerPrefab;
+
     private Dictionary<string, int> playerID = new Dictionary<string, int>();
     private Dictionary<string, int> charactersOnline = new Dictionary<string, int>();
     private Dictionary<int, string> characterConnections = new Dictionary<int, string>();
@@ -25,6 +28,7 @@ public class Server : NetworkManager
     private Dictionary<string, int> conns = new Dictionary<string, int>();
     private Dictionary<string, NPCObject> npcActive = new Dictionary<string, NPCObject>();
     private Dictionary<int, PlayerServer> playerObjects = new Dictionary<int, PlayerServer>();
+    private NPCMain npc;
     public int port;
     public NPCCompiler npcCompiler = new NPCCompiler();
     public string database, username, password, host;
@@ -81,10 +85,17 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.PROJECTILE_CREATE, onProjectTileCreate);
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
+        NetworkServer.RegisterHandler(PacketTypes.QUEST_START, onQuestStart);
         resourceStructure = new ResourceStructure();
+
         
         //Create system objects
         Instantiate(ResourceStructure.getGameObjectFromObject(e_Objects.SYSTEM_RESPAWNER));
+
+    }
+
+    public void onQuestStart(NetworkMessage netMsg)
+    {
 
     }
 
@@ -296,11 +307,19 @@ public class Server : NetworkManager
     {
         OnPickCharacterPacket packet = msg.ReadMessage<OnPickCharacterPacket>();
     }
+
     void onNPCInteract(NetworkMessage msg)
     {
-        Debug.Log("debugged npc");
-        NPCInteractPacket senderObj = msg.ReadMessage<NPCInteractPacket>();
-        if (!npcActive.ContainsKey(senderObj.sender))
+        NPCInfo npcInfo = msg.ReadMessage<NPCInfo>();
+
+
+
+        //NPCInteractPacket senderObj = msg.ReadMessage<NPCInteractPacket>();
+        //npc.startConversation(getPlayerObjectFromId(senderObj.playerInstanceId), npcCompiler.objManager);
+
+
+
+        /*if (!npcActive.ContainsKey(senderObj.sender))
             npcActive.Add(senderObj.sender, npcCompiler.compileNPC(senderObj.npcID, msg.conn));
 
         NPCObject npc = npcActive[senderObj.sender];
@@ -308,6 +327,7 @@ public class Server : NetworkManager
         {
             npcActive.Remove(senderObj.sender);
         }
+        */
     }
     void onLoadCharacter(NetworkMessage msg)
     {
@@ -628,6 +648,10 @@ public class Server : NetworkManager
 		}
 		return null;
 	}
+    private Player getPlayerObjectFromId(NetworkInstanceId netId)
+    {
+        return (NetworkServer.FindLocalObject(netId)).GetComponent<Player>();
+    }
     private int getCharacterIDFromDir(string name)
     {
         if (charactersOnline.ContainsKey(name)) return charactersOnline[name];

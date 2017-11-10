@@ -159,7 +159,7 @@ public class Player : NetworkBehaviour
 		if (col.gameObject.CompareTag ("NPC")) {
 			npcTalkingTo = col.gameObject;
             setActiveNPC(npcTalkingTo.GetComponent<NPC>());
-            this.getNetwork().onTalkNPC(this.currentNPC.getID(),0);
+            //this.getNetwork().onTalkNPC(this.currentNPC.getID(),0);
 		}
 	}
     public Chat getChat() {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Text;
 
 
 public enum e_StatType {
@@ -36,20 +37,44 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkill);
         con.RegisterHandler(PacketTypes.ERROR_SKILL, onErrorSkill);
 		con.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
+        con.RegisterHandler(PacketTypes.NPC_INTERACT, onNpcResponse);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
         login.transform.parent.GetComponent<UIHandler>().removeThisFromParent();
 
+        //this.onTalkNPC(5000, 0);
+
         Destroy(login.transform.parent.gameObject);
         Destroy(login_world);
     }
+
+    public void startQuestOnServer()
+    {
+
+    }
+
+    /*public void sendNpcInteractionRequest(int npcId, int playerConnectionId, int state)
+    {
+        NPCInfo npcInfo = new NPCInfo();
+        npcInfo.npcId = npcId;
+        npcInfo.connectionId = playerConnectionId;
+        npcInfo.state = state;
+        con.Send(PacketTypes.NPC_INTERACT, npcInfo);
+    }
+
+    public void onNpcResponse(NetworkMessage netMsg)
+    {
+        NPCResponse response = netMsg.ReadMessage<NPCResponse>();
+        Debug.Log("RESPONSE: " + Encoding.Default.GetString(response.textInBytes));
+    }*/
 
     public void OnDisconnectFromServer(NetworkMessage netMsg) {
         if (isLocalPlayer) {
             player.reloadScene();
         }
     }
+
     //#Spawn monster
     public void spawnMobFromClient(int mobId, int amount)
     {
@@ -198,14 +223,16 @@ public class playerNetwork : NetworkBehaviour{
         skillTree = Instantiate (skillTreePrefab).GetComponent<SkillTree> ();
 		skillTree.initilize (player);
     }
+   
     public void onTalkNPC(int npcID, int state)
     {
         NPCInteractPacket sendObj = new NPCInteractPacket();
         sendObj.sender = this.player.playerName;
         sendObj.npcID = npcID;
         sendObj.state = state;
+        sendObj.playerInstanceId = this.player.GetComponent<NetworkIdentity>().netId;
         Debug.Log("sent message: " + this.player.playerName);
-        con.Send(PacketTypes.NPC_INTERACT, sendObj);
+        //con.Send(PacketTypes.NPC_INTERACT, sendObj);
     }
     void onReciveNPCText(NetworkMessage msg)
     {

@@ -104,8 +104,16 @@ public class NPCInteractPacket : MessageBase
     public int npcID;
     public NPCTalkType type;
     public string npcText;
+
+    public NetworkInstanceId playerInstanceId;
+
 }
 public class OnPickCharacterPacket : MessageBase {
     public string characterName;
     public string userName; 
+}
+
+public class QuestInfo : MessageBase
+{
+
 }

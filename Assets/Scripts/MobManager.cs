@@ -44,7 +44,7 @@ public class MobManager : NetworkBehaviour {
     [Command]
     void CmdSpawnDrop(string nameOfDrop, Vector3 position)
     {
-        GameObject prefab = (GameObject)Resources.Load("Prefabs/Drops/"+nameOfDrop);
+        GameObject prefab = (GameObject)Resources.Load("Prefabs/Drops/"+"D_"+nameOfDrop);
         GameObject o = Instantiate(prefab);
         Drop drop = o.GetComponent<Drop>();
         drop.setName(nameOfDrop);

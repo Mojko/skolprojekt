@@ -16,6 +16,8 @@ TagManager:
   - Body
   - Spawner
   - SkillTreeUI
+  - DialogueText
+  - NoButton
   layers:
   - Default
   - TransparentFX

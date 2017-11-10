@@ -4,6 +4,7 @@ using UnityEngine;
 using MySql.Data.MySqlClient;
 public class PlayerServer {
     public int[] items;
+    public Dictionary<int, int[]> itemsDictionary = new Dictionary<int, int[]>();
     public List<int[]> equips = new List<int[]>();
     public int databaseID;
     public int connectionID;
@@ -18,8 +19,25 @@ public class PlayerServer {
             equips.Add(null);
         }
     }
+
+    public int[] getItem(int itemId)
+    {
+        int[] value;
+        if(itemsDictionary.TryGetValue(itemId, out value)){
+            return value;
+        }
+        return null;
+    }
+
     public void addItems(int[] items) {
         this.items = items;
+        for(int i=0;i<items.Length;i+=Tools.ITEM_PROPERTY_SIZE){
+            int[] tempItem = new int[Tools.ITEM_PROPERTY_SIZE];
+            for(int j=0;j<Tools.ITEM_PROPERTY_SIZE;j++){
+               tempItem[j] = items[i+j];
+            }
+            itemsDictionary.Add(items[i], tempItem);
+        }
     }
     public void addItem(int[] item)
     {

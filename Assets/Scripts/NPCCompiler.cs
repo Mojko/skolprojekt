@@ -12,6 +12,12 @@ using NPCManager;
 using UnityEngine.Networking;
 public class NPCCompiler{
     public NPCConversationManager objManager;
+
+    public void init(NetworkConnection player)
+    {
+        objManager = new NPCConversationManager(player);
+    }
+
     public Func<NPCConversationManager, int, bool> compileNPC(int npcID, NetworkConnection player)
     {
         objManager = new NPCConversationManager(player);
