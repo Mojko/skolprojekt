@@ -37,7 +37,6 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkill);
         con.RegisterHandler(PacketTypes.ERROR_SKILL, onErrorSkill);
 		con.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
-        con.RegisterHandler(PacketTypes.NPC_INTERACT, onNpcResponse);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 

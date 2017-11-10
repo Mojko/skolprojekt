@@ -310,7 +310,6 @@ public class Server : NetworkManager
 
     void onNPCInteract(NetworkMessage msg)
     {
-        NPCInfo npcInfo = msg.ReadMessage<NPCInfo>();
 
 
 

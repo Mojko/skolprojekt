@@ -17,7 +17,6 @@ public class Quest
     }
     public void startQuest()
     {
-        player.getNetwork()
     }
 }
 

@@ -54,7 +54,7 @@ public class NPCMain : NetworkBehaviour {
             }
         }
         if (hasQuest) {
-            quest = new Quest();
+            quest = new Quest(this.player);
         }
     }
 

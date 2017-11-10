@@ -270,7 +270,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3ef2eefb26a20a4b85dd20cb8daa18d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selection: 0
   dialogues:
   - Hi %playername%
   - Bye
@@ -599,17 +598,17 @@ Prefab:
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 224835916365531534, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 0
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 114790256086899800, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}

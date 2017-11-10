@@ -4,8 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class NPC_5000 : NPCMain {
-   
-    Quest quest = new Quest();
 
     /*public override void execute(int state)
     {
