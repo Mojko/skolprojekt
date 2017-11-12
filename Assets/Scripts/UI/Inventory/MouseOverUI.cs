@@ -8,7 +8,7 @@ public class MouseOverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
 	private bool mouseOver;
 	private bool inChild;
-    
+    private float lastClick = 0;
 	public void OnPointerEnter(PointerEventData eventData){
 
 		if(eventData.pointerCurrentRaycast.gameObject != null){
@@ -32,11 +32,19 @@ public class MouseOverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 			transform.Find ("InventoryInformation").gameObject.SetActive (false);
 		}*/
 	}
-
-	public void OnPointerExit(PointerEventData eventData){
+    public bool hasDoubleClicked()
+    {
+        if (Time.time - lastClick < 0.2f)
+        {
+            return true;
+        }
+        lastClick = Time.time;
+        Debug.Log("lastclick: " + (Time.time - lastClick));
+        return false;
+    }
+    public void OnPointerExit(PointerEventData eventData){
 		mouseOver = false;
 	}
-
 	public bool isMouseOver(){
 		return mouseOver;
 	}

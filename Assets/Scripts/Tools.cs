@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
-
+using UnityEngine.Networking;
 public enum inventoryTabs {
-    EQUIP = 0, USE, ETC, QUEST, MONEY
+    EQUIPPED = -1, EQUIP = 0, USE, ETC, QUEST, MONEY
 };
-
+public enum ErrorID
+{
+    INVALID_ITEM = 0, HACK
+};
 public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
 };
@@ -103,6 +106,13 @@ public static class Tools
             children[i] = transforms[i].gameObject;
         }
         return children;
+    }
+    public static void Lerp(this float item, float b, float time) {
+        item = Mathf.Lerp(item, b, time);
+    }
+    public static PlayerServer getPlayer(this NetworkMessage msg)
+    {
+        return Server.playerObjects[msg.conn.connectionId];
     }
 }
 

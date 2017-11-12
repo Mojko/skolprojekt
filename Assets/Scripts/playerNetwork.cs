@@ -28,7 +28,7 @@ public class playerNetwork : NetworkBehaviour{
         GameObject login_world = GameObject.Find("login_Word");
         this.player.playerName = login.getCharacterName();
 
-        Debug.Log("name here m8: " + this.player.playerName);
+        Debug.Log("name here m8 sk8 l8sdf sdf sdf sd fsdf sdf sdf sdf: " + this.player.playerName);
 		con.RegisterHandler(PacketTypes.LOAD_PLAYER, onLoadCharacter);
 		con.RegisterHandler (PacketTypes.LOAD_INVENTORY, onLoadInventory);
         con.RegisterHandler(PacketTypes.SEND_MESSAGE, onReciveMessage);
@@ -225,22 +225,21 @@ public class playerNetwork : NetworkBehaviour{
 		InventoryInfo msg = new InventoryInfo ();
 		msg.id = this.gameObject.GetComponent<NetworkIdentity> ().netId;
 		Item[] items = invetory.getItems();
-		msg.items = invetory.itemsToArray (items);
 		msg.name = player.playerName;
 		con.Send (PacketTypes.SAVE_INVENTORY, msg);
 	}
-    public void sendItem(int[] item)
+    public void sendItem(Item item)
     {
         ItemInfo itemInfo = new ItemInfo();
-        itemInfo.item = item;
+        itemInfo.item = Tools.objectToByteArray(item);
         con.Send(PacketTypes.SPAWN_ITEM, itemInfo);
     }
-    public void moveItem(int[] itemMoved, int[] itemReplaced, short packetType, Player player) {
+    public void moveItem(Item itemMoved, Item itemReplaced, short packetType, Player player) {
         moveItem item = new moveItem();
-        item.item1 = itemMoved;
-        item.item2 = itemReplaced;
+        item.item1 = Tools.objectToByteArray(itemMoved);
+        item.item2 = Tools.objectToByteArray(itemReplaced);
         item.player = player.playerName;
-        item.position = new float[] { player.transform.position.x, player.transform.position.y, player.transform.position.z};
+        //item.position = new float[] { player.transform.position.x, player.transform.position.y, player.transform.position.z};
         con.Send(packetType, item);
     }
 	public void loadInventory(){
@@ -264,9 +263,10 @@ public class playerNetwork : NetworkBehaviour{
     //körs när spelaren har fått tillbaka sitt inventory från servern. 
 	void onLoadInventory(NetworkMessage msg){
         InventoryInfo info = msg.ReadMessage<InventoryInfo>();
-        List<int[]> equipments = (List<int[]>)(Tools.byteArrayToObject(info.equipment));
+        List<Equip> equipments = (List<Equip>)(Tools.byteArrayToObject(info.equipment));
+        List<Item> inventory = (List<Item>)(Tools.byteArrayToObject(info.items));
         Debug.Log("equipment: " + equipments.Count);
-        player.setInventory (info.items);
+        player.setInventory (inventory);
         player.setEquips(equipments);
         Debug.Log ("inventory loaded");
         Debug.Log(info.items.Length);

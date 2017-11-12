@@ -102,6 +102,13 @@ public class Inventory : MonoBehaviour
     int[] items;
 
     private GameObject parentCanvas;
+    public GameObject itemSettings;
+
+    private RectTransform itemSettingTransform;
+    private InventorySlot slotClicked;
+
+    private bool hasRightClicked = false;
+    private bool isDoneLoading = false;
 
     public static int activeCanvas = 0;
     public void show()
@@ -147,16 +154,6 @@ public class Inventory : MonoBehaviour
         }
         return itemStats;
     }
-
-    private Item ArrayToItem(int i)
-    {
-        if (i * Tools.ITEM_PROPERTY_SIZE >= items.Length) return new Item(-1);
-        int[] props = new int[Tools.ITEM_PROPERTY_SIZE];
-        for (int a = 0; a < Tools.ITEM_PROPERTY_SIZE; a++) {
-            props[a] = items[a + i * Tools.ITEM_PROPERTY_SIZE];
-        }
-        return new Item(props);
-    }
     void activate()
     {
         parentCanvas.SetActive(true);
@@ -170,7 +167,9 @@ public class Inventory : MonoBehaviour
 	public void init(Player player)
     {
 		this.player = player;
+        itemSettingTransform = Instantiate(itemSettings).GetComponent<RectTransform>();
         parentCanvas = Tools.getChild(player.getUI(), "Inventory_UI");
+        itemSettingTransform.SetParent(parentCanvas.transform);
         canvas[0] = Tools.getChild(player.getUI(), "Items_Inventory_Eqp");
         canvas[1] = Tools.getChild(player.getUI(), "Items_Inventory_Use");
         canvas[2] = Tools.getChild(player.getUI(), "Items_Inventory_Etc");
@@ -212,7 +211,7 @@ public class Inventory : MonoBehaviour
         slot.transform.SetParent(canvas[activeCanvas].transform);
         itemsOwned.Add(slot);
         recalcPos(itemsOwned.Count - 1, item.getPosition());
-        player.getNetwork().moveItem(item.getStats(),Item.getEmptyItem(-1).stats, PacketTypes.INVENTORY_MOVE_ITEM, this.player);
+        player.getNetwork().moveItem(item,Item.getEmptyItem(-1), PacketTypes.INVENTORY_MOVE_ITEM, this.player);
         return true;
     }
 
@@ -274,29 +273,34 @@ public class Inventory : MonoBehaviour
                 {
                     Debug.Log("spot not empty");
                     temp = itemsOwned[pos].getItem();
-                    itemsOwned[pos].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 1] = itemsOwned[mouse.holdingID].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 1];
-                    recalcPos(pos, itemsOwned[mouse.holdingID].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 1]);
+                    itemsOwned[pos].getItem().setPosition(itemsOwned[mouse.holdingID].getItem().getPosition());
+                    recalcPos(pos, itemsOwned[mouse.holdingID].getItem().getPosition());
                 }
                 else
                 {
                     temp = Item.getEmptyItem(newPos);
                 }
-                itemsOwned[mouse.holdingID].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 1] = newPos;
+                itemsOwned[mouse.holdingID].getItem().setPosition(newPos);
                 recalcPos(mouse.holdingID, newPos);
-                // Debug.Log("slots: " + Mathf.Floor(canvas.GetComponent<MouseOverUI>().getRelativePosition().x / 50) + " : " + );
-                // Debug.Log("item moved");
-                player.getNetwork().moveItem(mouse.getItem().stats, temp.stats, PacketTypes.INVENTORY_MOVE_ITEM, this.player);
+
+                player.getNetwork().moveItem(mouse.getItem(), temp, PacketTypes.INVENTORY_MOVE_ITEM, this.player);
                 mouse.empty();
-                break;
             }
-            if (itemsOwned[i].isMouseOver() && Input.GetMouseButtonDown(0)) {
-                Debug.Log("clicking");
-                if (handler.hasDoubleClicked())
-                {
-                    mouse.empty();
-                    Debug.Log("double click");
-                    this.player.getEquipHandler().setEquip(itemsOwned[i].getID() / 1000, itemsOwned[i].getItem().getStats());
-                }
+
+            if (Input.GetMouseButtonDown(1) && itemsOwned[i].isMouseOver())
+            {
+                if (slotClicked == itemsOwned[i])
+                    hasRightClicked = !hasRightClicked;
+                else 
+                    hasRightClicked = true;
+
+                isDoneLoading = false;
+                itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, 0f);
+                itemSettingTransform.position = Input.mousePosition;
+                itemSettingTransform.gameObject.SetActive(true);
+                Debug.Log("right click! " + hasRightClicked);
+                information.hide();
+                slotClicked = itemsOwned[i];
             }
             /*
             else if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && !canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())
@@ -304,6 +308,14 @@ public class Inventory : MonoBehaviour
                 itemsOwned.RemoveAt(mouse.holdingID);
             }
             */
+        }
+        if (hasRightClicked && !isDoneLoading) {
+            Debug.Log("lerping!!");
+            itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, Mathf.Lerp(itemSettingTransform.sizeDelta.y,90f,Time.deltaTime * 5f));
+            if (itemSettingTransform.sizeDelta.y >= 89f) {
+                itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, 90F);
+                isDoneLoading = true;
+            }
         }
         shouldUpdateInventory = false;
     }
@@ -319,7 +331,7 @@ public class Inventory : MonoBehaviour
     {
         for (int i = 0; i < itemsOwned.Count; i++)
         {
-            if (itemsOwned[i].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 1] == slot && itemsOwned[i].getItem().getStats()[Tools.ITEM_PROPERTY_SIZE - 2] == activeCanvas)
+            if (itemsOwned[i].getItem().getPosition() == slot && itemsOwned[i].getItem().getInventoryType() == activeCanvas)
                 return i;
         }
         return -1;
@@ -328,37 +340,31 @@ public class Inventory : MonoBehaviour
     {
         itemsOwned[index].gameObject.GetComponent<RectTransform>().localPosition = new Vector3((newPos % 4) * 50, -25 - Mathf.Floor(newPos / 4) * 50, 0);
     }
-    Item arrayToItem(int[] item,int startIndex, int endIndex) {
-        int[] items = new int[endIndex];
-        for (int i = startIndex; i < startIndex + endIndex; i++) {
-            items[i - startIndex] = item[i];
-        }
-        return new Item(items);
-    }
     public void clearInventory() {
         foreach (InventorySlot slot in itemsOwned) {
             Destroy(slot.gameObject);
         }
         itemsOwned.Clear();
     }
-    public void setInventory(int[] items)
+    public void setInventory(List<Item> items)
     {
-        this.items = items;
-        for (int i = 0; i < items.Length; i += Tools.ITEM_PROPERTY_SIZE)
+        Item item;
+        for(int i = 0; i < items.Count; i++)
         {
-            Debug.Log("item loaded: " + i + " : " + items[i+14]);
+            item = items[i];
+
             GameObject instansiatedSlot = (GameObject)Instantiate(InventorySlot);
             InventorySlot slot = new InventorySlot();
             slot = instansiatedSlot.GetComponent<InventorySlot>();
             slot.setID(i);
-            slot.setItem(items[i + Tools.ITEM_PROPERTY_SIZE-2], arrayToItem(items,i, Tools.ITEM_PROPERTY_SIZE));
+            slot.setItem(item.getPosition(), item);
             slot.setImage(slot.getItem());
             //itemIDString[i] = instansiatedSlot.GetComponentInChildren<Text> ();
 
-            slot.gameObject.transform.SetParent(canvas[items[i + Tools.ITEM_PROPERTY_SIZE-2]].transform);
-            Debug.Log("slot: " + items[i + 8]);
+            slot.gameObject.transform.SetParent(canvas[item.getInventoryType()].transform);
+
             //invSlot[i].gameObject.GetComponent<RectTransform>().localPosition = new Vector3((invSlot[i].getItem().getStats()[8] % i) * 50, -25 - Mathf.Floor(invSlot[i].getItem().getStats()[8] / 4) * 50, 0);
-            slot.gameObject.GetComponent<RectTransform>().localPosition = new Vector3((items[i + Tools.ITEM_PROPERTY_SIZE-1] % 4) * 50, -25 - Mathf.Floor(items[i + Tools.ITEM_PROPERTY_SIZE-1] / 4) * 50, 0);
+            slot.gameObject.GetComponent<RectTransform>().localPosition = new Vector3((item.getPosition() % 4) * 50, -25 - Mathf.Floor(item.getPosition() / 4) * 50, 0);
             itemsOwned.Add(slot);
         }
         Debug.Log("item array size: " + itemsOwned.Count); 

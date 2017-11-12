@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using MySql.Data.MySqlClient;
 public class PlayerServer {
-    public int[] items;
-    public List<int[]> equips = new List<int[]>();
+    public List<Item> items = new List<Item>();
+    public List<Equip> equips = new List<Equip>();
     public int databaseID;
     public int connectionID;
-
+    public int playerID;
     int[] stats = new int[5];
 
     int[] skills;
@@ -18,9 +18,37 @@ public class PlayerServer {
             equips.Add(null);
         }
     }
+    public void setPlayerID(int id) {
+        this.playerID = id;
+    }
+    public int getPlayerID() {
+        return playerID;
+    }
+    public List<Item> getItems() {
+        return this.items;
+    }
+    public bool hasItem(Item item) {
+        for (int i = 0; i < this.items.Count; i++) {
+            if (this.items[i].compareTo(item))
+                return true;
+        }
+        return false;
+    }
+    /*
     public void addItems(int[] items) {
         this.items = items;
     }
+    */
+    public void replaceItems(Item item1, Item item2) {
+        int posItem1 = items.IndexOf(item1);
+        int posItem2 = items.IndexOf(item2);
+        items[posItem1] = item1;
+        items[posItem2] = item1;
+    }
+    public void addItem(Item item) {
+        items.Add(item);
+    }
+    /*
     public void addItem(int[] item)
     {
         int[] tempItem = new int[this.items.Length+item.Length];
@@ -31,10 +59,9 @@ public class PlayerServer {
             tempItem[i] = item[i];
         }
     }
-    public void addEquip(int type, int[] equip) {
-        Debug.Log("added equip: " + type);
-        Debug.Log("count size: " + equips.Count);
-        equips[type] = equip;
+    */
+    public void addEquip(Equip equip) {
+        equips.Add(equip);
     }
     public void setSkills(int[] skills) {
         this.skills = skills;
@@ -66,7 +93,7 @@ public class PlayerServer {
         return Tools.objectToByteArray(equips);
     }
     public void SetEquipsFromBytes(byte[] bytes) {
-        this.equips = (List<int[]>)Tools.byteArrayToObject(bytes);
+        this.equips = (List<Equip>)Tools.byteArrayToObject(bytes);
     }
     public static PlayerServer GetDefaultCharacter(int connectionID)
     {

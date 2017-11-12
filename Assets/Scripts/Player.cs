@@ -120,7 +120,7 @@ public class Player : NetworkBehaviour
 	public playerNetwork getNetwork(){
 		return network;
 	}
-	public void setInventory(int[] items){
+	public void setInventory(List<Item> items){
 		inventory.setInventory (items);
 	}
     public Inventory getInventory() {
@@ -138,7 +138,7 @@ public class Player : NetworkBehaviour
 
         Debug.Log("reloaded scene.");
     }
-    public void setEquips(List<int[]> equips) {
+    public void setEquips(List<Equip> equips) {
         equip.setEquips(equips);
         equip.updateSlots();
     }

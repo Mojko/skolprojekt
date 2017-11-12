@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 public class EquipmentHandler : UIHandler {
-    List<int[]> equips = new List<int[]>();
+    List<Equip> equips = new List<Equip>();
     GameObject equip;
     GameObject[] slots;
     MouseOverUI[] slotsMouse;
@@ -23,11 +23,12 @@ public class EquipmentHandler : UIHandler {
     public void setPlayer(Player player) {
         this.player = player;
     }
-    public void setEquips(List<int[]> eqps) {
+    public void setEquips(List<Equip> eqps) {
         equips = eqps;
     }
-    public void setEquip(int type, int[] equip) {
+    public void setEquip(int type, Equip equip) {
         equips.Insert(type, equip);
+        updateSlots();
     }
     public void setEquipmentUI(GameObject equipment) {
         equip = equipment;
@@ -39,14 +40,14 @@ public class EquipmentHandler : UIHandler {
         }
         hasLoaded = true;
     }
-    public void onClick(int pos, int[] itemStats) {
+    public void onClick(int pos, Equip equip) {
         Inventory inventory = player.getInventory();
         int closestFree = inventory.getClosestSlot((int)inventoryTabs.EQUIP);
-        itemStats[Tools.ITEM_PROPERTY_SIZE - 1] = closestFree;
+        equip.setPosition(closestFree);
         Debug.Log("slot: " + closestFree);
-        inventory.addItem(new Item(itemStats));
+        inventory.addItem(equip);
         clearSlot(pos); 
-        this.equips.Remove(itemStats);
+        this.equips.Remove(equip);
         updateSlots();
     }
     private void clearSlot(int slot) {
@@ -57,10 +58,13 @@ public class EquipmentHandler : UIHandler {
     public void updateSlots() {
         int countSize = 0;
         GameObject slot;
+        Equip equip;
         for (int i = 0; i < equips.Count; i++) {
             if (equips[i] == null) continue;
-            Image image = slots[Mathf.Abs(equips[i][Tools.ITEM_PROPERTY_SIZE - 1] + 1)].transform.GetChild(0).GetComponent<Image>();
-            image.sprite = (Sprite)stringTools.spriteObjects[equips[i][0] / 500][equips[i][0] % 500 + 1];
+            equip = equips[i];
+            Image image = slots[equip.getPositionInEquip()].transform.GetChild(0).GetComponent<Image>();
+            Debug.Log("sprite: " + equip.getID() / 500 + " : " + equip.getID() % 500 + 1);
+            image.sprite = (Sprite)stringTools.spriteObjects[equip.getID() / 500][equip.getID() % 500 + 1];
             image.color = Color.white;
         }
     }

@@ -20,6 +20,7 @@ public class UIMouseHandler : MonoBehaviour {
     public void addElement(UIHandler handler) {
         uiElemnts.Add(handler);
     }
+
     public bool isUnderUI(UIHandler handler) {
         for (int i = 0; i < uiElemnts.Count; i++) {
             if (uiElemnts[i] == handler || !uiElemnts[i].gameObject.activeSelf) continue;

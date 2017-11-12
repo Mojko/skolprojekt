@@ -38,6 +38,9 @@ public class PacketTypes{
 
     public static readonly short SPAWN_ITEM = 1019;
 
+    //ERROR
+    public static readonly short ERROR = 9999;
+
 }
 public enum MessageTypes
 {

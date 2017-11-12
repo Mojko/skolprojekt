@@ -8,7 +8,7 @@ public class DisconnectPacket : MessageBase{
 
 public class ItemInfo : MessageBase
 {
-    public int[] item;
+    public byte[] item;
 }
 
 public class MobInfo : MessageBase
@@ -43,7 +43,7 @@ public class ProjectTileInfo : MessageBase
 public class InventoryInfo : MessageBase
 {
     public NetworkInstanceId id;
-    public int[] items;
+    public byte[] items;
     public byte[] equipment;
     public string name = "";
 }
@@ -72,9 +72,9 @@ public class LoginPacket : MessageBase
 
 public class moveItem : MessageBase
 {
-    public int[] item1 = new int[] { -1 };
-    public int[] item2 = new int[] { -1 };
-    public float[] position = new float[3];
+    public byte[] item1;
+    public byte[] item2;
+    public int[] position;
     public string player;
 }
 public class PacketMessage : MessageBase
@@ -108,4 +108,9 @@ public class NPCInteractPacket : MessageBase
 public class OnPickCharacterPacket : MessageBase {
     public string characterName;
     public string userName; 
+}
+public class ErrorMessage : MessageBase {
+    public string message;
+    public int errorID;
+    public bool shouldKick;
 }
