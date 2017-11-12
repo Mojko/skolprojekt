@@ -60,6 +60,7 @@ public class PlayerInfo : MessageBase
     public string characterName;
     public int level = 0;
     public int[] skillProperties;
+	public byte[] questClasses;
 }
 
 public class LoginPacket : MessageBase
@@ -104,6 +105,9 @@ public class NPCInteractPacket : MessageBase
     public int npcID;
     public NPCTalkType type;
     public string npcText;
+
+    public NetworkInstanceId playerInstanceId;
+
 }
 public class OnPickCharacterPacket : MessageBase {
     public string characterName;
@@ -113,4 +117,8 @@ public class ErrorMessage : MessageBase {
     public string message;
     public int errorID;
     public bool shouldKick;
+}
+public class QuestInfo : MessageBase
+{
+	public byte[] questClassInBytes;
 }

@@ -8,6 +8,9 @@ public class PlayerServer {
     public int databaseID;
     public int connectionID;
     public int playerID;
+	public int level = 0;
+	public string playerName = "";
+	public Quest[] quests;
     int[] stats = new int[5];
 
     int[] skills;
@@ -35,8 +38,27 @@ public class PlayerServer {
         return false;
     }
     /*
+=======
+
+    public int[] getItem(int itemId)
+    {
+        int[] value;
+        if(itemsDictionary.TryGetValue(itemId, out value)){
+            return value;
+        }
+        return null;
+    }
+
+>>>>>>> fa8b4ad6a725554923f1eeb44f5353e2fb6bd69f
     public void addItems(int[] items) {
         this.items = items;
+        for(int i=0;i<items.Length;i+=Tools.ITEM_PROPERTY_SIZE){
+            int[] tempItem = new int[Tools.ITEM_PROPERTY_SIZE];
+            for(int j=0;j<Tools.ITEM_PROPERTY_SIZE;j++){
+               tempItem[j] = items[i+j];
+            }
+            itemsDictionary.Add(items[i], tempItem);
+        }
     }
     */
     public void replaceItems(Item item1, Item item2) {

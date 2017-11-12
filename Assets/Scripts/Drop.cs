@@ -62,18 +62,18 @@ public class Drop : MonoBehaviour {
 
 
 	void OnTriggerStay(Collider col) {
-        if(this.renderer != null){
-		    this.renderer.material.color = Color.white;
-        }
+        //renderer.material.SetFloat("_Flash", 0.25f);
 		if (col.gameObject.CompareTag("Player") && Input.GetKey(KeyCode.B)) {
 			Player player = col.gameObject.GetComponent<Player>();
-            Debug.Log("ISPLAYER: " + player + " | " + " ISITEM: " + item);
             player.pickup(item, this.item.getItemType());
             NetworkServer.Destroy(this.gameObject);
 		}
+
 	}
     void OnTriggerExit(Collider col){
-		this.renderer.material.color = Color.gray;	
+		
+        //renderer.material.SetFloat("_Flash", 1);
+        //this.renderer.material.color = Color.gray;	
 	}
     Vector3 chooseRandomDirection()
     {

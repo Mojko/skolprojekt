@@ -45,12 +45,32 @@ public static class Tools
 		}
 	}
 
+	public static byte[] objectArrayToByteArray(object[] obj){
+		if (obj == null)
+			return null;
+
+		BinaryFormatter bf = new BinaryFormatter ();
+
+		using (MemoryStream ms = new MemoryStream ()) {
+			bf.Serialize (ms,obj);
+			return ms.ToArray();
+		}
+	}
+
 	public static object byteArrayToObject(byte[] byteArray){
 		MemoryStream memStream = new MemoryStream ();
 		BinaryFormatter bf = new BinaryFormatter ();
 		memStream.Write (byteArray, 0, byteArray.Length);
 		memStream.Seek (0, SeekOrigin.Begin);
 		object obj = (object)bf.Deserialize (memStream);
+		return obj;
+	}
+	public static object[] byteArrayToObjectArray(byte[] byteArray){
+		MemoryStream memStream = new MemoryStream ();
+		BinaryFormatter bf = new BinaryFormatter ();
+		memStream.Write (byteArray, 0, byteArray.Length);
+		memStream.Seek (0, SeekOrigin.Begin);
+		object[] obj = (object[])bf.Deserialize (memStream);
 		return obj;
 	}
 

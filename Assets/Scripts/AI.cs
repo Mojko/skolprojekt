@@ -29,7 +29,7 @@ public class AI : MobManager {
 	private float speed;
 	private float angularSpeed;
 	private Animator animator;
-    private float attackRange = 1f;
+    private float attackRange = 1.5f;
 	private bool coroutineStarted = false;
     private Timer timer;
 	private bool isFreezed;
@@ -48,6 +48,7 @@ public class AI : MobManager {
 		this.agent = this.GetComponent<NavMeshAgent>();
 		this.speed = agent.speed;
 		this.angularSpeed = agent.angularSpeed;
+		this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
 	}
 
 	void Update () {
@@ -71,8 +72,6 @@ public class AI : MobManager {
 			attackState();
 			break;
 		}
-
-		Debug.Log("STATE: " + state);
 
         if(newPos != null) {
             this.GetComponent<NavMeshAgent>().destination = newPos;
@@ -124,7 +123,8 @@ public class AI : MobManager {
             setState(e_States.IDLE);
 			return;
         }
-        if (canAttack()) {
+        RaycastHit rayHit;
+        if (canAttack(out rayHit)) {
             //Then attack lol
 			setState(e_States.ATTACK);
 			return;
@@ -141,24 +141,33 @@ public class AI : MobManager {
 		followTarget(this.target);
 		if(shouldRotate){
 			this.transform.rotation = rotateTowards(this.transform, target.transform, 10);
-			RaycastHit rayHit;
-			if(Physics.Raycast(this.transform.position, this.transform.forward, out rayHit, 2)){
+			
+            RaycastHit rayHit;
+            if(Physics.Raycast(this.transform.position, this.transform.forward, out rayHit, 2)) {
 				if(rayHit.transform.CompareTag("Player")){
 					shouldRotate = false;
 				}
-			}
+            }
 		}
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
 			animator.Play("Bite", 0, 0);
 			shouldRotate = true;
 		} else {
 			freeze();
-			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.8f && !hasDamaged){
-				if(canAttack()) this.target.GetComponent<Player>().damage(5);
+			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.7f && !hasDamaged){
 				hasDamaged = true;
+
+                RaycastHit rayHit;
+                if(canAttack(out rayHit)) {
+				    if(rayHit.transform.CompareTag("Player")){
+                       this.target.GetComponent<Player>().damage(5); 
+				    }
+                }
+
 			}
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f){
-				if(canAttack()){
+				RaycastHit rayHit;
+                if(canAttack(out rayHit)){
 					animator.Play("Bite", 0, 0);
 				} else {
 					setState(e_States.IDLE);
@@ -219,12 +228,15 @@ public class AI : MobManager {
         return this.state;
     }
 
-    bool canAttack()
+    bool canAttack(out RaycastHit rayHit)
     {
-		bool isDistanceCloseEnough = Vector3.Distance (transform.position, target.transform.position) < attackRange;
+        if(Physics.Raycast(this.transform.position, this.transform.forward, out rayHit, this.attackRange)) {
+            return true;
+        }
+		/*bool isDistanceCloseEnough = Vector3.Distance (transform.position, target.transform.position) < attackRange;
 		if (isDistanceCloseEnough) {
 			return true;
-		}
+		}*/
         return false;
     }
 
