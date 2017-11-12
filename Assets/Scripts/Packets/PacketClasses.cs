@@ -60,6 +60,7 @@ public class PlayerInfo : MessageBase
     public string characterName;
     public int level = 0;
     public int[] skillProperties;
+	public byte[] questClasses;
 }
 
 public class LoginPacket : MessageBase
@@ -112,8 +113,8 @@ public class OnPickCharacterPacket : MessageBase {
     public string characterName;
     public string userName; 
 }
-
+	
 public class QuestInfo : MessageBase
 {
-
+	public byte[] questClassInBytes;
 }

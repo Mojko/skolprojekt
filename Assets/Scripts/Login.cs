@@ -8,7 +8,8 @@ using UnityEngine.SceneManagement;
 public class Login : NetworkBehaviour {
 
     public NetworkManager manager;
-    public string name, characterName;
+    public string name;
+	public string characterName = "NoName";
     public NetworkClient client;
     public Text usernameT, passwordT;
 	public MainCamera camera;

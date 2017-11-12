@@ -62,7 +62,7 @@ public class Drop : MonoBehaviour {
 
 
 	void OnTriggerStay(Collider col) {
-        renderer.material.SetFloat("_Flash", 0.25f);
+        //renderer.material.SetFloat("_Flash", 0.25f);
 		if (col.gameObject.CompareTag("Player") && Input.GetKey(KeyCode.B)) {
 			Player player = col.gameObject.GetComponent<Player>();
             player.pickup(item, this.item.getItemType());
@@ -72,7 +72,7 @@ public class Drop : MonoBehaviour {
 	}
     void OnTriggerExit(Collider col){
 		
-        renderer.material.SetFloat("_Flash", 1);
+        //renderer.material.SetFloat("_Flash", 1);
         //this.renderer.material.color = Color.gray;	
 	}
     Vector3 chooseRandomDirection()

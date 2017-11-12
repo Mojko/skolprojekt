@@ -8,6 +8,9 @@ public class PlayerServer {
     public List<int[]> equips = new List<int[]>();
     public int databaseID;
     public int connectionID;
+	public int level = 0;
+	public string playerName = "";
+	public Quest[] quests;
 
     int[] stats = new int[5];
 

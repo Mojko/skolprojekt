@@ -32,6 +32,7 @@ public class Server : NetworkManager
     public int port;
     public NPCCompiler npcCompiler = new NPCCompiler();
     public string database, username, password, host;
+	private QuestManager questManager;
     string connectionString;
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
@@ -66,6 +67,7 @@ public class Server : NetworkManager
     //#SETUP
     public override void OnStartServer()
     {
+		questManager = new QuestManager(this);
         Application.targetFrameRate = 60;
         connectionString = "Server=" + host + ";Database=" + database + ";Uid=" + username + ";Pwd=" + password + ";";
         base.OnStartServer();
@@ -85,7 +87,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.PROJECTILE_CREATE, onProjectTileCreate);
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
-        NetworkServer.RegisterHandler(PacketTypes.QUEST_START, onQuestStart);
+		NetworkServer.RegisterHandler(PacketTypes.QUEST_START, OnQuestRecieveFromClient);
         resourceStructure = new ResourceStructure();
 
         
@@ -94,10 +96,68 @@ public class Server : NetworkManager
 
     }
 
-    public void onQuestStart(NetworkMessage netMsg)
+    public void OnQuestRecieveFromClient(NetworkMessage netMsg)
     {
-
+		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
+		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
+		questManager.checkValidQuest(quest, netMsg.conn.connectionId, this.playerObjects[netMsg.conn.connectionId]);
     }
+
+	public void addOrUpdateQuestStatusToDatabase(Quest quest, int connectionId){
+		MySqlConnection conn;
+		MySqlDataReader reader;
+
+		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE questID = " + quest.getId());
+
+		if(reader.Read()){
+			//UPDATE
+			mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = " + quest.getCompleted());
+		} else {
+			//INSERT
+			mysqlNonQuerySelector(out conn, "INSERT INTO queststatus(questID, characterID, status) VALUES('"+quest.getId()+"', '"+getCharacterID(quest.getCharacterName())+"', '"+quest.getCompleted()+"')");
+		}
+		QuestInfo questInfo = new QuestInfo();
+		questInfo.questClassInBytes = Tools.objectToByteArray(quest);
+		NetworkServer.SendToClient(connectionId, PacketTypes.QUEST_START, questInfo);
+		conn.Close();
+	}
+
+	/*public Quest[] getQuestArrayFromPlayerServer(PlayerServer playerServer){
+		MySqlConnection conn;
+		MySqlDataReader reader;
+
+		int characterID = getCharacterID(playerServer.playerName);
+		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
+		Debug.Log("CID: " + characterID);
+		List<Quest> quests = new List<Quest>();
+		while(reader.Read()){
+			Debug.Log("I'm reading!");
+			quests.Add();
+			//Quest q = new Quest(reader.GetInt32("questID"), playerServer.playerName);
+			//questManager.startQuest(q);
+			//quests.Add(q);
+		}
+		return quests.ToArray();
+	}*/
+
+	public byte[] sendOutQuestIdsOnCharacterLogin(int characterID){
+		MySqlConnection conn;
+		MySqlDataReader reader;
+		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
+
+		List<int> questsToSendOut = new List<int>();
+		List<Quest> quests = new List<Quest>();
+		while(reader.Read()){
+			questsToSendOut.Add(reader.GetInt32("questID"));
+		}
+		foreach(int i in questsToSendOut.ToArray()){
+			Quest q = new Quest(i);
+			questManager.startQuest(q);
+			quests.Add(q);
+		}
+		return Tools.objectArrayToByteArray(quests.ToArray());
+		conn.Close();
+	}
 
     private void onSpawnItem(NetworkMessage netMsg)
     {
@@ -341,6 +401,8 @@ public class Server : NetworkManager
         characterConnections.Add(msg.conn.connectionId, packet.characterName);
         playerObjects.Add(msg.conn.connectionId, new PlayerServer(msg.conn.connectionId, id));
 
+		playerObjects[msg.conn.connectionId].playerName = packet.characterName;
+
         MySqlConnection conn;
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE playerID = '" + id + "'");
@@ -353,6 +415,8 @@ public class Server : NetworkManager
         }
         player.setSkills(skillProperties.ToArray());
         packet.skillProperties = skillProperties.ToArray();
+		packet.questClasses = sendOutQuestIdsOnCharacterLogin(id);
+		playerObjects[msg.conn.connectionId].quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
 
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_PLAYER, packet);
         conn.Close();
@@ -656,6 +720,7 @@ public class Server : NetworkManager
         if (charactersOnline.ContainsKey(name)) return charactersOnline[name];
         return getCharacterID(name);
     }
+
     private int getPlayerID(string name)
     {
 
@@ -673,6 +738,22 @@ public class Server : NetworkManager
         conn.Close();
         return int.Parse(id);
     }
+
+	private string getCharacterName(int id){
+		//string connectionString = "Server=" + host + ";Database=" + database + ";Uid=Gerry;Pwd=pass;";
+		MySqlConnection conn = new MySqlConnection(connectionString);
+		MySqlCommand cmd = new MySqlCommand("SELECT characterName FROM characters WHERE id = '" + id + "'", conn);
+		conn.Open();
+		MySqlDataReader reader = cmd.ExecuteReader();
+		string name = "";
+		if (reader.Read())
+		{
+			name = reader.GetString("characterName");
+		}
+		conn.Close();
+		return name;
+	}
+
     private int getCharacterID(string name)
     {
         //string connectionString = "Server=" + host + ";Database=" + database + ";Uid=Gerry;Pwd=pass;";
@@ -689,7 +770,7 @@ public class Server : NetworkManager
         conn.Close();
         return id;
     }
-    private PlayerServer getPlayerObject(int connectionID) {
+    public PlayerServer getPlayerObject(int connectionID) {
         return playerObjects[connectionID];
     }
 }

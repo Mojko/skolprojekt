@@ -1,0 +1,16 @@
+{
+	"quests":
+	[
+		{
+			"id": 5500,
+			"name": "Tutorial quest 1",
+			"type": "mob",
+
+			"completionData":
+			{
+				"completionValue": 5,
+				"completionId": 10000
+			}
+		}
+	]
+}

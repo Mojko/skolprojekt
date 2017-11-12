@@ -32,42 +32,31 @@ public class NPCMain : NetworkBehaviour {
 
 
     public string[] dialogues;
-    public string[,] keywords = {
-        {"%playername%", "Kalle"},
-        {"%playermoney%", "50"}
-
-    }; 
-    public bool hasQuest;
-    private Quest quest;
+	public string[,] keywords;
+	public int[] questIds;
     public e_NpcTypes type;
     private e_DialogueLayouts layout;
+	private bool shouldInitilize = true;
+
 
 
 
     private void Start()
     {
-        this.text = GameObject.FindWithTag("DialogueText").GetComponent<Text>();
-
-        for(int i = 0; i < dialogues.Length; i++) {
-            for(int j=0;j<keywords.GetLength(0);j++){
-                dialogues[i] = Regex.Replace(dialogues[i], @"\"+keywords[j,0]+"", keywords[j,1]);
-            }
-        }
-        if (hasQuest) {
-            quest = new Quest(this.player);
-        }
+        //this.text = GameObject.FindWithTag("DialogueText").GetComponent<Text>();
     }
 
     private void Update()
     {
         if (isTalking) {
-            if (Input.GetKeyDown(KeyCode.Q)) {
-                execute(state);
+			if (Input.GetKeyDown(KeyCode.Q)) {
+                execute();
+				if(layout == e_DialogueLayouts.YESNO) giveQuestToPlayer();
             }
         }
-        if(state < dialogues.Length) {
+        if(state >= dialogues.Length) {
             //YesNo or OK
-            if(hasQuest) {
+			if(questIds != null) {
                 layout = e_DialogueLayouts.YESNO;
             } else {
                 layout = e_DialogueLayouts.OK;
@@ -79,11 +68,40 @@ public class NPCMain : NetworkBehaviour {
         }
     }
 
-    public void execute(int state)
+    public void execute()
     {
-        Debug.Log(this.dialogues[state]);
-        state++;
+		if(state < dialogues.Length){
+	        Debug.Log(this.dialogues[state]);
+	        state++;
+		}
     }
+
+	private void giveQuestToPlayer(){
+		if (questIds != null) {
+			foreach(Quest quest in this.player.getQuests()){
+				for(int i=0;i<questIds.Length;i++){
+					if(quest.getId() != questIds[i]){
+						this.player.getNetwork().sendQuestToServer(new Quest(questIds[i], this.player.getCharacterName()));
+						Debug.Log("Quest has been assigned");
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	private void init(){
+		this.keywords = new string[,] {
+			{"%playername%", player.getCharacterName()},
+			{"%playermoney%", player.money.ToString()}
+		}; 
+		for(int i = 0; i < dialogues.Length; i++) {
+			for(int j=0;j<keywords.GetLength(0);j++){
+				dialogues[i] = Regex.Replace(dialogues[i], @"\"+keywords[j,0]+"", keywords[j,1]);
+			}
+		}
+		this.shouldInitilize = false;
+	}
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -91,6 +109,10 @@ public class NPCMain : NetworkBehaviour {
             this.player = collision.gameObject.GetComponent<Player>();
             this.player.getPlayerMovement().freeze();
             isTalking = true;
+
+			if(shouldInitilize){
+				init();
+			}
         }
     }
 }

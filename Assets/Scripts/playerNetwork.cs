@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using System.Text;
+using System.Xml;
+using System.IO;
 
 
 public enum e_StatType {
@@ -19,6 +21,7 @@ public class playerNetwork : NetworkBehaviour{
 
     public GameObject skillTreePrefab;
 	public SkillTree skillTree;
+	public QuestUI questUI;
 
     bool characterLoaded = false;
 
@@ -37,8 +40,12 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkill);
         con.RegisterHandler(PacketTypes.ERROR_SKILL, onErrorSkill);
 		con.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
+		con.RegisterHandler(PacketTypes.QUEST_START, onQuestStart);
+		con.RegisterHandler(PacketTypes.QUEST_UPDATE, onQuestUpdate);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
+
+		questUI = Tools.findInactiveChild(player.getUI(), "Quest_UI").GetComponent<QuestUI>();
 
         login.transform.parent.GetComponent<UIHandler>().removeThisFromParent();
 
@@ -48,10 +55,30 @@ public class playerNetwork : NetworkBehaviour{
         Destroy(login_world);
     }
 
-    public void startQuestOnServer()
-    {
+	public void onQuestUpdate(NetworkMessage netMsg){
+		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
+		Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(questInfo.questClassInBytes);
+		foreach(Quest q in quests){
+			this.questUI.addNewQuestToolTip(q.getTooltip());
+		}
+		Debug.Log("QUEST UPDATED");
+	}
 
-    }
+	public void onQuestStart(NetworkMessage netMsg){
+		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
+		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
+		this.player.startNewQuest(quest);
+		this.questUI.addNewQuestPanel(quest);
+		Debug.Log("QUEST STARTED");
+	}
+
+	public void sendQuestToServer(Quest quest)
+    {
+		QuestInfo questInfo = new QuestInfo();
+		questInfo.questClassInBytes = Tools.objectToByteArray(quest);
+		con.Send(PacketTypes.QUEST_START, questInfo);
+		Debug.Log("QUEST SENT");    
+	}
 
     /*public void sendNpcInteractionRequest(int npcId, int playerConnectionId, int state)
     {
@@ -210,6 +237,23 @@ public class playerNetwork : NetworkBehaviour{
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
         Player player = playerObj.GetComponent<Player>();
 
+		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
+		QuestJson clientJson = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
+		foreach(QuestJson quests in clientJson.quests){
+			foreach(Quest quest in questArray){
+				if(quest.getId() == quests.id){
+					player.quests.Add(quest);
+					this.questUI.addNewQuestPanel(quest);
+				}
+			}
+			/*for(int i=0;i<m.questIds.Length;i++){
+				if(m.questIds[i] == quests.id){
+					Quest q = new Quest(m.questIds[i], quests.name);
+					player.quests.Add(q);
+					this.questUI.addNewQuestPanel(q);
+				}
+			}*/
+		}
 		//Initilize skill tree
         List<Skill> skillsToVerifyFromServer = new List<Skill>();
         for(int i=2;i<m.skillProperties.Length;i += 3){

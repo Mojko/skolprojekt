@@ -42,6 +42,7 @@ public class PacketTypes{
     //QUESTS
     public static readonly short QUEST_START = 1021;
     public static readonly short QUEST_END = 1022;
+	public static readonly short QUEST_UPDATE = 1023;
     
 
 }

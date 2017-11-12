@@ -48,6 +48,7 @@ public class AI : MobManager {
 		this.agent = this.GetComponent<NavMeshAgent>();
 		this.speed = agent.speed;
 		this.angularSpeed = agent.angularSpeed;
+		this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
 	}
 
 	void Update () {
@@ -71,8 +72,6 @@ public class AI : MobManager {
 			attackState();
 			break;
 		}
-
-		Debug.Log("STATE: " + state);
 
         if(newPos != null) {
             this.GetComponent<NavMeshAgent>().destination = newPos;

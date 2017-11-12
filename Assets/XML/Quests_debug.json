@@ -1,0 +1,15 @@
+{
+	"Quests":
+	[
+		{
+			"id": 5500,
+			"name": "Tutorial quest 1",
+			"type": "mob",
+			"requirementTypeList": 
+			[ 
+				{"requirementType": 0}, 
+				{"requirementDataValue": 0} 
+			]
+		}
+	]
+}

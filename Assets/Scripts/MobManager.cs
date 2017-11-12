@@ -17,6 +17,8 @@ public class MobManager : NetworkBehaviour {
 	public GameObject part;
     public GameObject target;
 
+	public Server server;
+
 
     float flashTimer = 1;
 
@@ -64,6 +66,29 @@ public class MobManager : NetworkBehaviour {
         for(int i=0;i<4;i++){
             CmdSpawnDrop("Coin_gold", pos);
         }
+
+		/*Player p = this.target.GetComponent<Player>();
+		foreach(Quest quest in p.getQuests()){
+			if(quest.getType().Equals("mob")){
+				quest.increaseMobKills();
+				p.getQuestUI().addNewQuestToolTip(quest.getTooltip());
+			}
+		}*/
+
+		Player p = this.target.GetComponent<Player>();
+		QuestInfo qInfo = new QuestInfo();
+		PlayerServer pServer = server.getPlayerObject(p.connectionToServer.connectionId);
+		//Quest[] questsToSend = server.getQuestArrayFromPlayerName(server.getPlayerObject(p.connectionToServer.connectionId).playerName);
+		List<Quest> questsToSend = new List<Quest>();
+		foreach(Quest q in pServer.quests){
+			if(q.getType().Equals("mob")){
+				q.increaseMobKills();
+				questsToSend.Add(q);
+			}
+		}
+		qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
+		NetworkServer.SendToClient(p.connectionToServer.connectionId, PacketTypes.QUEST_UPDATE, qInfo);
+
 		//Server.spawnObject(drop, this.transform.position);
 		//Server.spawnObject(part, new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward);
         spawner.totalEnemiesInArea--;

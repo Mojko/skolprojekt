@@ -23,11 +23,13 @@ public class Player : NetworkBehaviour
     public GameObject skillTreeUi;
     private CommandManager commandManager;
     private Login login;
+	private QuestUI questUI;
 
     private GameObject[] worlds = new GameObject[2];
 
     public List<Skill> skills = new List<Skill>();
     public List<Skill> skillsToVerifyWithFromServer = new List<Skill>();
+	public List<Quest> quests = new List<Quest>();
 
     public int health = 100;
     public int mana = 100;
@@ -77,11 +79,24 @@ public class Player : NetworkBehaviour
         equip.setPlayer(this);
 		camera.GetComponent<MainCamera> ().player = this.gameObject;
 		camera.GetComponent<MainCamera> ().setState ((int)e_cameraStates.DEFAULT);
+		this.questUI = this.getUI().transform.Find("Quest_UI").GetComponent<QuestUI>();
 
         worlds[0] = GameObject.Find("login_World");
         worlds[1] = GameObject.Find("World");
 
     }
+	public QuestUI getQuestUI(){
+		return this.questUI;
+	}
+	public Quest[] getQuests(){
+		return this.quests.ToArray();
+	}
+	public void startNewQuest(Quest quest){
+		this.quests.Add(quest);
+	}
+	public string getCharacterName(){
+		return this.playerName;
+	}
     public EquipmentHandler getEquipHandler() {
         return equip;
     }
