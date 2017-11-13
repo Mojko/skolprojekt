@@ -59,7 +59,7 @@ public static class stringTools {
         new UnityEngine.Object[0],
         Resources.LoadAll("weapons"),
         new UnityEngine.Object[0],
-        new UnityEngine.Object[0],
+        Resources.LoadAll("weapons"),
         Resources.LoadAll("weapons"),
     };
 }
@@ -78,6 +78,7 @@ public class ItemString{
         { 1, "Hp" },
         { 2501, "Stick" },
         { 2500, "Pan" },
+        { 4001, "White Work Gloves" },
     };
 }
 public class Inventory : MonoBehaviour

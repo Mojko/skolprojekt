@@ -27,7 +27,7 @@ public class EquipmentHandler : UIHandler {
         equips = eqps;
     }
     public void setEquip(int type, Equip equip) {
-        equips.Insert(type, equip);
+        equips.Insert((equip.getID() / Tools.ITEM_INTERVAL) - 2, equip);
         updateSlots();
     }
     public void setEquipmentUI(GameObject equipment) {
