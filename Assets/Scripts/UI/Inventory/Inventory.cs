@@ -57,7 +57,7 @@ public static class stringTools {
         new UnityEngine.Object[0],
         new UnityEngine.Object[0],
         new UnityEngine.Object[0],
-        new UnityEngine.Object[0],
+        Resources.LoadAll("weapons"),
         new UnityEngine.Object[0],
         new UnityEngine.Object[0],
         Resources.LoadAll("weapons"),
@@ -76,8 +76,8 @@ public class ItemString{
     public static Dictionary<int, string> itemNames = new Dictionary<int, string> {
         { 0, "Mana" },
         { 1, "Hp" },
-        { 4001, "Stick" },
-        { 4000, "Stick" },
+        { 2501, "Stick" },
+        { 2500, "Pan" },
     };
 }
 public class Inventory : MonoBehaviour
@@ -106,7 +106,7 @@ public class Inventory : MonoBehaviour
 
     private RectTransform itemSettingTransform;
     private InventorySlot slotClicked;
-
+    private ItemInfoHandler itemInfoHandler;
     private bool hasRightClicked = false;
     private bool isDoneLoading = false;
     public int itemRightClickSpeed;
@@ -169,6 +169,8 @@ public class Inventory : MonoBehaviour
     {
 		this.player = player;
         itemSettingTransform = Instantiate(itemSettings).GetComponent<RectTransform>();
+        itemInfoHandler = itemSettingTransform.gameObject.GetComponent<ItemInfoHandler>();
+        itemInfoHandler.setPlayer(this.player);
         parentCanvas = Tools.getChild(player.getUI(), "Inventory_UI");
         itemSettingTransform.SetParent(parentCanvas.transform);
         canvas[0] = Tools.getChild(player.getUI(), "Items_Inventory_Eqp");
@@ -302,6 +304,7 @@ public class Inventory : MonoBehaviour
                 Debug.Log("right click! " + hasRightClicked);
                 information.hide();
                 slotClicked = itemsOwned[i];
+                itemInfoHandler.setEquip((Equip)itemsOwned[i].getItem());
             }
             /*
             else if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && !canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())

@@ -62,9 +62,10 @@ public class EquipmentHandler : UIHandler {
         for (int i = 0; i < equips.Count; i++) {
             if (equips[i] == null) continue;
             equip = equips[i];
-            Image image = slots[equip.getPositionInEquip()].transform.GetChild(0).GetComponent<Image>();
-            Debug.Log("sprite: " + equip.getID() / 500 + " : " + equip.getID() % 500 + 1);
-            image.sprite = (Sprite)stringTools.spriteObjects[equip.getID() / 500][equip.getID() % 500 + 1];
+            Debug.Log("equip id position: " + ((equip.getID() / 500) - 2));
+            Image image = slots[(equip.getID() / Tools.ITEM_INTERVAL) - 2].transform.GetChild(0).GetComponent<Image>();
+            Debug.Log("sprite: " + equip.getID() / Tools.ITEM_INTERVAL + " : " + equip.getID() % Tools.ITEM_INTERVAL + 1);
+            image.sprite = (Sprite)stringTools.spriteObjects[equip.getID() / Tools.ITEM_INTERVAL][equip.getID() % Tools.ITEM_INTERVAL + 1];
             image.color = Color.white;
         }
     }

@@ -122,12 +122,13 @@ public class Server : NetworkManager
 		conn.Close();
 	}
 
-	/*public Quest[] getQuestArrayFromPlayerServer(PlayerServer playerServer){
+    /*public Quest[] getQuestArrayFromPlayerServer(PlayerServer playerServer){
 		MySqlConnection conn;
 		MySqlDataReader reader;
 
 		int characterID = getCharacterID(playerServer.playerName);
-		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
+		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);sendOutQuestIdsOnCharacterLogin
+
 		Debug.Log("CID: " + characterID);
 		List<Quest> quests = new List<Quest>();
 		while(reader.Read()){
@@ -140,10 +141,10 @@ public class Server : NetworkManager
 		return quests.ToArray();
 	}*/
 
-	public byte[] sendOutQuestIdsOnCharacterLogin(int characterID){
+    public byte[] sendOutQuestIdsOnCharacterLogin(PlayerServer player){
 		MySqlConnection conn;
 		MySqlDataReader reader;
-		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
+		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = '" + player.getPlayerID() + "'");
 
 		List<int> questsToSendOut = new List<int>();
 		List<Quest> quests = new List<Quest>();
@@ -155,6 +156,7 @@ public class Server : NetworkManager
 			questManager.startQuest(q);
 			quests.Add(q);
 		}
+        player.quests = quests.ToArray();
 		return Tools.objectArrayToByteArray(quests.ToArray());
 		conn.Close();
 	}
@@ -402,6 +404,8 @@ public class Server : NetworkManager
         charactersOnline.Add(packet.characterName, getCharacterID(packet.characterName));
         characterConnections.Add(msg.conn.connectionId, packet.characterName);
         playerReal.playerName = packet.characterName;
+        packet.questClasses = sendOutQuestIdsOnCharacterLogin(playerReal);
+
         playerObjects.Add(msg.conn.connectionId, playerReal);
         Debug.Log("loaded character!");
 
@@ -418,8 +422,6 @@ public class Server : NetworkManager
         }
         player.setSkills(skillProperties.ToArray());
         packet.skillProperties = skillProperties.ToArray();
-		packet.questClasses = sendOutQuestIdsOnCharacterLogin(id);
-		playerObjects[msg.conn.connectionId].quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
 
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_PLAYER, packet);
         conn.Close();
@@ -474,7 +476,9 @@ public class Server : NetworkManager
         mysqlReader(out conn, out reader, "SELECT * FROM inventory LEFT JOIN inventoryEquipment ON inventory.id = inventoryEquipment.inventoryID WHERE characterID = '" + characterID + "'");
         while (reader.Read())
         {
+            //hämar vilken typ ett item är, om det är = 0 så är det ett equip.
             int invType = reader.GetInt32("inventoryType");
+            //kollar om itemet är ett equip.
             if (invType == (int)inventoryTabs.EQUIP)
             {
                 int position = reader.GetInt32("position");
@@ -496,8 +500,9 @@ public class Server : NetworkManager
                         -1,
                         -1,
                     };
+                    //om positionen är över 0 så betyder det att spelaren inte har den equippad. om den är mindre än noll så är den det.
                     if (position >= (int)inventoryTabs.EQUIPPED)
-                        player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
+                        player.addItem(new Equip(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
                     else
                         player.addEquip(new Equip(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
             }
@@ -521,6 +526,8 @@ public class Server : NetworkManager
                     -1,
                 };
                 player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
+
+
             }
         }
         conn.Close();
@@ -584,11 +591,11 @@ public class Server : NetworkManager
         MySqlConnection conn;
         Item item1 = (Item)Tools.byteArrayToObject(item.item1);
         Item item2 = (Item)Tools.byteArrayToObject(item.item2);
-        Debug.Log("player connection: " + player.connectionID + " : " + netMsg.conn.connectionId);
+
         if ((!player.hasItem(item1) || !player.hasItem(item2)) && item2.getID() != -1) {
-            Debug.Log(player.hasItem(item1) + " | " + player.hasItem(item2));
             sendError(player,ErrorID.INVALID_ITEM, true, "Item doesnt match database");
         }
+
         Debug.Log(item1.getKeyID() + " : " + item1.getPosition() + " | " + item2.getKeyID() + " : " + item2.getPosition());
         //ServerDebug("hello from server");
         mysqlNonQuerySelector(out conn, "UPDATE inventory SET position = '" + item1.getPosition() + "' WHERE id = '" + item1.getKeyID() + "'");
@@ -784,13 +791,14 @@ public class Server : NetworkManager
     public PlayerServer getPlayerObject(int connectionID) {
         return playerObjects[connectionID];
     }
+
     private void sendError(PlayerServer player, ErrorID errorID, bool shouldKick, string message)
     {
         ErrorMessage error = new ErrorMessage();
         error.message = message;
         error.errorID = (int)errorID;
         error.shouldKick = shouldKick;
-        //NetworkServer.SendToClient(player.connectionID, PacketTypes.ERROR, error);
+        NetworkServer.SendToClient(player.connectionID, PacketTypes.ERROR, error);
     }
 }
 
