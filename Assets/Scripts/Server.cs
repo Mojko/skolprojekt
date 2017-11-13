@@ -100,7 +100,7 @@ public class Server : NetworkManager
     {
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
-		questManager.checkValidQuest(quest, netMsg.conn.connectionId, this.playerObjects[netMsg.conn.connectionId]);
+		questManager.checkValidQuest(quest, netMsg.conn.connectionId, playerObjects[netMsg.conn.connectionId]);
     }
 
 	public void addOrUpdateQuestStatusToDatabase(Quest quest, int connectionId){

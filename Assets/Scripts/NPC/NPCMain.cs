@@ -77,6 +77,7 @@ public class NPCMain : NetworkBehaviour {
     }
 
 	private void giveQuestToPlayer(){
+        Debug.Log("wew");
 		if (questIds != null) {
 			foreach(Quest quest in this.player.getQuests()){
 				for(int i=0;i<questIds.Length;i++){

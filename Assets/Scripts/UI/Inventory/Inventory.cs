@@ -109,6 +109,7 @@ public class Inventory : MonoBehaviour
 
     private bool hasRightClicked = false;
     private bool isDoneLoading = false;
+    public int itemRightClickSpeed;
 
     public static int activeCanvas = 0;
     public void show()
@@ -311,7 +312,7 @@ public class Inventory : MonoBehaviour
         }
         if (hasRightClicked && !isDoneLoading) {
             Debug.Log("lerping!!");
-            itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, Mathf.Lerp(itemSettingTransform.sizeDelta.y,90f,Time.deltaTime * 5f));
+            itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, Mathf.Lerp(itemSettingTransform.sizeDelta.y,90f,Time.deltaTime * itemRightClickSpeed));
             if (itemSettingTransform.sizeDelta.y >= 89f) {
                 itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, 90F);
                 isDoneLoading = true;

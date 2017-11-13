@@ -1078,6 +1078,7 @@ MonoBehaviour:
     type: 2}
   skills: []
   skillsToVerifyWithFromServer: []
+  quests: []
   health: 100
   mana: 100
   money: 0
@@ -1171,6 +1172,7 @@ MonoBehaviour:
     type: 2}
   itemSettings: {fileID: 1662832420402558, guid: c0d69a8d1747dac449dd3af10fd35d44,
     type: 2}
+  itemRightClickSpeed: 11
 --- !u!114 &114987307817764298
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1185,8 +1187,7 @@ MonoBehaviour:
   skillTreePrefab: {fileID: 1321025700920638, guid: 57f3cc37ce603fc4189255bf21074dca,
     type: 2}
   skillTree: {fileID: 0}
-  NPCManagerPrefab: {fileID: 1823992509445390, guid: af9ac42d3009fcc42a826f0dc32135c6,
-    type: 2}
+  questUI: {fileID: 0}
 --- !u!137 &137286202401713048
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
