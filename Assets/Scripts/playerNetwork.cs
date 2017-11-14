@@ -294,7 +294,7 @@ public class playerNetwork : NetworkBehaviour{
 		//con.RegisterHandler (PacketTypes.SAVE_INVENTORY, OnSaveInventory);
 		InventoryInfo msg = new InventoryInfo ();
 		msg.id = this.gameObject.GetComponent<NetworkIdentity> ().netId;
-		Item[] items = invetory.getItems();
+		//Item[] items = invetory.getItems();
 		msg.name = player.playerName;
 		con.Send (PacketTypes.SAVE_INVENTORY, msg);
 	}

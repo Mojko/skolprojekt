@@ -27,7 +27,13 @@ public class EquipmentHandler : UIHandler {
         equips = eqps;
     }
     public void setEquip(int type, Equip equip) {
-        equips.Insert((equip.getID() / Tools.ITEM_INTERVAL) - 2, equip);
+        int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
+        Equip item;
+        if ((item = equips[index]) != null) {
+            item.setPosition(equip.getPosition());
+            player.getInventory().addItem(item);
+        }
+        equips[index] = equip;
         updateSlots();
     }
     public void setEquipmentUI(GameObject equipment) {

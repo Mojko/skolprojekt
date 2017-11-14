@@ -137,12 +137,8 @@ public class Inventory : MonoBehaviour
         }
     }
     */
-    public Item[] getItems() {
-        Item[] item = new Item[itemsOwned.Count];
-        for(int i= 0; i < itemsOwned.Count; i++) {
-            item[i] = itemsOwned[i].getItem();
-        }
-        return item;
+    public List<InventorySlot> getItems() {
+        return this.itemsOwned;
     }
     public int[] itemsToArray(Item[] items)
     {
@@ -218,13 +214,12 @@ public class Inventory : MonoBehaviour
         player.getNetwork().moveItem(item,Item.getEmptyItem(-1), PacketTypes.INVENTORY_MOVE_ITEM, this.player);
         return true;
     }
-
-    int mouseOver = 0;
+    public int mouseOver = 0;
     void updateInventory()
     {
         if (!isShowing)
             return;
-        int index = 0;
+
         for (int i = 0; i < itemsOwned.Count; i++)
         {
             if (itemsOwned[i].isMouseOver() && !information.gameObject.activeSelf)
@@ -238,8 +233,7 @@ public class Inventory : MonoBehaviour
             else if (!itemsOwned[mouseOver].isMouseOver())
             {
                 if (information.gameObject.activeSelf)
-                {
-
+                {     
                     information.hide();
                     information.gameObject.SetActive(false);
                 }
@@ -254,7 +248,6 @@ public class Inventory : MonoBehaviour
             }
             if (itemsOwned[i].isMouseOver() && Input.GetMouseButtonDown(0))
             {
-                index = 0;
                 if (mouse.isEmpty())
                 {
                     mouse.setMouseItem(itemsOwned[i].getItem(), i);
@@ -305,7 +298,7 @@ public class Inventory : MonoBehaviour
                 Debug.Log("right click! " + hasRightClicked);
                 information.hide();
                 slotClicked = itemsOwned[i];
-                itemInfoHandler.setEquip((Equip)itemsOwned[i].getItem());
+                itemInfoHandler.setEquip(itemsOwned[i]);
             }
             /*
             else if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && !canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())
@@ -378,5 +371,8 @@ public class Inventory : MonoBehaviour
     private int Vec2ToSlots(Vector2 vec2)
     {
         return (int)(Mathf.Floor(vec2.x / 50) + Mathf.Floor(vec2.y / 50) * 4);
+    }
+    public RectTransform getItemInfoTransform() {
+        return itemSettingTransform;
     }
 }
