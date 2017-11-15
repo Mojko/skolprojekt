@@ -57,9 +57,9 @@ public static class stringTools {
         new UnityEngine.Object[0],
         new UnityEngine.Object[0],
         new UnityEngine.Object[0],
+        Resources.LoadAll("weapons"),
         new UnityEngine.Object[0],
-        new UnityEngine.Object[0],
-        new UnityEngine.Object[0],
+        Resources.LoadAll("weapons"),
         Resources.LoadAll("weapons"),
     };
 }
@@ -76,8 +76,9 @@ public class ItemString{
     public static Dictionary<int, string> itemNames = new Dictionary<int, string> {
         { 0, "Mana" },
         { 1, "Hp" },
-        { 4001, "Stick" },
-        { 4000, "Stick" },
+        { 2501, "Stick" },
+        { 2500, "Pan" },
+        { 4001, "White Work Gloves" },
     };
 }
 public class Inventory : MonoBehaviour
@@ -106,7 +107,7 @@ public class Inventory : MonoBehaviour
 
     private RectTransform itemSettingTransform;
     private InventorySlot slotClicked;
-
+    private ItemInfoHandler itemInfoHandler;
     private bool hasRightClicked = false;
     private bool isDoneLoading = false;
     public int itemRightClickSpeed;
@@ -136,12 +137,8 @@ public class Inventory : MonoBehaviour
         }
     }
     */
-    public Item[] getItems() {
-        Item[] item = new Item[itemsOwned.Count];
-        for(int i= 0; i < itemsOwned.Count; i++) {
-            item[i] = itemsOwned[i].getItem();
-        }
-        return item;
+    public List<InventorySlot> getItems() {
+        return this.itemsOwned;
     }
     public int[] itemsToArray(Item[] items)
     {
@@ -165,10 +162,28 @@ public class Inventory : MonoBehaviour
         information.gameObject.SetActive(false);
 
     }
+    public void removeItem(Item item) {
+        itemsOwned.RemoveAt(findItem(item));
+    }
+    public void updateItem(Item oldItem, Item newItem) {
+        itemsOwned[findItem(oldItem)].setItem(newItem.getPosition(), newItem);
+    }
+    public int findItem(Item item) {
+        for (int i = 0; i < itemsOwned.Count; i++)
+        {
+            if (itemsOwned[i].getItem().compareTo(item))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
 	public void init(Player player)
     {
 		this.player = player;
         itemSettingTransform = Instantiate(itemSettings).GetComponent<RectTransform>();
+        itemInfoHandler = itemSettingTransform.gameObject.GetComponent<ItemInfoHandler>();
+        itemInfoHandler.setPlayer(this.player);
         parentCanvas = Tools.getChild(player.getUI(), "Inventory_UI");
         itemSettingTransform.SetParent(parentCanvas.transform);
         canvas[0] = Tools.getChild(player.getUI(), "Items_Inventory_Eqp");
@@ -202,6 +217,7 @@ public class Inventory : MonoBehaviour
     public bool addItem(Item item)
     {
         InventorySlot slot = new InventorySlot();
+        Debug.Log(item.getQuantity());
         slot.setItem(item.getPosition(), item);
         Debug.Log("item added " + item);
         GameObject instansiatedSlot = (GameObject)Instantiate(InventorySlot);
@@ -212,16 +228,14 @@ public class Inventory : MonoBehaviour
         slot.transform.SetParent(canvas[activeCanvas].transform);
         itemsOwned.Add(slot);
         recalcPos(itemsOwned.Count - 1, item.getPosition());
-        player.getNetwork().moveItem(item,Item.getEmptyItem(-1), PacketTypes.INVENTORY_MOVE_ITEM, this.player);
         return true;
     }
-
-    int mouseOver = 0;
+    public int mouseOver = 0;
     void updateInventory()
     {
         if (!isShowing)
             return;
-        int index = 0;
+
         for (int i = 0; i < itemsOwned.Count; i++)
         {
             if (itemsOwned[i].isMouseOver() && !information.gameObject.activeSelf)
@@ -235,8 +249,7 @@ public class Inventory : MonoBehaviour
             else if (!itemsOwned[mouseOver].isMouseOver())
             {
                 if (information.gameObject.activeSelf)
-                {
-
+                {     
                     information.hide();
                     information.gameObject.SetActive(false);
                 }
@@ -251,7 +264,6 @@ public class Inventory : MonoBehaviour
             }
             if (itemsOwned[i].isMouseOver() && Input.GetMouseButtonDown(0))
             {
-                index = 0;
                 if (mouse.isEmpty())
                 {
                     mouse.setMouseItem(itemsOwned[i].getItem(), i);
@@ -302,6 +314,7 @@ public class Inventory : MonoBehaviour
                 Debug.Log("right click! " + hasRightClicked);
                 information.hide();
                 slotClicked = itemsOwned[i];
+                itemInfoHandler.setEquip(itemsOwned[i]);
             }
             /*
             else if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && !canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())
@@ -374,5 +387,8 @@ public class Inventory : MonoBehaviour
     private int Vec2ToSlots(Vector2 vec2)
     {
         return (int)(Mathf.Floor(vec2.x / 50) + Mathf.Floor(vec2.y / 50) * 4);
+    }
+    public RectTransform getItemInfoTransform() {
+        return itemSettingTransform;
     }
 }

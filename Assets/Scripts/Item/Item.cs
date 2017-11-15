@@ -28,14 +28,31 @@ public class Item {
         this.inventoryType = inventoryType;
 
     }
+    public Item(int keyID, int position, int inventoryType,int quantity, params int[] stats)
+    {
+        this.id = stats[0];
+        this.stats = stats;
+        this.position = position;
+        this.keyID = keyID;
+        this.inventoryType = inventoryType;
+        this.quantity = quantity;
+
+    }
     public void setQuantity(int amount) {
         this.quantity = amount;
     }
     public int getInventoryType() {
         return this.inventoryType;
     }
+    private bool checkStats(Item item) {
+        for (int i = 0; i < stats.Length; i++) {
+            if (stats[i] != item.stats[i])
+                return false;
+        }
+        return true;
+    }
     public bool compareTo(Item item) {
-        if (this.keyID == item.keyID && this.stats.Equals(item.getStats()))
+        if (this.keyID == item.keyID && checkStats(item) && this.quantity == item.getQuantity())
         {
             return true;
         }
@@ -99,6 +116,9 @@ public class Item {
     public int getLuk()
     {
         return stats[5];
+    }
+    public void onUse() {
+
     }
     public string getName() {
         return ItemString.itemNames[stats[0]];

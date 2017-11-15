@@ -19,6 +19,7 @@ public class DamageInfo : MessageBase
 public class ItemInfo : MessageBase
 {
     public byte[] item;
+    public byte[] oldItem;
 }
 
 public class MobInfo : MessageBase
