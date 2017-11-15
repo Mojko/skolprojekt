@@ -19,8 +19,8 @@ public class QuestInformationData : MonoBehaviour {
 	void Start () {
         this.npcImage = npcObject.GetComponent<Image>();
         Sprite[] sprites = Resources.LoadAll<Sprite>("spritesheet_MonsterIcons"); // Fix l8er
-        this.questObjectiveImage = questObjectiveGameObject.GetComponent<Image>();
-        this.questObjectiveText = questObjectiveGameObject.GetComponentInChildren<Text>();
+        //this.questObjectiveImage = questObjectiveGameObject.GetComponent<Image>();
+        //this.questObjectiveText = questObjectiveGameObject.GetComponentInChildren<Text>();
 	}
 
     public void addNewQuestPanel(Quest quest)

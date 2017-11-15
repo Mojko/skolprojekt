@@ -452,7 +452,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcObject: {fileID: 1597694065983448}
-  questObjectiveGameObject: {fileID: 1343292724390186}
+  questObjectiveGameObject: {fileID: 1315693074831948, guid: d31745618a3cb5b4084da25961a722c5,
+    type: 2}
   questWrapper: {fileID: 1574918614226490}
   questContainer: {fileID: 1416970450065740, guid: 8f04ffff39ea14c4cb735fef6ee0e2d1,
     type: 2}

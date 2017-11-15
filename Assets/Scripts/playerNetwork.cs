@@ -42,6 +42,9 @@ public class playerNetwork : NetworkBehaviour{
 		con.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
 		con.RegisterHandler(PacketTypes.QUEST_START, onQuestStart);
 		con.RegisterHandler(PacketTypes.QUEST_UPDATE, onQuestUpdate);
+        con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
+        con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnEquip);
+        con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -55,7 +58,27 @@ public class playerNetwork : NetworkBehaviour{
         Destroy(login.transform.parent.gameObject);
         Destroy(login_world);
     }
+    void onItemUse(NetworkMessage netMsg) {
+        Item item = (Item)Tools.byteArrayToObject(netMsg.ReadMessage<ItemInfo>().item);
+        Item orgItem = (Item)Tools.byteArrayToObject(netMsg.ReadMessage<ItemInfo>().item);
+        if (item.getInventoryType() != (int)e_ItemTypes.EQUIP)
+        {
+            if (item.getQuantity() == 0)
+            {
+                player.getInventory().removeItem(item);
+                return;
+            }
+            player.getInventory().updateItem(orgItem, item);
+        }
+    }
+    void onUnEquip(NetworkMessage netMsg)
+    {
 
+    }
+    void onEquip(NetworkMessage netMsg)
+    {
+
+    }
     public void damageEnemy(GameObject enemy, int damage)
     {
         DamageInfo damageInfo = new DamageInfo();
@@ -258,6 +281,7 @@ public class playerNetwork : NetworkBehaviour{
 		PlayerInfo msg = new PlayerInfo();
 		msg.name = name;
         msg.characterName = characterName;
+        msg.id = this.gameObject.GetComponent<NetworkIdentity>().netId;
         Debug.Log("players name: " + msg.name);
 		con.Send(PacketTypes.LOAD_PLAYER, msg);
 	}
@@ -336,7 +360,20 @@ public class playerNetwork : NetworkBehaviour{
         }
     }
     //# INVENTORY
-
+    public void sendItem(short packetType, Item item) {
+        ItemInfo info = new ItemInfo();
+        info.item = Tools.objectToByteArray(item);
+        con.Send(packetType, info);
+    }
+    public void unEquipItem(Equip equip) {
+        sendItem(PacketTypes.ITEM_UNEQUIP, equip);
+    }
+    public void equipItem(Equip equip) {
+        sendItem(PacketTypes.ITEM_EQUIP, equip);
+    }
+    public void onItemUse(Item item) {
+        sendItem(PacketTypes.ITEM_USE, item);
+    }
     public void sendInventory(Inventory invetory){
 		con = connectionToServer;
 		//con.RegisterHandler (PacketTypes.SAVE_INVENTORY, OnSaveInventory);

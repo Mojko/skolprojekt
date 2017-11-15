@@ -30,6 +30,7 @@ public class EquipmentHandler : UIHandler {
         this.equips = eqps;
     }
     public void setEquip(int type, Equip equip) {
+        Debug.Log("EQUIPS: " + equips.Count);
         int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
         Equip item;
         if ((item = equips[index]) != null) {
