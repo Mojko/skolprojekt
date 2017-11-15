@@ -88,6 +88,9 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
 		NetworkServer.RegisterHandler(PacketTypes.QUEST_START, OnQuestRecieveFromClient);
+        NetworkServer.RegisterHandler(PacketTypes.ITEM_USE, onUseItem);
+        NetworkServer.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
+        NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
         resourceStructure = new ResourceStructure();
 
         
@@ -525,7 +528,7 @@ public class Server : NetworkManager
                     -1,
                     -1,
                 };
-                player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
+                player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType,reader.GetInt32("quantity"), item));
 
 
             }
@@ -534,6 +537,57 @@ public class Server : NetworkManager
         return player.getItems();
     }
 
+    void onUseItem(NetworkMessage netMsg) {
+        //hämat spelar objektet
+        PlayerServer player = netMsg.getPlayer();
+        //hämtar paketet som kom med.
+        ItemInfo info = netMsg.ReadMessage<ItemInfo>();
+        //omvandlar byte arrayen till ett Item objekt som kom från spelaren.
+        Item item = (Item)Tools.byteArrayToObject(info.item);
+        info.oldItem = info.item;
+        MySqlConnection conn;
+        //kollar om spelaren har itemet i spelarens inventory på servern.
+        if (!player.hasItem(item))
+        {
+            sendError(player, ErrorID.INVALID_ITEM, true, "changed item values");
+        }
+        if (!player.useItem(item)) {
+            sendError(player, ErrorID.INVALID_ITEM, false, "Something went wrong!");
+        }
+        //om spelaren har använt ett item och det finns noll kvar ska det tas bort från databasen. annars ska den minska med 1 i databasen.
+        if (item.getQuantity() == 0)
+        {
+            player.removeItem(item);
+            mysqlNonQuerySelector(out conn, "DELETE FROM inventory WHERE (quantity-1) < 1 AND id = '" + item.getKeyID() + "'");
+        }
+        else
+        {
+            mysqlNonQuerySelector(out conn, "UPDATE inventory SET quantity = '" + item.getQuantity() + "' WHERE  id = '" + item.getKeyID() + "'");
+        }
+        conn.Close();
+        //skicka tillbaka det till spelaren.
+        NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_USE, info);
+    }
+
+    void onUnequipItem(NetworkMessage netMsg) {
+        MySqlConnection con;
+        ItemInfo info = netMsg.ReadMessage<ItemInfo>();
+        Equip equip = (Equip)Tools.byteArrayToObject(info.item);
+        //-((equip.getID() / Tools.ITEM_INTERVAL) - 3) räknar ut position som den ska ha i inventoryt.
+        mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + equip.getPosition() + "' WHERE id = '" + equip.getKeyID() + "'");
+        con.Close();
+        NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_UNEQUIP, info);
+    }
+    void onEquipItem(NetworkMessage netMsg)
+    {
+        MySqlConnection con;
+        ItemInfo info = netMsg.ReadMessage<ItemInfo>();
+        Equip equip = (Equip)Tools.byteArrayToObject(info.item);
+        //-((equip.getID() / Tools.ITEM_INTERVAL) - 3) räknar ut position som den ska ha i inventoryt.
+        mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + -((equip.getID() / Tools.ITEM_INTERVAL) - 3) + "' WHERE id = '" + equip.getKeyID() + "'");
+        con.Close();
+        NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_EQUIP, info);
+    }
     void onSaveInventory(NetworkMessage netMsg)
     {
         playerObjects[netMsg.conn.connectionId].saveInventory(this);
@@ -798,7 +852,7 @@ public class Server : NetworkManager
         error.message = message;
         error.errorID = (int)errorID;
         error.shouldKick = shouldKick;
-        NetworkServer.SendToClient(player.connectionID, PacketTypes.ERROR, error);
+        //NetworkServer.SendToClient(player.connectionID, PacketTypes.ERROR, error);
     }
 }
 

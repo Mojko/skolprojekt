@@ -154,6 +154,7 @@ public class Player : NetworkBehaviour
         Debug.Log("reloaded scene.");
     }
     public void setEquips(List<Equip> equips) {
+        Debug.Log("equips set!!!!!!!!!!!!!!!!");
         equip.setEquips(equips);
         equip.updateSlots();
     }

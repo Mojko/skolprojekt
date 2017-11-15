@@ -19,4 +19,7 @@ public class ItemInfoButton : MonoBehaviour {
     public void onDrop() {
 
     }
+    public void onUse() {
+        handler.setUseClicked();
+    }
 }

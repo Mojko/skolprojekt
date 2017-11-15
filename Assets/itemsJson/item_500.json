@@ -1,0 +1,19 @@
+{
+	"pots"
+	[
+		{
+		"id":0,
+		"name": "Red potion",
+		"health": 100,
+		"mana": 0,
+		"ImageIndex":1
+		},
+		{
+		"id":1,
+		"name": "Blue potion",
+		"health": 0,
+		"mana": 100,
+		"ImageIndex":1
+		}
+	]
+}

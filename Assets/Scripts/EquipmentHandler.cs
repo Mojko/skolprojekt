@@ -6,14 +6,17 @@ public class EquipmentHandler : UIHandler {
     List<Equip> equips = new List<Equip>();
     GameObject equip;
     GameObject[] slots;
-    MouseOverUI[] slotsMouse;
+    List<MouseOverUI> slotsMouse = new List<MouseOverUI>();
     Player player;
     bool hasLoaded = false;
     new void Update() {
         base.Update();
         if (!hasLoaded) return;
-        for (int i = 0; i < slotsMouse.Length; i++)
+        for (int i = 0; i < slotsMouse.Count; i++)
         {
+            if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0)) {
+                Debug.Log("hovering equip slot: " + i);
+            }
             if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0) && equips[i] != null)
             {
                 onClick(i, equips[i]);
@@ -24,7 +27,7 @@ public class EquipmentHandler : UIHandler {
         this.player = player;
     }
     public void setEquips(List<Equip> eqps) {
-        equips = eqps;
+        this.equips = eqps;
     }
     public void setEquip(int type, Equip equip) {
         int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
@@ -34,19 +37,26 @@ public class EquipmentHandler : UIHandler {
             player.getInventory().addItem(item);
         }
         equips[index] = equip;
+        player.getNetwork().equipItem(equip);
         updateSlots();
     }
     public void setEquipmentUI(GameObject equipment) {
         equip = equipment;
         slots = equip.transform.GetChild(0).getAllChildren().transformsToObject();
-        slotsMouse = new MouseOverUI[slots.Length];
-        for (int i = 0; i < slotsMouse.Length; i++)
+        for (int i = 0; i < slots.Length; i++)
         {
-            slotsMouse[i] = slots[i].GetComponent<MouseOverUI>();
+            for (int j = 0; j < equips.Count; j++)
+            {
+                if(equips[j].getPosition() < 0)
+                    if (equips[j].getPosition() == i) {
+                        slotsMouse[i] = slots[i].GetComponent<MouseOverUI>();
+                    }
+            }
         }
         hasLoaded = true;
     }
     public void onClick(int pos, Equip equip) {
+        Debug.Log("EQUIP CLICKED");
         Inventory inventory = player.getInventory();
         int closestFree = inventory.getClosestSlot((int)inventoryTabs.EQUIP);
         equip.setPosition(closestFree);
@@ -55,6 +65,7 @@ public class EquipmentHandler : UIHandler {
         clearSlot(pos); 
         this.equips.Remove(equip);
         updateSlots();
+        this.player.getNetwork().unEquipItem(equip);
     }
     private void clearSlot(int slot) {
         Image image = slots[slot].transform.GetChild(0).GetComponent<Image>();

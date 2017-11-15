@@ -6,6 +6,7 @@ public class InventorySlot : MonoBehaviour {
 	public int ID;
     public int itemID;
 	public Item item;
+    public Text quantityText;
     MouseOverUI mouse;
     public void Start() {
         mouse = GetComponent<MouseOverUI>();
@@ -25,7 +26,9 @@ public class InventorySlot : MonoBehaviour {
 	public void setItem(int position, Item item){
         this.item = item;
         this.item.stats[8] = position;
-	}
+        quantityText.text = item.getQuantity() + "";
+
+    }
 
     public void setImage(Item item) {
         //om itemet är tomt så ska det vara en tom bild. annars ska en hämta en bild beroende på vilket item det är.
@@ -34,7 +37,6 @@ public class InventorySlot : MonoBehaviour {
             this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = null;
         }
         else {
-            Debug.Log("id: " + (item.getID() / 500) + " item i n array: " + (item.getID() % 500 + 1));
             this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = (Sprite)stringTools.spriteObjects[item.getID() / 500][item.getID() % 500 + 1];
         }
     }

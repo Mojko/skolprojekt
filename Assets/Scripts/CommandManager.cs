@@ -27,14 +27,19 @@ public class CommandManager {
     {
         command = command.TrimStart("/".ToCharArray());
         string[] splitMessage = command.Split(null);
-
+        // /addItem 
         MethodInfo methodInfo = this.GetType().GetMethod(splitMessage[0]);
 
         if(methodInfo == null) {
             commandNotFound();
             return;
         }
-
+        object[] obj = new object[splitMessage.Length - 1];
+        for (int i = 0; i < obj.Length; i++) {
+            obj[i] = splitMessage[i + 1];
+        }
+        methodInfo.Invoke(this, obj);
+        /*
         switch (splitMessage.Length) {
             case 1:
             methodInfo.Invoke(this, null);
@@ -53,6 +58,7 @@ public class CommandManager {
             break;
 
         }
+        */
 
     }
     public void help()

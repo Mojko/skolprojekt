@@ -162,6 +162,22 @@ public class Inventory : MonoBehaviour
         information.gameObject.SetActive(false);
 
     }
+    public void removeItem(Item item) {
+        itemsOwned.RemoveAt(findItem(item));
+    }
+    public void updateItem(Item oldItem, Item newItem) {
+        itemsOwned[findItem(oldItem)].setItem(newItem.getPosition(), newItem);
+    }
+    public int findItem(Item item) {
+        for (int i = 0; i < itemsOwned.Count; i++)
+        {
+            if (itemsOwned[i].getItem().compareTo(item))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
 	public void init(Player player)
     {
 		this.player = player;
@@ -201,6 +217,7 @@ public class Inventory : MonoBehaviour
     public bool addItem(Item item)
     {
         InventorySlot slot = new InventorySlot();
+        Debug.Log(item.getQuantity());
         slot.setItem(item.getPosition(), item);
         Debug.Log("item added " + item);
         GameObject instansiatedSlot = (GameObject)Instantiate(InventorySlot);
@@ -211,7 +228,6 @@ public class Inventory : MonoBehaviour
         slot.transform.SetParent(canvas[activeCanvas].transform);
         itemsOwned.Add(slot);
         recalcPos(itemsOwned.Count - 1, item.getPosition());
-        player.getNetwork().moveItem(item,Item.getEmptyItem(-1), PacketTypes.INVENTORY_MOVE_ITEM, this.player);
         return true;
     }
     public int mouseOver = 0;
