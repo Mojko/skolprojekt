@@ -49,7 +49,7 @@ public class SkillMovement : MonoBehaviour {
     {
         if (other.transform.CompareTag("Enemy")) {
             AI ai = other.GetComponent<AI>();
-            ai.damage(5,null);
+            ai.damage(5,null,null);
             Destroy(this.gameObject);
         }        
     }
@@ -57,7 +57,7 @@ public class SkillMovement : MonoBehaviour {
     {
         if (collision.transform.CompareTag("Enemy")) {
             AI ai = collision.gameObject.GetComponent<AI>();
-            ai.damage(5, null);
+            ai.damage(5, null,null);
             Destroy(this.gameObject);
         }
     }

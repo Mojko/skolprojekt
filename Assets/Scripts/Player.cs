@@ -5,37 +5,50 @@ using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour
 {
-    NetworkConnection con;
-    public string playerName;
-    public int level;
-    public Camera camera;
-	public playerNetwork network;
-	private Inventory inventory;
-	public GameObject npcTalkingTo;
+
+    //Private variables
+    private Inventory inventory;
     private GameObject UICanvas;
-    public Chat chat;
     private NPC currentNPC;
     private SkillUIManager skillUi;
     private SkillManager skillManager;
-    public GameObject skillPrefab;
-    public GameObject skillEffectPrefab;
     private PlayerMovement movement;
-    public GameObject skillTreeUi;
     private CommandManager commandManager;
     private Login login;
-	private QuestUI questUI;
-
     private GameObject[] worlds = new GameObject[2];
+    private NetworkConnection con;
+    private EquipmentHandler equip;
+    private QuestInformationData questInformationData;
+    private GameObject questInformationObject;
 
-    public List<Skill> skills = new List<Skill>();
-    public List<Skill> skillsToVerifyWithFromServer = new List<Skill>();
-	public List<Quest> quests = new List<Quest>();
-
+    [Header("Player Attributes")]
+    public string playerName;
+    public int level;
     public int health = 100;
     public int mana = 100;
     public int money = 0;
+    
+    
+    [Space(20)]
+    [Header("Quests")]
+    public List<Quest> quests = new List<Quest>();
+    public GameObject quest_UI;
+
+    [Space(20)]
+    [Header("Skills")]
+    public GameObject skillPrefab;
+    public GameObject skillEffectPrefab;
+    public GameObject skillTreeUi;
+    public List<Skill> skills = new List<Skill>();
+    public List<Skill> skillsToVerifyWithFromServer = new List<Skill>();
+
+    [Space(20)]
+    [Header("System")]
+    public Camera camera;
+	public playerNetwork network;
+	public GameObject npcTalkingTo;
+    public Chat chat;
     public GameObject[] prefabsToRegister;
-    private EquipmentHandler equip;
 
     public override void OnStartLocalPlayer ()
 	{
@@ -51,7 +64,7 @@ public class Player : NetworkBehaviour
         ClientScene.RegisterPrefab(skillPrefab);
         ClientScene.RegisterPrefab(skillEffectPrefab);*/
 
-         UICanvas = GameObject.Find("UI");
+        UICanvas = GameObject.Find("UI");
         login = Tools.findInactiveChild(UICanvas,"Login_UI").GetComponent<Login>();
         this.movement = GetComponent<PlayerMovement>();
 
@@ -65,11 +78,12 @@ public class Player : NetworkBehaviour
 
         this.equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
 
+		network = GetComponent<playerNetwork>();
+        network.initialize (this);
+
         this.skillTreeUi = Tools.getChild(UICanvas, this.skillTreeUi.name);
 
         chat = Tools.getChild(UICanvas, "Chat_UI").GetComponent<Chat>();
-		network = GetComponent<playerNetwork>();
-        network.initialize (this);
         chat.setPlayer(this);
 		camera = Camera.main;
 		this.inventory = this.GetComponent<Inventory> ();
@@ -79,15 +93,26 @@ public class Player : NetworkBehaviour
         equip.setPlayer(this);
 		camera.GetComponent<MainCamera> ().player = this.gameObject;
 		camera.GetComponent<MainCamera> ().setState ((int)e_cameraStates.DEFAULT);
-		this.questUI = this.getUI().transform.Find("Quest_UI").GetComponent<QuestUI>();
 
         worlds[0] = GameObject.Find("login_World");
         worlds[1] = GameObject.Find("World");
 
+
+        //TempQuestUI
+        GameObject tempQuestUI = Instantiate(this.quest_UI);
+        this.questInformationData = tempQuestUI.GetComponentInChildren<QuestInformationData>();
+        tempQuestUI.transform.SetParent(this.getUI().transform);
+        tempQuestUI.transform.SetAsLastSibling();
+        questInformationObject = tempQuestUI;
+
     }
-	public QuestUI getQuestUI(){
-		return this.questUI;
+	public QuestInformationData getQuestInformationData(){
+        return this.questInformationData;
 	}
+    public GameObject getQuestInformationObject()
+    {
+        return this.questInformationObject;
+    }
 	public Quest[] getQuests(){
 		return this.quests.ToArray();
 	}
@@ -172,6 +197,10 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.E)) {
             this.equip.gameObject.SetActive(!this.equip.gameObject.activeInHierarchy);
         }
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            getQuestInformationObject().SetActive(!getQuestInformationObject().activeInHierarchy);
+            //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
+        }
     }
 
 	void OnCollisionEnter (Collision col) {
@@ -192,7 +221,7 @@ public class Player : NetworkBehaviour
                 break;
         }
     }
-    public void damage(int dmg)
+    public void damage(int dmg, GameObject damager)
     {
         this.health -= dmg;
 		StartCoroutine(flash());

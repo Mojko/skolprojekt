@@ -19,7 +19,6 @@ public class Spawner : NetworkBehaviour {
         if(!isServer) return;
 		vector3Radius = new Vector3(radius, 1, radius);
         this.monster = Server.getMonsterFromJson(monsterId);
-
 	}
     private void Update()
     {

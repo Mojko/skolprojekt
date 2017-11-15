@@ -1066,11 +1066,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerName: 
   level: 0
-  camera: {fileID: 0}
-  network: {fileID: 114014364301461666, guid: 8f106745b57851948bd2d6def8bdb260, type: 2}
-  npcTalkingTo: {fileID: 1041442643811354, guid: 4c81d8dff637fe34daf6eb65485c94e0,
-    type: 2}
-  chat: {fileID: 0}
+  health: 100
+  mana: 100
+  money: 0
+  quests: []
+  quest_UI: {fileID: 1200795492654618, guid: fe1f21a7fcee7fb48a9eb0a6c378c3ec, type: 2}
   skillPrefab: {fileID: 1909951923887278, guid: ed4b4b59595e5684780483c6c30c1f67,
     type: 2}
   skillEffectPrefab: {fileID: 0}
@@ -1078,10 +1078,11 @@ MonoBehaviour:
     type: 2}
   skills: []
   skillsToVerifyWithFromServer: []
-  quests: []
-  health: 100
-  mana: 100
-  money: 0
+  camera: {fileID: 0}
+  network: {fileID: 114014364301461666, guid: 8f106745b57851948bd2d6def8bdb260, type: 2}
+  npcTalkingTo: {fileID: 1041442643811354, guid: 4c81d8dff637fe34daf6eb65485c94e0,
+    type: 2}
+  chat: {fileID: 0}
   prefabsToRegister:
   - {fileID: 1398201025323300, guid: 73a86b40a45bfa441b4b9df83cc99448, type: 2}
   - {fileID: 1056696382670234, guid: 521fda76af7efa34b94646152eaabda3, type: 2}

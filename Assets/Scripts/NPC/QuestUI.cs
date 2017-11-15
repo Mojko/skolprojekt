@@ -25,6 +25,8 @@ public class QuestUI : MonoBehaviour {
 		questPrefabyOffset = questPrefab.transform.position.y;
 	}
 
+
+
 	public void addNewQuestPanel(Quest quest){
 		GameObject questObject = Instantiate(questPrefab);
 		questObject.transform.SetParent(this.questContainerObject.transform);

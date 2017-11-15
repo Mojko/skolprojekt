@@ -4,10 +4,8 @@ using UnityEngine;
 using MySql.Data.MySqlClient;
 using System.IO;
 public class PlayerServer {
-
     public List<Item> items = new List<Item>();
     public List<Equip> equips = new List<Equip>();
-
     public int databaseID;
     public int connectionID;
     public int playerID;
@@ -16,8 +14,9 @@ public class PlayerServer {
     public int mana = 0;
     public int maxHealth = 100;
     public int maxMana = 100;
-    public string playerName = "";
-	public Quest[] quests;
+	public string playerName = "";
+	public List<Quest> questList = new List<Quest>();
+    //public Quest[] quests;
     int[] stats = new int[5];
 
     int[] skills;
@@ -54,6 +53,7 @@ public class PlayerServer {
         }
         return false;
     }
+
     public bool useItem(Item item) {
 
         string file = File.ReadAllText("Assets/itemsJson/item_" + Mathf.CeilToInt(item.getID() / 500) * 500);

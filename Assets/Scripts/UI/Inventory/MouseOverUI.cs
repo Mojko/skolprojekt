@@ -15,23 +15,22 @@ public class MouseOverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 			mouseOver = true;
 		}
 	}
-	void Update () {
-		/*if(transform.parent.GetComponent<MouseOverUI>() != null){
-			if(mouseOver){
-				transform.parent.GetComponent<MouseOverUI>().inChild = true;
-			} else {
-				transform.parent.GetComponent<MouseOverUI>().inChild = false;
-			}
-		}*/
 
-		//transform.Find ("InventoryInformation").gameObject.SetActive (true);
-		/*
-		if (mouseOver || Input.GetKey(KeyCode.C)) {
-			transform.Find ("InventoryInformation").gameObject.SetActive (true);
-		} else {
-			transform.Find ("InventoryInformation").gameObject.SetActive (false);
-		}*/
-	}
+    public void decreaseOpacityOnHover(bool yesorno)
+    {
+        if(yesorno == true) {
+            Image i = this.GetComponent<Image>();
+            if (mouseOver) {
+                float r, g, b;
+                r = i.color.r;
+                g = i.color.g;
+                b = i.color.b;
+                i.color = new Color(r,g,b,0.5f);
+            } else {
+                i.color = new Color(i.color.r, i.color.g, i.color.b, 1);
+            }
+        }
+    }
     public bool hasDoubleClicked()
     {
         if (Time.time - lastClick < 0.2f)

@@ -21,7 +21,7 @@ public class playerNetwork : NetworkBehaviour{
 
     public GameObject skillTreePrefab;
 	public SkillTree skillTree;
-	public QuestUI questUI;
+	//public QuestUI questUI;
 
     bool characterLoaded = false;
 
@@ -42,13 +42,14 @@ public class playerNetwork : NetworkBehaviour{
 		con.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
 		con.RegisterHandler(PacketTypes.QUEST_START, onQuestStart);
 		con.RegisterHandler(PacketTypes.QUEST_UPDATE, onQuestUpdate);
-        con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnEquip);
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
+        con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
-		questUI = Tools.findInactiveChild(player.getUI(), "Quest_UI").GetComponent<QuestUI>();
+		//questUI = Tools.findInactiveChild(player.getUI(), "Quest_UI").GetComponent<QuestUI>();
+
 
         login.transform.parent.GetComponent<UIHandler>().removeThisFromParent();
 
@@ -78,11 +79,46 @@ public class playerNetwork : NetworkBehaviour{
     {
 
     }
-    public void onQuestUpdate(NetworkMessage netMsg){
+    public void damageEnemy(GameObject enemy, int damage)
+    {
+        DamageInfo damageInfo = new DamageInfo();
+        damageInfo.clientNetworkInstanceId = this.GetComponent<NetworkIdentity>().netId;
+        damageInfo.enemyNetworkInstanceId = enemy.GetComponent<NetworkIdentity>().netId;
+
+        //damageInfo.enemyUniqueId = enemy.GetComponent<MobManager>().getUniqueId();
+        damageInfo.damage = damage;
+        damageInfo.damageType = e_DamageType.MOB;
+        Debug.Log("Damage packet sent");
+        con.Send(PacketTypes.DEAL_DAMAGE, damageInfo);
+    }
+
+    public NetworkConnection getConnection()
+    {
+        return this.con;
+    }
+
+	public void onQuestUpdate(NetworkMessage netMsg){
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(questInfo.questClassInBytes);
 		foreach(Quest q in quests){
-			this.questUI.addNewQuestToolTip(q.getTooltip());
+			
+            /*
+             * 
+             * 
+                FIX THIS SHITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+             */
+                         /*
+             * 
+             * 
+                FIX THIS SHITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+             */
+                         /*
+             * 
+             * 
+                FIX THIS SHITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+             */
+            
+            //this.questUI.addNewQuestToolTip(q.getTooltip());
 		}
 		Debug.Log("QUEST UPDATED");
 	}
@@ -91,7 +127,8 @@ public class playerNetwork : NetworkBehaviour{
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
 		this.player.startNewQuest(quest);
-		this.questUI.addNewQuestPanel(quest);
+		this.player.getQuestInformationData().addNewQuestPanel(quest);
+        //this.questUI.addNewQuestPanel(quest);
 		Debug.Log("QUEST STARTED");
 	}
 
@@ -227,6 +264,7 @@ public class playerNetwork : NetworkBehaviour{
 		SkillId skill = skillObject.GetComponent<SkillId>();
 
 		msg.id = skill.id;
+        Debug.Log("PLAYER: " + this.player);
 		msg.playerName = this.player.playerName;
 		msg.currentPoints = skill.points;
 		msg.maxPoints = skill.maxPoints;
@@ -241,9 +279,9 @@ public class playerNetwork : NetworkBehaviour{
 
 	void sendPlayer(string name, string characterName){
 		PlayerInfo msg = new PlayerInfo();
-		msg.id = this.gameObject.GetComponent<NetworkIdentity>().netId;
 		msg.name = name;
         msg.characterName = characterName;
+        msg.id = this.gameObject.GetComponent<NetworkIdentity>().netId;
         Debug.Log("players name: " + msg.name);
 		con.Send(PacketTypes.LOAD_PLAYER, msg);
 	}
@@ -252,13 +290,22 @@ public class playerNetwork : NetworkBehaviour{
         Debug.Log("disconnected");
         DisconnectPacket packet = new DisconnectPacket();
         packet.name = player.playerName;
+        List<byte[]> questList = (List<byte[]>)Tools.byteArrayToObject(packet.questListInBytes);
+        foreach(Quest q in player.getQuests()) { 
+            questList.Add(Tools.objectToByteArray(q));
+        }
         con.Send(PacketTypes.DISCONNECT, packet);
     }
     void onLoadCharacter(NetworkMessage msg)
     {
         PlayerInfo m = msg.ReadMessage<PlayerInfo>();
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
-        Player player = playerObj.GetComponent<Player>();
+        Player player;
+        if(playerObj != null){
+            player = playerObj.GetComponent<Player>();
+        } else {
+            player = this.GetComponent<Player>();
+        }
 
 		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
 		QuestJson clientJson = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
@@ -266,7 +313,8 @@ public class playerNetwork : NetworkBehaviour{
 			foreach(Quest quest in questArray){
 				if(quest.getId() == quests.id){
 					player.quests.Add(quest);
-					this.questUI.addNewQuestPanel(quest);
+					this.player.getQuestInformationData().addNewQuestPanel(quest);
+                    //this.questUI.addNewQuestPanel(quest);
 				}
 			}
 			/*for(int i=0;i<m.questIds.Length;i++){
@@ -286,6 +334,7 @@ public class playerNetwork : NetworkBehaviour{
             tempSkill.maxPoints = m.skillProperties[i]; //maxPoints
             this.player.skillsToVerifyWithFromServer.Add(tempSkill);
         }
+        Debug.Log("SKILLTREE INITILIZED");
         skillTree = Instantiate (skillTreePrefab).GetComponent<SkillTree> ();
 		skillTree.initilize (player);
     }

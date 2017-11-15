@@ -9,15 +9,14 @@ public class PickCharacter : MonoBehaviour {
     private bool hadMouseOver = false;
     Login login;
     public string name;
-	// Use this for initialization
+
 	void Start () {
         originalPosition = this.transform.position;
 	}
     public void setLogin(Login login) {
         this.login = login;
     }
-	
-	// Update is called once per frame
+
 	void Update () {
         if (Input.GetMouseButtonDown(0)) {
             GameObject hitObj = mouse3D();

@@ -14,6 +14,12 @@ using NPCManager;
 using UnityEngine.AI;
 using NPCObject = System.Func<NPCManager.NPCConversationManager, int, bool>;
 
+public enum e_DamageType
+{
+    PLAYER,
+    MOB
+}
+
 public class Server : NetworkManager
 {
     delegate bool Mark();
@@ -52,6 +58,17 @@ public class Server : NetworkManager
     {
         if (connections.ContainsKey(conn.connectionId))
         {
+            PlayerServer pServer = getPlayerObject(conn.connectionId);
+            //List<byte[]> questList = (List<byte[]>)Tools.byteArrayToObject(pServer.questListInBytes);
+
+            /*foreach(byte[] b in questList.ToArray()) {
+                questArray = (Quest[])Tools.byteArrayToObjectArray(b);
+            }*/
+
+            foreach(Quest q in pServer.questList.ToArray()){
+                addOrUpdateQuestStatusToDatabase(q, pServer.connectionID);
+            }
+
             Debug.Log("disconnect server func");
             string name = connections[conn.connectionId];
             charactersOnline.Remove(characterConnections[conn.connectionId]);
@@ -68,7 +85,6 @@ public class Server : NetworkManager
     public override void OnStartServer()
     {
 		questManager = new QuestManager(this);
-        Application.targetFrameRate = 60;
         connectionString = "Server=" + host + ";Database=" + database + ";Uid=" + username + ";Pwd=" + password + ";";
         base.OnStartServer();
         NetworkServer.RegisterHandler(PacketTypes.LOAD_PLAYER, onLoadCharacter);
@@ -88,6 +104,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
 		NetworkServer.RegisterHandler(PacketTypes.QUEST_START, OnQuestRecieveFromClient);
+        NetworkServer.RegisterHandler(PacketTypes.DEAL_DAMAGE, onDealDamage);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_USE, onUseItem);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
@@ -99,8 +116,28 @@ public class Server : NetworkManager
 
     }
 
+    public void onDealDamage(NetworkMessage netMsg)
+    {
+        DamageInfo damageInfo = netMsg.ReadMessage<DamageInfo>();
+        //ClientScene.FindLocalObject(netMsg.conn);
+        GameObject player = NetworkServer.FindLocalObject(damageInfo.clientNetworkInstanceId);
+        GameObject enemy = NetworkServer.FindLocalObject(damageInfo.enemyNetworkInstanceId);
+
+        PlayerServer pServer = playerObjects[netMsg.conn.connectionId];
+
+        if(damageInfo.damageType == e_DamageType.MOB) {
+            Debug.Log("ENEMY: " + enemy);
+            MobManager enemyMobManager = enemy.GetComponent<MobManager>();
+            enemyMobManager.damage(5, player, pServer);
+            Debug.Log("Damage packet recieved");
+        } else if(damageInfo.damageType == e_DamageType.PLAYER) {
+            player.GetComponent<Player>().damage(5, enemy);
+        }
+    }
+
     public void OnQuestRecieveFromClient(NetworkMessage netMsg)
     {
+
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
 		questManager.checkValidQuest(quest, netMsg.conn.connectionId, playerObjects[netMsg.conn.connectionId]);
@@ -110,28 +147,37 @@ public class Server : NetworkManager
 		MySqlConnection conn;
 		MySqlDataReader reader;
 
-		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE questID = " + quest.getId());
+		mysqlReader(out conn, out reader, "SELECT questID, id FROM queststatus WHERE questID = " + quest.getId());
 
 		if(reader.Read()){
 			//UPDATE
-			mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = " + quest.getCompleted());
+			mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = '" + quest.getCompleted() + "' WHERE questID = '" + quest.getId() + "'");
+            
 		} else {
 			//INSERT
 			mysqlNonQuerySelector(out conn, "INSERT INTO queststatus(questID, characterID, status) VALUES('"+quest.getId()+"', '"+getCharacterID(quest.getCharacterName())+"', '"+quest.getCompleted()+"')");
 		}
+
+        int queststatusId = reader.GetInt32("id");
+        mysqlReader(out conn, out reader, "SELECT queststatusID FROM queststatusmobs WHERE queststatusID = " + queststatusId);
+        if (reader.Read()) {
+            mysqlNonQuerySelector(out conn, "UPDATE queststatusmobs SET count = '" + quest.getMobKills() + "' WHERE queststatusID = " + queststatusId);
+        } else {
+             mysqlNonQuerySelector(out conn, "INSERT INTO queststatusmobs(queststatusID, mob, count) VALUES('"+queststatusId+"', '"+quest.getMobId()+"', '"+quest.getMobKills()+"')");
+        }
+
 		QuestInfo questInfo = new QuestInfo();
 		questInfo.questClassInBytes = Tools.objectToByteArray(quest);
 		NetworkServer.SendToClient(connectionId, PacketTypes.QUEST_START, questInfo);
 		conn.Close();
 	}
 
-    /*public Quest[] getQuestArrayFromPlayerServer(PlayerServer playerServer){
+	/*public Quest[] getQuestArrayFromPlayerServer(PlayerServer playerServer){
 		MySqlConnection conn;
 		MySqlDataReader reader;
 
 		int characterID = getCharacterID(playerServer.playerName);
-		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);sendOutQuestIdsOnCharacterLogin
-
+		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
 		Debug.Log("CID: " + characterID);
 		List<Quest> quests = new List<Quest>();
 		while(reader.Read()){
@@ -144,10 +190,10 @@ public class Server : NetworkManager
 		return quests.ToArray();
 	}*/
 
-    public byte[] sendOutQuestIdsOnCharacterLogin(PlayerServer player){
+	public byte[] sendOutQuestIdsOnCharacterLogin(int characterID){
 		MySqlConnection conn;
 		MySqlDataReader reader;
-		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = '" + player.getPlayerID() + "'");
+		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
 
 		List<int> questsToSendOut = new List<int>();
 		List<Quest> quests = new List<Quest>();
@@ -159,7 +205,6 @@ public class Server : NetworkManager
 			questManager.startQuest(q);
 			quests.Add(q);
 		}
-        player.quests = quests.ToArray();
 		return Tools.objectArrayToByteArray(quests.ToArray());
 		conn.Close();
 	}
@@ -264,6 +309,8 @@ public class Server : NetworkManager
         Monster monsterToFind = getMonsterFromJson(id);
         if(monsterToFind != null){
             GameObject enemy = Instantiate(ResourceStructure.getGameObjectFromPath(monsterToFind.pathToModel));
+            Debug.Log("M_ID: " + monsterToFind.id);
+            enemy.GetComponent<MobManager>().setId(monsterToFind.id);
             NetworkServer.Spawn(enemy);
         }
     }
@@ -273,7 +320,8 @@ public class Server : NetworkManager
         if(monsterToFind != null){
             GameObject enemy = Instantiate(ResourceStructure.getGameObjectFromPath(monsterToFind.pathToModel));
             NavMeshAgent agent = enemy.GetComponent<NavMeshAgent>();
-            
+            enemy.GetComponent<MobManager>().setId(monsterToFind.id);
+
             if(agent){
                 agent.Warp(pos);
             }
@@ -395,6 +443,7 @@ public class Server : NetworkManager
     }
     void onLoadCharacter(NetworkMessage msg)
     {
+        Debug.Log("message ID_2: " + msg.conn.connectionId);
         PlayerInfo packet = msg.ReadMessage<PlayerInfo>();
         int id = getCharacterID(packet.characterName);
         //PlayerServer player = getPlayerObject(msg.conn.connectionId);
@@ -407,8 +456,6 @@ public class Server : NetworkManager
         charactersOnline.Add(packet.characterName, getCharacterID(packet.characterName));
         characterConnections.Add(msg.conn.connectionId, packet.characterName);
         playerReal.playerName = packet.characterName;
-        packet.questClasses = sendOutQuestIdsOnCharacterLogin(playerReal);
-
         playerObjects.Add(msg.conn.connectionId, playerReal);
         Debug.Log("loaded character!");
 
@@ -425,6 +472,56 @@ public class Server : NetworkManager
         }
         player.setSkills(skillProperties.ToArray());
         packet.skillProperties = skillProperties.ToArray();
+		packet.questClasses = sendOutQuestIdsOnCharacterLogin(id);
+		
+        Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
+        Debug.Log("lol r u null nigga");
+        foreach(Quest q in quests) {
+            playerReal.questList.Add(q);
+        }
+
+        MySqlDataReader reader1;
+        MySqlConnection conn1;
+        mysqlReader(out conn, out reader, "SELECT * FROM queststatusmobs");
+        mysqlReader(out conn1, out reader1, "SELECT * FROM queststatus WHERE characterID = '"+characterID+"'");
+
+        List<int> queststatusIds = new List<int>();
+
+        while (reader1.Read()) {
+            queststatusIds.Add(reader1.GetInt32("id"));
+        }
+
+        while (reader.Read()) {
+            foreach(Quest q in playerReal.questList.ToArray()) {
+                for(int i=0;i<queststatusIds.Count;i++){
+                    if(reader.GetInt32("queststatusID") == queststatusIds[i]){
+                        q.initilizeMobQuest(reader.GetInt32("mob"), reader.GetInt32("count"));
+                        Debug.Log("COUNT : " + reader.GetInt32("count"));
+                    }
+                }
+            }
+        }
+
+        //QuestStatusMobData questStatusMob = new QuestStatusMobData();
+
+        /*List<QuestStatusMobData> mobData = new List<QuestStatusMobData>();
+        mysqlReader(out conn, out reader, "SELECT * FROM queststatusmobs");
+        while (reader.Read()) {
+            foreach(Quest q in playerReal.questList){
+                mobData.Add(new QuestStatusMobData(, reader.GetInt32("mob"), reader.GetInt32("count")))
+            }
+        }
+
+        foreach(Quest q in playerReal.questList.ToArray()){
+            foreach(QuestStatusMobData data in mobData){
+                
+                //q.initilizeMobQuest(data.mobID, data.count);
+            }
+        }*/
+
+        packet.questClasses = Tools.objectArrayToByteArray(playerReal.questList.ToArray());
+
+        //playerObjects[msg.conn.connectionId].quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
 
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_PLAYER, packet);
         conn.Close();
@@ -479,9 +576,7 @@ public class Server : NetworkManager
         mysqlReader(out conn, out reader, "SELECT * FROM inventory LEFT JOIN inventoryEquipment ON inventory.id = inventoryEquipment.inventoryID WHERE characterID = '" + characterID + "'");
         while (reader.Read())
         {
-            //hämar vilken typ ett item är, om det är = 0 så är det ett equip.
             int invType = reader.GetInt32("inventoryType");
-            //kollar om itemet är ett equip.
             if (invType == (int)inventoryTabs.EQUIP)
             {
                 int position = reader.GetInt32("position");
@@ -503,7 +598,6 @@ public class Server : NetworkManager
                         -1,
                         -1,
                     };
-                    //om positionen är över 0 så betyder det att spelaren inte har den equippad. om den är mindre än noll så är den det.
                     if (position >= (int)inventoryTabs.EQUIPPED)
                         player.addItem(new Equip(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
                     else
@@ -528,9 +622,7 @@ public class Server : NetworkManager
                     -1,
                     -1,
                 };
-                player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType,reader.GetInt32("quantity"), item));
-
-
+                player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
             }
         }
         conn.Close();
@@ -588,6 +680,7 @@ public class Server : NetworkManager
         con.Close();
         NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_EQUIP, info);
     }
+
     void onSaveInventory(NetworkMessage netMsg)
     {
         playerObjects[netMsg.conn.connectionId].saveInventory(this);
@@ -645,11 +738,11 @@ public class Server : NetworkManager
         MySqlConnection conn;
         Item item1 = (Item)Tools.byteArrayToObject(item.item1);
         Item item2 = (Item)Tools.byteArrayToObject(item.item2);
-
+        Debug.Log("player connection: " + player.connectionID + " : " + netMsg.conn.connectionId);
         if ((!player.hasItem(item1) || !player.hasItem(item2)) && item2.getID() != -1) {
+            Debug.Log(player.hasItem(item1) + " | " + player.hasItem(item2));
             sendError(player,ErrorID.INVALID_ITEM, true, "Item doesnt match database");
         }
-
         Debug.Log(item1.getKeyID() + " : " + item1.getPosition() + " | " + item2.getKeyID() + " : " + item2.getPosition());
         //ServerDebug("hello from server");
         mysqlNonQuerySelector(out conn, "UPDATE inventory SET position = '" + item1.getPosition() + "' WHERE id = '" + item1.getKeyID() + "'");
@@ -668,6 +761,8 @@ public class Server : NetworkManager
 
     void onLogin(NetworkMessage msg)
     {
+
+        Debug.Log("message ID: " + msg.conn.connectionId);
 
         //string connectionString = "Server=" + host + ";Database=" + database + ";Uid=Gerry;Pwd=pass;";
         MySqlConnection mysqlConn;
@@ -845,7 +940,6 @@ public class Server : NetworkManager
     public PlayerServer getPlayerObject(int connectionID) {
         return playerObjects[connectionID];
     }
-
     private void sendError(PlayerServer player, ErrorID errorID, bool shouldKick, string message)
     {
         ErrorMessage error = new ErrorMessage();
@@ -865,4 +959,17 @@ public class Monster
     public int[] stats;
     public int level;
     public string pathToModel;
+}
+
+public class QuestStatusMobData
+{
+    public QuestStatusMobData(int questId, int mobId, int count)
+    {
+        this.questID = questId;
+        this.mobID = mobId;
+        this.count = count;
+    }
+    public int questID;
+    public int mobID;
+    public int count;
 }

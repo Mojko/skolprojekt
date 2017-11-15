@@ -4,6 +4,16 @@ using UnityEngine;
 using UnityEngine.Networking;
 public class DisconnectPacket : MessageBase{
     public string name = "";
+    public byte[] questListInBytes;
+    //public List<byte[]> questInBytes;
+}
+
+public class DamageInfo : MessageBase
+{
+    public NetworkInstanceId clientNetworkInstanceId;
+    public NetworkInstanceId enemyNetworkInstanceId;
+    public int damage;
+    public e_DamageType damageType;
 }
 
 public class ItemInfo : MessageBase

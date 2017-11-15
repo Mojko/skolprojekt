@@ -24,7 +24,6 @@ GameObject:
   - component: {fileID: 114018665174961352}
   - component: {fileID: 114549289234403416}
   - component: {fileID: 114682027843890458}
-  - component: {fileID: 114481235949943484}
   - component: {fileID: 65596226151917418}
   m_Layer: 0
   m_Name: D_Coin_gold
@@ -111,27 +110,6 @@ MonoBehaviour:
   amp: 0.01
   period: 10
   periodSpeed: 1
---- !u!114 &114481235949943484
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1264018930624524}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TransformSyncMode: 1
-  m_SendInterval: 0.033333335
-  m_SyncRotationAxis: 7
-  m_RotationSyncCompression: 0
-  m_SyncSpin: 0
-  m_MovementTheshold: 0.001
-  m_VelocityThreshold: 0.0001
-  m_SnapThreshold: 5
-  m_InterpolateRotation: 1
-  m_InterpolateMovement: 1
 --- !u!114 &114549289234403416
 MonoBehaviour:
   m_ObjectHideFlags: 1
