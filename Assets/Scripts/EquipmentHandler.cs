@@ -6,13 +6,13 @@ public class EquipmentHandler : UIHandler {
     List<Equip> equips = new List<Equip>();
     GameObject equip;
     GameObject[] slots;
-    List<MouseOverUI> slotsMouse = new List<MouseOverUI>();
+    MouseOverUI[] slotsMouse;
     Player player;
     bool hasLoaded = false;
     new void Update() {
         base.Update();
         if (!hasLoaded) return;
-        for (int i = 0; i < slotsMouse.Count; i++)
+        for (int i = 0; i < slotsMouse.Length; i++)
         {
             if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0)) {
                 Debug.Log("hovering equip slot: " + i);
@@ -29,6 +29,13 @@ public class EquipmentHandler : UIHandler {
     public void setEquips(List<Equip> eqps) {
         this.equips = eqps;
     }
+    private Equip isSlotEmpty(int slot) {
+        for (int i = 0; i < equips.Count; i++) {
+            if (((equips[i].getID() / Tools.ITEM_INTERVAL) - 2) == slot)
+                return equips[i];
+        }
+        return null;
+    }
     public void setEquip(int type, Equip equip) {
         int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
         Equip item;
@@ -43,15 +50,10 @@ public class EquipmentHandler : UIHandler {
     public void setEquipmentUI(GameObject equipment) {
         equip = equipment;
         slots = equip.transform.GetChild(0).getAllChildren().transformsToObject();
+        slotsMouse = new MouseOverUI[slots.Length];
         for (int i = 0; i < slots.Length; i++)
         {
-            for (int j = 0; j < equips.Count; j++)
-            {
-                if(equips[j].getPosition() < 0)
-                    if (equips[j].getPosition() == i) {
-                        slotsMouse[i] = slots[i].GetComponent<MouseOverUI>();
-                    }
-            }
+            slotsMouse[i] = slots[i].GetComponent<MouseOverUI>();
         }
         hasLoaded = true;
     }

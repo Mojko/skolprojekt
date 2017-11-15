@@ -18,7 +18,7 @@ public class Item {
 	private int id;
     private int keyID;
     private int inventoryType;
-    private int quantity = 1;
+    private int quantity;
     private e_ItemTypes type;
 	public Item(int keyID, int position, int inventoryType, params int[] stats){
 		this.id = stats[0];
@@ -26,6 +26,7 @@ public class Item {
         this.position = position;
         this.keyID = keyID;
         this.inventoryType = inventoryType;
+        this.quantity = 1;
 
     }
     public Item(int keyID, int position, int inventoryType,int quantity, params int[] stats)

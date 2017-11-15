@@ -216,12 +216,8 @@ public class Inventory : MonoBehaviour
     }
     public bool addItem(Item item)
     {
-        InventorySlot slot = new InventorySlot();
-        Debug.Log(item.getQuantity());
-        slot.setItem(item.getPosition(), item);
-        Debug.Log("item added " + item);
         GameObject instansiatedSlot = (GameObject)Instantiate(InventorySlot);
-        slot = instansiatedSlot.GetComponent<InventorySlot>();
+        InventorySlot slot = instansiatedSlot.GetComponent<InventorySlot>();
         slot.setID(itemsOwned.Count);
         slot.setItem(item.getPosition(), item);
         slot.setImage(slot.getItem());
@@ -316,6 +312,11 @@ public class Inventory : MonoBehaviour
                 slotClicked = itemsOwned[i];
                 itemInfoHandler.setEquip(itemsOwned[i]);
             }
+            if (!itemInfoHandler.isMouseOver() && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) && hasRightClicked && isDoneLoading) {
+                hasRightClicked = false;
+                isDoneLoading = true;
+                itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, 0F);
+            }
             /*
             else if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && !canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())
             {
@@ -331,6 +332,7 @@ public class Inventory : MonoBehaviour
                 isDoneLoading = true;
             }
         }
+        if (itemSettings)
         shouldUpdateInventory = false;
     }
     void Update()

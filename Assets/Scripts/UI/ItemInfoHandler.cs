@@ -7,9 +7,13 @@ public class ItemInfoHandler : MonoBehaviour {
     private Item item;
     private Player player;
     private InventorySlot slot;
+    private MouseOverUI mouse;
     // Use this for initialization
     void Start() {
-
+        mouse = this.GetComponent<MouseOverUI>();
+    }
+    public bool isMouseOver() {
+        return mouse.isMouseOver();
     }
     public void setEquip(InventorySlot equip) {
         slot = equip;

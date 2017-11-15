@@ -24,6 +24,9 @@ public class PlayerServer {
     public PlayerServer( int databaseID, int connectionID) {
         this.databaseID = databaseID;
         this.connectionID = connectionID;
+        for (int i = 0; i < 9; i++) {
+            equips.Add(null);
+        }
 
     }
     public void setPlayerID(int id) {
@@ -78,7 +81,7 @@ public class PlayerServer {
         items.Remove(item);
     }
     public void addEquip(Equip equip) {
-        equips.Add(equip);
+        equips.Insert((equip.getID() / Tools.ITEM_INTERVAL) - 2, equip);
     }
     public void removeEquip(Equip equip) {
         equips[equips.IndexOf(equip)] = null;
