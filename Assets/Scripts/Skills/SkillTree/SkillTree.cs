@@ -51,6 +51,8 @@ public class SkillTree : UIHandler {
 
 		Skill skills = JsonUtility.FromJson<Skill> (jsonString);
 
+        Debug.Log("Is  this running?");
+
 		potrait = Instantiate(skillTreeSlotPrefab);
 		potrait.GetComponent<SkillId>().setSkillTree(this);
 		potrait.transform.SetParent(this.transform);

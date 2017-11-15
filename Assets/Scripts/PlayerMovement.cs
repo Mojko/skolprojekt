@@ -188,7 +188,10 @@ public class PlayerMovement : NetworkBehaviour {
 		Collider[] colliders = Physics.OverlapSphere (transform.position, attackRange);
 		for (int i = 0; i < colliders.Length; i++) {
             if(colliders[i].CompareTag("Enemy")){
-                CmdDamageEnemy(colliders[i].gameObject, this.gameObject, 10);
+                player.getNetwork().damageEnemy(colliders[i].gameObject, 5);
+                //player.getNetwork().damageEnemy(this.gameObject, colliders[i].gameObject, 5);
+                Debug.Log("damaging enemy...");
+                //CmdDamageEnemy(colliders[i].gameObject, this.gameObject, 10, player.connectionToServer.connectionId);
             }
 		}
 	}
@@ -259,12 +262,16 @@ public class PlayerMovement : NetworkBehaviour {
 		return Quaternion.Slerp(transform.rotation, r, speed * Time.deltaTime);
 	}
 
+    /*
 	[Command]
-	void CmdDamageEnemy(GameObject enemy, GameObject damager, int dmg){
+	void CmdDamageEnemy(GameObject enemy, GameObject damager, int dmg, int connectionId){
+        Debug.Log("CONNECTION_ID: " + connectionId);
+        //testa spelet
         if(enemy != null){
             enemy.GetComponent<MobManager>().damage(dmg, damager);
         }
 	}
+    */
 
     /*
 	[ClientRpc]

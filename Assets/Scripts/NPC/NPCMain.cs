@@ -77,17 +77,21 @@ public class NPCMain : NetworkBehaviour {
     }
 
 	private void giveQuestToPlayer(){
-        Debug.Log("wew");
+        Debug.Log("wew: " + questIds.Length + " | " + this.player.getQuests());
 		if (questIds != null) {
-			foreach(Quest quest in this.player.getQuests()){
-				for(int i=0;i<questIds.Length;i++){
-					if(quest.getId() != questIds[i]){
-						this.player.getNetwork().sendQuestToServer(new Quest(questIds[i], this.player.getCharacterName()));
-						Debug.Log("Quest has been assigned");
-						return;
-					}
-				}
-			}
+            if(this.player.getQuests().Length > 0){
+			    foreach(Quest quest in this.player.getQuests()){
+				    for(int i=0;i<questIds.Length;i++){
+					    if(quest.getId() == questIds[i]){
+						    this.player.getNetwork().sendQuestToServer(new Quest(questIds[i], this.player.getCharacterName()));
+						    Debug.Log("Quest has been assigned");
+						    return;
+					    }
+				    }
+			    }
+            } else {
+                this.player.getNetwork().sendQuestToServer(new Quest(questIds[0], this.player.getCharacterName()));
+            }
 		}
 	}
 

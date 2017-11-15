@@ -10,7 +10,8 @@ public class PlayerServer {
     public int playerID;
 	public int level = 0;
 	public string playerName = "";
-	public Quest[] quests;
+	public List<Quest> questList = new List<Quest>();
+    //public Quest[] quests;
     int[] stats = new int[5];
 
     int[] skills;

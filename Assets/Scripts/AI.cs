@@ -160,7 +160,7 @@ public class AI : MobManager {
                 RaycastHit rayHit;
                 if(canAttack(out rayHit)) {
 				    if(rayHit.transform.CompareTag("Player")){
-                       this.target.GetComponent<Player>().damage(5); 
+                       this.target.GetComponent<Player>().damage(5, this.gameObject); 
 				    }
                 }
 

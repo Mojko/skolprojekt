@@ -80,7 +80,9 @@ public class Quest
 	int id;
 
 	int mobKillsOfSpecifiedMobId = 0;
-	int itemCountOfSpecifiedItemId = 0;
+    int mobId = 0;
+    int itemId = 0;
+    string description;
 
 	//int[] requirementData;
 	QuestJson questJson;
@@ -93,25 +95,31 @@ public class Quest
 		this.id = id;
 		status = e_QuestStatus.NOT_STARTED;
     }
+
 	public Quest(int id)
 	{
 		this.id = id;
 		status = e_QuestStatus.NOT_STARTED;
 	}
 
+	public void start(/*int[] requirementData,*/ QuestJson questJson){
+		//this.requirementData = requirementData;
+		this.questJson = questJson;
+        this.description = questJson.description;
+		this.status = e_QuestStatus.STARTED;
+	}
+
 	public int getId(){
 		return id;
 	}
 
-	public void start(string type, /*int[] requirementData,*/ QuestJson questJson){
-		this.type = type;
-		//this.requirementData = requirementData;
-		this.questJson = questJson;
-		this.status = e_QuestStatus.STARTED;
-	}
+    public string getDescription()
+    {
+        return this.description;
+    }
 
 	public string getType(){
-		return this.type;
+		return this.questJson.type;
 	}
 
 	public string getTooltip(){
@@ -129,24 +137,43 @@ public class Quest
 		return this.requirementData[(int)type];
 	}*/
 
+    public void initilizeMobQuest(int mobId, int kills)
+    {
+        this.mobId = mobId;
+        this.mobKillsOfSpecifiedMobId = kills;
+    }
+
+    public void setMobId(int mobId)
+    {
+        this.mobId = mobId;
+    }
+    public int getItemId()
+    {
+        if(questParser(questJson.type) == e_QuestTypes.ITEM) return questJson.id;
+        return -1;
+    }
+    public int getMobId()
+    {
+        if(questParser(questJson.type) == e_QuestTypes.MOB) return questJson.id;
+        return -1;
+    }
+
+    public QuestJson getQuestJson()
+    {
+        return this.questJson;
+    }
+
 	public e_QuestStatus getStatus(){
 		return this.status;
 	}
 		
 	public void increaseMobKills(){
-		Debug.Log("MOB KILLS: " + mobKillsOfSpecifiedMobId);
 		this.mobKillsOfSpecifiedMobId += 1;
-	}
-	public void increaseItemCount(){
-		this.itemCountOfSpecifiedItemId += 1;
+        Debug.Log("MOB KILLS: " + mobKillsOfSpecifiedMobId);
 	}
 
 	public int getMobKills(){
 		return this.mobKillsOfSpecifiedMobId;
-	}
-
-	public int getItemCount(){
-		return this.itemCountOfSpecifiedItemId;
 	}
 		
 	public string getCharacterName(){
@@ -157,11 +184,11 @@ public class Quest
 		if(this.status == e_QuestStatus.COMPLETED) return 1; else return 0;
 	}
 
-	/*public e_QuestTypes questParser(){
-		if(getRequirement(e_RequirementTypesFromJson.DATA).Equals("mob")) return e_QuestTypes.MOB;
-		else if(getRequirement(e_RequirementTypesFromJson.DATA).Equals("item")) return e_QuestTypes.ITEM;
+	public e_QuestTypes questParser(string type){
+		if(type.Equals("mob")) return e_QuestTypes.MOB;
+		else if(type.Equals("item")) return e_QuestTypes.ITEM;
 		else return e_QuestTypes.UNDEFINED;
-	}*/
+	}
 }
 	
 public class QuestManager {
@@ -178,26 +205,14 @@ public class QuestManager {
 		QuestJson qJson = lookUpQuest(quest);
 
 		if(qJson != null){
-			quest.start(qJson.type, qJson);
+			quest.start(qJson);
 			server.addOrUpdateQuestStatusToDatabase(quest, connectionId);
 		}
-
-
-		/*foreach(QuestJson q in questJson.Quests){
-			if(quest.getId() == q.id){
-				//Quest is valid
-				//QuestRequirement requirements = new QuestRequirement(quest, (e_RequirementType)q.requirementTypeList[(int)e_RequirementTypesFromJson.TYPE], playerServer, q.requirementTypeList);
-				//if(requirements.check()){
-				quest.start(q.type, /*q.requirementTypeList,*/ //q);
-				//server.addOrUpdateQuestStatusToDatabase(quest, connectionId);
-				//}
-			//}
-		//}
 	}
 	public void startQuest(Quest quest){
 		QuestJson qJson = lookUpQuest(quest);
 		if(qJson != null){
-			quest.start(qJson.type, qJson);
+			quest.start(qJson);
 		}
 	}
 
@@ -219,6 +234,7 @@ public class QuestJson {
 	public int id;
 	public string name;
 	public string type;
+    public string description;
 	public CompletionData completionData;
 }
 

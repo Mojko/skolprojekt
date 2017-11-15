@@ -44,6 +44,7 @@ public class PacketTypes{
     public static readonly short QUEST_END = 1022;
 	public static readonly short QUEST_UPDATE = 1023;
     
+    public static readonly short DEAL_DAMAGE = 1024;
 
     //ERROR
     public static readonly short ERROR = 9999;
