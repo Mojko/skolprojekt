@@ -14,11 +14,9 @@ public class EquipmentHandler : UIHandler {
         if (!hasLoaded) return;
         for (int i = 0; i < slotsMouse.Length; i++)
         {
-            if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0)) {
-                Debug.Log("hovering equip slot: " + i);
-            }
             if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0) && equips[i] != null)
             {
+                Debug.Log("hovering equip slot: " + i);
                 onClick(i, equips[i]);
             }
         }
@@ -65,8 +63,8 @@ public class EquipmentHandler : UIHandler {
         equip.setPosition(closestFree);
         Debug.Log("slot: " + closestFree);
         inventory.addItem(equip);
-        clearSlot(pos); 
-        this.equips.Remove(equip);
+        clearSlot(pos);
+        this.equips[pos] = null;
         updateSlots();
         this.player.getNetwork().unEquipItem(equip);
     }
