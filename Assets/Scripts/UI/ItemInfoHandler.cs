@@ -1,16 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+public enum e_itemMethods
+{
+    EQUIP = 0, USE, DROP
+}
 public class ItemInfoHandler : MonoBehaviour {
     private Equip equip;
     private Item item;
     private Player player;
     private InventorySlot slot;
     private MouseOverUI mouse;
+    private ItemInfoButton[] buttons;
     // Use this for initialization
     void Start() {
         mouse = this.GetComponent<MouseOverUI>();
+        buttons = new ItemInfoButton[this.transform.childCount];
+        for (int i = 0; i < buttons.Length; i++) {
+            buttons[i] = this.transform.GetChild(i).GetComponent<ItemInfoButton>();
+        }
+    }
+    public void setButton(int button, string message, e_itemMethods method){
+        buttons[button].changeButtonClick(message,(int)method);
     }
     public bool isMouseOver() {
         return mouse.isMouseOver();
@@ -20,8 +31,9 @@ public class ItemInfoHandler : MonoBehaviour {
         this.equip = (Equip)slot.getItem();
     }
     public void setItem(InventorySlot slot) {
+        Debug.Log("item here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + slot.getItem());
         this.slot = slot;
-        this.equip = (Equip)slot.getItem();
+        item = slot.getItem();
     }
     public void setPlayer(Player player) {
         this.player = player;
@@ -31,6 +43,7 @@ public class ItemInfoHandler : MonoBehaviour {
     }
     public void setUseClicked() {
         //player.getNetwork().onItemUse(item);
+        Debug.Log("item use clicked");
     }
     public void setEquipClicked() {
         destroyItemInInventory();

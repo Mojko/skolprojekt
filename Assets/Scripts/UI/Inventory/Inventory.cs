@@ -312,7 +312,15 @@ public class Inventory : MonoBehaviour
                 Debug.Log("right click! " + hasRightClicked);
                 information.hide();
                 slotClicked = itemsOwned[i];
-                itemInfoHandler.setEquip(itemsOwned[i]);
+                if (itemsOwned[i].getItem().getInventoryType() == (int)inventoryTabs.EQUIP)
+                {
+                    itemInfoHandler.setEquip(itemsOwned[i]);
+                    itemInfoHandler.setButton(0,"Equip",e_itemMethods.EQUIP);
+                }
+                else {
+                    itemInfoHandler.setItem(itemsOwned[i]);
+                    itemInfoHandler.setButton(0, "Use", e_itemMethods.USE);
+                }
             }
             if (!itemInfoHandler.isMouseOver() && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) && hasRightClicked && isDoneLoading) {
                 hasRightClicked = false;
