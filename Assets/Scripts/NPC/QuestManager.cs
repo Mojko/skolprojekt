@@ -87,7 +87,6 @@ public class Quest
 
 	//int[] requirementData;
 	QuestJson questJson;
-	string type;
 	e_QuestStatus status;
 
 	public Quest(int id, string characterName)
@@ -124,18 +123,17 @@ public class Quest
         return this.questJson.description;
     }
 
-	public string getType(){
-		return this.questJson.type;
+
+	public string getTooltip(int indexOfCompletionId){
+		if(isCompletionIdMobId(indexOfCompletionId)) return "Mobs killed: " + getMobKills() + "/" + questJson.completionData.completionValue[indexOfCompletionId]; 
+		if(isCompletionIdItemId(indexOfCompletionId)) return "Items collected: " + "N/A" + "/" + questJson.completionData.completionValue[indexOfCompletionId];
+		return "Error QuestManager > Quest > public string getToolTip()";
 	}
 
-	public string getTooltip(){
-		//string type = requirementData[(int)e_RequirementTypesFromJson.TYPE].ToString();
-		int completionRequirement = questJson.completionData.completionValue;
-		return "Mobs killed: " + getMobKills() + "/" + completionRequirement;
+	public CompletionData getCompletionData(){
+		return questJson.completionData;
 	}
-
-
-
+		
 	/*public int[] getRequirements(){
 		return this.requirementData;
 	}
@@ -153,16 +151,42 @@ public class Quest
     {
         this.mobId = mobId;
     }
+	public void setMobKills(int mobKills){
+		mobKillsOfSpecifiedMobId = mobKills;
+	}
     public int getItemId()
     {
-        if(questParser(questJson.type) == e_QuestTypes.ITEM) return questJson.id;
-        return -1;
+		int[] ids = questJson.completionData.completionId.ToArray();
+		for(int i=0;i<ids.Length;i++){
+			if(isCompletionIdItemId(i)){
+				return ids[i];
+			}
+		}
+		//Item doesnt exist in this quest
+		Debug.LogError("Item doesnt exist in this quest");
+		return -1;
     }
+
     public int getMobId()
     {
-        if(questParser(questJson.type) == e_QuestTypes.MOB) return questJson.id;
+		int[] ids = questJson.completionData.completionId.ToArray();
+		Debug.Log("IDSLENGTH: " + ids.Length);
+		for(int i=0;i<ids.Length;i++){
+			if(isCompletionIdMobId(i)){
+				return ids[i];
+			}
+		}
+		//Mob doesnt exist in this quest
+		Debug.LogError("Mob doesnt exist in this quest");
         return -1;
     }
+		
+	public bool isCompletionIdMobId(int index){
+		return getCompletionData().completionId[index] >= 10000;
+	}
+	public bool isCompletionIdItemId(int index){
+		return getCompletionData().completionId[index] >= 0 && getCompletionData().completionId[index] <= 5500;
+	}
 
     public QuestJson getQuestJson()
     {
@@ -188,12 +212,6 @@ public class Quest
 
 	public int getCompleted(){
 		if(this.status == e_QuestStatus.COMPLETED) return 1; else return 0;
-	}
-
-	public e_QuestTypes questParser(string type){
-		if(type.Equals("mob")) return e_QuestTypes.MOB;
-		else if(type.Equals("item")) return e_QuestTypes.ITEM;
-		else return e_QuestTypes.UNDEFINED;
 	}
 }
 	
@@ -242,12 +260,13 @@ public class QuestJson {
 	public string type;
     public string description;
 	public CompletionData completionData;
+	public int imageIndex;
 }
 
 [System.Serializable]
 public class CompletionData {
-	public int completionValue;
-	public int completionId;
+	public List<int> completionValue;
+	public List<int> completionId;
 }
 
 [System.Serializable]

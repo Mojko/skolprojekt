@@ -123,7 +123,6 @@ public class SkillTree : UIHandler {
 			inst.GetComponent<SkillId>().setSkillTree(this);
 			createSkillObject(inst, skill);
 
-			Debug.Log("P: " + parentObject);
 			if(parentObject != null){
 				inst.transform.SetParent(parentObject.transform);
 				onSkillUpgrade(inst, inst.GetComponent<SkillId>(), parentObject, skill);
@@ -169,7 +168,6 @@ public class SkillTree : UIHandler {
         if(Input.GetAxis("Mouse ScrollWheel") > 0) {
             potrait.transform.localScale += new Vector3(0.1f, 0.1f, 0);
         }
-        Debug.Log("mouse: " + Input.GetAxis("Mouse ScrollWheel"));
 	}
 
 	public void confirmSkills(){

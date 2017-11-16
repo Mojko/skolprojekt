@@ -19,6 +19,7 @@ TagManager:
   - DialogueText
   - NoButton
   - Server
+  - QuestWrapper
   layers:
   - Default
   - TransparentFX

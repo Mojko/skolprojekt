@@ -20,6 +20,7 @@ public class Player : NetworkBehaviour
     private EquipmentHandler equip;
     private QuestInformationData questInformationData;
     private GameObject questInformationObject;
+	private QuestWrapper questWrapper;
 
     [Header("Player Attributes")]
     public string playerName;
@@ -105,7 +106,14 @@ public class Player : NetworkBehaviour
         tempQuestUI.transform.SetAsLastSibling();
         questInformationObject = tempQuestUI;
 
+
+		//QuestWrapper
+		questWrapper = getUI().transform.GetChild(getUI().transform.childCount-1).GetChild(1).GetChild(0).GetComponent<QuestWrapper>();
+
     }
+	public QuestWrapper getQuestWrapper(){
+		return this.questWrapper;
+	}
 	public QuestInformationData getQuestInformationData(){
         return this.questInformationData;
 	}

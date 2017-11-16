@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class QuestUI : MonoBehaviour {
 
-	public GameObject questContainerPrefab;
+	/*public GameObject questContainerPrefab;
 	public GameObject questPrefab;
 
 	public GameObject questToolTipPrefab;
@@ -58,4 +58,5 @@ public class QuestUI : MonoBehaviour {
 	public void removeToolTip(){
 		amountOfToolTips--;
 	}
+	*/
 }

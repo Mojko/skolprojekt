@@ -126,10 +126,8 @@ public class Server : NetworkManager
         PlayerServer pServer = playerObjects[netMsg.conn.connectionId];
 
         if(damageInfo.damageType == e_DamageType.MOB) {
-            Debug.Log("ENEMY: " + enemy);
             MobManager enemyMobManager = enemy.GetComponent<MobManager>();
             enemyMobManager.damage(5, player, pServer);
-            Debug.Log("Damage packet recieved");
         } else if(damageInfo.damageType == e_DamageType.PLAYER) {
             player.GetComponent<Player>().damage(5, enemy);
         }

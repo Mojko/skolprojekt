@@ -88,7 +88,6 @@ public class playerNetwork : NetworkBehaviour{
         //damageInfo.enemyUniqueId = enemy.GetComponent<MobManager>().getUniqueId();
         damageInfo.damage = damage;
         damageInfo.damageType = e_DamageType.MOB;
-        Debug.Log("Damage packet sent");
         con.Send(PacketTypes.DEAL_DAMAGE, damageInfo);
     }
 
@@ -101,7 +100,12 @@ public class playerNetwork : NetworkBehaviour{
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(questInfo.questClassInBytes);
 		foreach(Quest q in quests){
-			
+			foreach(Quest playerQ in player.getQuests()){
+				playerQ.setMobKills(q.getMobKills());
+				foreach(QuestContainer container in player.getQuestWrapper().questContainers.ToArray()){
+					container.setQuestInformation();
+				}
+			}
             /*
              * 
              * 

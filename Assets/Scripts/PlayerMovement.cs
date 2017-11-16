@@ -57,7 +57,6 @@ public class PlayerMovement : NetworkBehaviour {
 	}
 
 	void jump () {
-		Debug.Log("Jump!");
 		float y = rb.velocity.y;
 		y = 6f;
 		rb.velocity = new Vector3 (rb.velocity.x, y, rb.velocity.z);
@@ -190,7 +189,6 @@ public class PlayerMovement : NetworkBehaviour {
             if(colliders[i].CompareTag("Enemy")){
                 player.getNetwork().damageEnemy(colliders[i].gameObject, 5);
                 //player.getNetwork().damageEnemy(this.gameObject, colliders[i].gameObject, 5);
-                Debug.Log("damaging enemy...");
                 //CmdDamageEnemy(colliders[i].gameObject, this.gameObject, 10, player.connectionToServer.connectionId);
             }
 		}

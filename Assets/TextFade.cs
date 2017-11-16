@@ -33,7 +33,7 @@ public class TextFade : MonoBehaviour {
 		if(a > 0){
 			a -= 0.25f * Time.deltaTime;
 		} else {
-			this.transform.root.Find("Quest_UI").GetComponent<QuestUI>().removeToolTip();
+			//this.transform.root.Find("Quest_UI").GetComponent<QuestUI>().removeToolTip();
 			Destroy(this.gameObject);
 		}
 		this.text.color = new Color(r,g,b,a);

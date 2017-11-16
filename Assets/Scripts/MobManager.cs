@@ -71,7 +71,6 @@ public class MobManager : NetworkBehaviour {
 		if (health <= 0) {
 			kill();
 		}
-        Debug.Log("Damage dealt");
 	}
 
     [Command]
@@ -135,9 +134,8 @@ public class MobManager : NetworkBehaviour {
 
         foreach(Quest q in targetNetwork.questList.ToArray()){
 
-            Debug.Log("A QUEST: " + q.getType() + " | " + q.getQuestJson().completionData.completionId + " | " + getId());
-
-		    if(q.getType().Equals("mob") && q.getQuestJson().completionData.completionId == getId()){
+			Debug.Log("A QUEST: " + " | " + q.getMobId() + " | " + getId());
+			if(q.getMobId() == getId()){
 			    q.increaseMobKills();
                 questsToSend.Add(q);
 		    }
