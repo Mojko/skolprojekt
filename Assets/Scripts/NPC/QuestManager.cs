@@ -77,6 +77,7 @@ public class Quest
 {
 
 	string characterName;
+    string name;
 	int id;
 
 	int mobKillsOfSpecifiedMobId = 0;
@@ -110,12 +111,17 @@ public class Quest
 	}
 
 	public int getId(){
-		return id;
+		return this.id;
 	}
+
+    public string getName()
+    {
+        return this.questJson.name;
+    }
 
     public string getDescription()
     {
-        return this.description;
+        return this.questJson.description;
     }
 
 	public string getType(){

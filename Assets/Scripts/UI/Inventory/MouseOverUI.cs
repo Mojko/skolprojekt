@@ -15,21 +15,9 @@ public class MouseOverUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 			mouseOver = true;
 		}
 	}
-
-    public void decreaseOpacityOnHover(bool yesorno)
+    public void Update()
     {
-        if(yesorno == true) {
-            Image i = this.GetComponent<Image>();
-            if (mouseOver) {
-                float r, g, b;
-                r = i.color.r;
-                g = i.color.g;
-                b = i.color.b;
-                i.color = new Color(r,g,b,0.5f);
-            } else {
-                i.color = new Color(i.color.r, i.color.g, i.color.b, 1);
-            }
-        }
+        
     }
     public bool hasDoubleClicked()
     {

@@ -31,7 +31,8 @@ public class QuestInformationData : MonoBehaviour {
         rect.anchoredPosition = this.questContainer.GetComponent<RectTransform>().anchoredPosition;
 
         tempQuestPanel.transform.SetParent(this.questWrapper.transform);
-        rect.localPosition = new Vector2(0,0);
+        tempQuestPanel.GetComponentInChildren<Text>().text = quest.getName();
+        rect.localPosition = new Vector2(0,120);
         rect.sizeDelta = new Vector2(0,50);
     }
 
