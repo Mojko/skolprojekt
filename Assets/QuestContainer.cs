@@ -17,6 +17,7 @@ public class QuestContainer : MonoBehaviour {
 
 	private QuestWrapper questWrapper;
 	[HideInInspector] public bool isClicked;
+    private Button button;
 
 	private List<Text> questObjectiveTexts = new List<Text>();
 	private List<Image> questObjectiveImages = new List<Image>();
@@ -25,6 +26,7 @@ public class QuestContainer : MonoBehaviour {
 		questWrapper = this.GetComponentInParent<QuestWrapper>();
 		questWrapper.questContainers.Add(this);
 		thisImage = GetComponent<Image>();
+        this.button = GetComponent<Button>();
 	}
 
 	public void init(Quest quest){
@@ -52,6 +54,8 @@ public class QuestContainer : MonoBehaviour {
 			rectTransform.sizeDelta = r.sizeDelta;
 
 			Image im = o.GetComponent<Image>();
+            Sprite[] sprites = Resources.LoadAll<Sprite>("spritesheet_MonsterIcons");
+            im.sprite = sprites[0];
 			im.enabled = false;
 			Text t = o.GetComponentInChildren<Text>();
 			t.enabled = false;
@@ -65,7 +69,9 @@ public class QuestContainer : MonoBehaviour {
 	void Update(){
 		if(!isClicked){
 			toggleTextAndImages(false);
-		}
+		} else {
+            this.button.Select();
+        }
 	}
 
 	void toggleTextAndImages(bool toggle){
