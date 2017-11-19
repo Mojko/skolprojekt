@@ -15,10 +15,57 @@ public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
 };
 
+public static class DefaultIds {
+	/*
+		0-500 = pots
+		501-1000 = etc
+		1001 - 1500 = hats
+		1501 - 2000 = accessory
+		2001 - 2500 = face
+		2501 - 3000 = Weapon
+		3001 - 3500 = Shield
+		3501 - 4000 = Body
+		4001 - 4500 = Glove
+		4501 - 5000 = Pants
+		5001 - 5500 = Boots
+		5501 - 6000 = NPC
+		6001 - 6500 = quests
+		> 10000 = mobs
+	*/
+	public static int getNpcDefault(){
+		return 5501;
+	}
+}
+
+public enum e_Paths {
+	JSON_QUESTS,
+	JSON_SKILLTREE,
+	JSON_MONSTERS
+}
+
+public static class JsonManager {
+	public static readonly string[] paths = {
+		Application.persistentDataPath+"/Resources/Visuals/Quests.json",
+		Application.persistentDataPath+"/Resources/Visuals/SkillTree.json",
+		Application.persistentDataPath+"/Resources/Visuals/Monster.json"
+	};
+
+	public static T readJson<T>(e_Paths path){
+		Debug.Log("PATH: " + getPath(path));
+		T json = JsonUtility.FromJson<T> (File.ReadAllText(getPath(path)));
+		return json;
+	}
+
+	public static string getPath(e_Paths path){
+		return paths[(int)path];
+	}
+}
+
 public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
+
 	public static GameObject findInactiveChild(GameObject parent, string name){
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
 		foreach(Transform t in transforms){

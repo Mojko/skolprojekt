@@ -80,7 +80,8 @@ public class Quest
     string name;
 	int id;
 
-	int mobKillsOfSpecifiedMobId = 0;
+	//int mobKillsOfSpecifiedMobId = 0;
+	Dictionary<int, int> mobKills = new Dictionary<int, int>();
     int mobId = 0;
     int itemId = 0;
     string description;
@@ -107,6 +108,12 @@ public class Quest
 		this.questJson = questJson;
         this.description = questJson.description;
 		this.status = e_QuestStatus.STARTED;
+
+		for(int i=0;i<questJson.completionData.completionId.Count;i++){
+			if(isCompletionIdMobId(i)){
+				this.mobKills.Add(questJson.completionData.completionId[i], 0);
+			}
+		}
 	}
 
 	public int getId(){
@@ -125,7 +132,7 @@ public class Quest
 
 
 	public string getTooltip(int indexOfCompletionId){
-		if(isCompletionIdMobId(indexOfCompletionId)) return "Mobs killed: " + getMobKills() + "/" + questJson.completionData.completionValue[indexOfCompletionId]; 
+		if(isCompletionIdMobId(indexOfCompletionId)) return "Mobs killed: " + getMobKills(getMobIds()[indexOfCompletionId]) + "/" + questJson.completionData.completionValue[indexOfCompletionId]; 
 		if(isCompletionIdItemId(indexOfCompletionId)) return "Items collected: " + "N/A" + "/" + questJson.completionData.completionValue[indexOfCompletionId];
 		return "Error QuestManager > Quest > public string getToolTip()";
 	}
@@ -144,15 +151,18 @@ public class Quest
     public void initilizeMobQuest(int mobId, int kills)
     {
         this.mobId = mobId;
-        this.mobKillsOfSpecifiedMobId = kills;
+		setMobKills(mobId, kills);
+		checkForCompletion();
     }
 
     public void setMobId(int mobId)
     {
         this.mobId = mobId;
     }
-	public void setMobKills(int mobKills){
-		mobKillsOfSpecifiedMobId = mobKills;
+	public void setMobKills(int mobId, int mobKills){
+		if(this.mobKills.ContainsKey(mobId)){
+			this.mobKills[mobId] = mobKills;
+		}
 	}
     public int getItemId()
     {
@@ -166,19 +176,19 @@ public class Quest
 		Debug.LogError("Item doesnt exist in this quest");
 		return -1;
     }
+		
 
-    public int getMobId()
+    public int[] getMobIds()
     {
 		int[] ids = questJson.completionData.completionId.ToArray();
-		Debug.Log("IDSLENGTH: " + ids.Length);
+		List<int> listOfIds = new List<int>();
+
 		for(int i=0;i<ids.Length;i++){
 			if(isCompletionIdMobId(i)){
-				return ids[i];
+				listOfIds.Add(ids[i]);
 			}
 		}
-		//Mob doesnt exist in this quest
-		Debug.LogError("Mob doesnt exist in this quest");
-        return -1;
+		return listOfIds.ToArray();
     }
 		
 	public bool isCompletionIdMobId(int index){
@@ -193,17 +203,42 @@ public class Quest
         return this.questJson;
     }
 
+	public int getImageIndex(){
+		return this.questJson.imageIndex;
+	}
+
+	public bool checkForCompletion(){
+		
+		for(int i=0;i<getCompletionData().completionId.Count;i++){
+			int id = getCompletionData().completionId[i];
+			int value = getCompletionData().completionValue[i];
+
+			if(isCompletionIdMobId(i)){
+				if(this.getMobKills(id) >= value){
+					//completed
+					this.status = e_QuestStatus.COMPLETED;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public e_QuestStatus getStatus(){
 		return this.status;
 	}
 		
-	public void increaseMobKills(){
-		this.mobKillsOfSpecifiedMobId += 1;
-        Debug.Log("MOB KILLS: " + mobKillsOfSpecifiedMobId);
+	public void increaseMobKills(int mobId){
+		this.mobKills[mobId] += 1;
+		checkForCompletion();
 	}
 
-	public int getMobKills(){
-		return this.mobKillsOfSpecifiedMobId;
+	public int getMobKills(int mobId){
+		if(this.mobKills.ContainsKey(mobId)){
+			return this.mobKills[mobId];
+		}
+		return -1;
+		//return this.mobKillsOfSpecifiedMobId;
 	}
 		
 	public string getCharacterName(){
@@ -220,9 +255,15 @@ public class QuestManager {
 	Server server;
 	QuestJson root;
 
+	public void onQuestCompleted(Quest quest){
+		//Server.completeQuest(quest);
+	}
+
 	public QuestManager(Server server){
 		this.server = server;
-		root = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
+		root = JsonManager.readJson<QuestJson>(e_Paths.JSON_QUESTS);
+		//root = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
+
 	}
 
 	public void checkValidQuest(Quest quest, int connectionId, PlayerServer playerServer){
@@ -230,11 +271,12 @@ public class QuestManager {
 
 		if(qJson != null){
 			quest.start(qJson);
-			server.addOrUpdateQuestStatusToDatabase(quest, connectionId);
+			server.addOrUpdateQuestStatusToDatabase(quest, playerServer, true);
 		}
 	}
 	public void startQuest(Quest quest){
 		QuestJson qJson = lookUpQuest(quest);
+
 		if(qJson != null){
 			quest.start(qJson);
 		}

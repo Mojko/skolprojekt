@@ -31,12 +31,15 @@ public class NPCMain : NetworkBehaviour {
     private bool isTalking;
 
 
+	public int npcId;
     public string[] dialogues;
 	public string[,] keywords;
 	public int[] questIds;
+	private List<Quest> questsCompleted = new List<Quest>();
     public e_NpcTypes type;
     private e_DialogueLayouts layout;
 	private bool shouldInitilize = true;
+	private Sprite faceImage;
 
 
 
@@ -44,14 +47,30 @@ public class NPCMain : NetworkBehaviour {
     private void Start()
     {
         //this.text = GameObject.FindWithTag("DialogueText").GetComponent<Text>();
+		Sprite[] sprites = Resources.LoadAll<Sprite>("spritesheet_NpcIcons");
+		faceImage = sprites[npcId/DefaultIds.getNpcDefault()];
+		if(faceImage == null)
+			faceImage = sprites[0];
     }
+
+	public Sprite getSprite(){
+		return this.faceImage;
+	}
 
     private void Update()
     {
         if (isTalking) {
-			if (Input.GetKeyDown(KeyCode.Q)) {
+			if (Input.GetMouseButtonDown(0)) {
                 execute();
-				if(layout == e_DialogueLayouts.YESNO) giveQuestToPlayer();
+				if(layout == e_DialogueLayouts.YESNO){ 
+					Quest q = new Quest(questIds[questsCompleted.Count], this.player.getCharacterName());
+					if(!this.player.hasQuest(q)){
+						giveQuestToPlayer(q); 
+					}
+					q = null;
+					isTalking = false; 
+					return;
+				}
             }
         }
         if(state >= dialogues.Length) {
@@ -66,6 +85,15 @@ public class NPCMain : NetworkBehaviour {
             //Next
             layout = e_DialogueLayouts.NEXT;
         }
+		if(player != null){
+			for(int i=0;i<questIds.Length;i++){
+				for(int j=0;j<player.getQuests().Length;j++){
+					if(player.getQuests()[j].getStatus() == e_QuestStatus.COMPLETED){
+						Debug.Log("QUEST IS COMPLETED: " + player.getQuests()[j].getId());
+					}
+				}
+			}
+		}
     }
 
     public void execute()
@@ -76,23 +104,23 @@ public class NPCMain : NetworkBehaviour {
 		}
     }
 
-	private void giveQuestToPlayer(){
-        Debug.Log("wew: " + questIds.Length + " | " + this.player.getQuests());
-		if (questIds != null) {
+	private void giveQuestToPlayer(Quest quest){
+		Debug.Log("wew: " + questIds.Length + " | " + this.player.getQuests().Length);
+		this.player.getNetwork().sendQuestToServer(quest);
+		Debug.Log("Quest has been assigned");
+		/*if (questIds != null) {
             if(this.player.getQuests().Length > 0){
-			    foreach(Quest quest in this.player.getQuests()){
-				    for(int i=0;i<questIds.Length;i++){
-					    if(quest.getId() == questIds[i]){
-						    this.player.getNetwork().sendQuestToServer(new Quest(questIds[i], this.player.getCharacterName()));
-						    Debug.Log("Quest has been assigned");
-						    return;
-					    }
+			    for(int i=0;i<questIds.Length;i++){
+					if(this.player.hasQuest())
+					    this.player.getNetwork().sendQuestToServer(new Quest(questIds[i], this.player.getCharacterName()));
+					    Debug.Log("Quest has been assigned");
+					    return;
 				    }
 			    }
             } else {
                 this.player.getNetwork().sendQuestToServer(new Quest(questIds[0], this.player.getCharacterName()));
             }
-		}
+		}*/
 	}
 
 	private void init(){

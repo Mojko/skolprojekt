@@ -66,7 +66,8 @@ public class Server : NetworkManager
             }*/
 
             foreach(Quest q in pServer.questList.ToArray()){
-                addOrUpdateQuestStatusToDatabase(q, pServer.connectionID);
+				addOrUpdateQuestStatusToDatabase(q, pServer, false);
+				Debug.Log("Updating quest... " + q.getId());
             }
 
             Debug.Log("disconnect server func");
@@ -128,6 +129,7 @@ public class Server : NetworkManager
         if(damageInfo.damageType == e_DamageType.MOB) {
             MobManager enemyMobManager = enemy.GetComponent<MobManager>();
             enemyMobManager.damage(5, player, pServer);
+			enemyMobManager.setTarget(netMsg.conn.connectionId, player.gameObject);
         } else if(damageInfo.damageType == e_DamageType.PLAYER) {
             player.GetComponent<Player>().damage(5, enemy);
         }
@@ -141,33 +143,76 @@ public class Server : NetworkManager
 		questManager.checkValidQuest(quest, netMsg.conn.connectionId, playerObjects[netMsg.conn.connectionId]);
     }
 
-	public void addOrUpdateQuestStatusToDatabase(Quest quest, int connectionId){
+	public void completeQuest(Quest quest){
+		MySqlConnection conn;
+		MySqlDataReader reader;
+		int characterId = getCharacterIDFromDir(quest.getCharacterName());
+		mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = '" + quest.getCompleted() + "' WHERE questID = '" + quest.getId() + "' AND characterID = '"+characterId+"'");
+		mysqlReader(out conn, out reader, "SELECT id FROM queststatus WHERE characterID = '"+characterId+"'");
+		mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+reader.GetInt32("id")+"'");
+	}
+
+	public bool addOrUpdateQuestStatusToDatabase(Quest quest, PlayerServer pServer, bool sendOutToClient){
 		MySqlConnection conn;
 		MySqlDataReader reader;
 
-		mysqlReader(out conn, out reader, "SELECT questID, id FROM queststatus WHERE questID = " + quest.getId());
+		int connectionId = pServer.connectionID;
+		int characterId = pServer.getPlayerID();
 
+		mysqlReader(out conn, out reader, "SELECT questID, id FROM queststatus WHERE characterID = '"+characterId+"' AND questID = '"+quest.getId()+"'");
+
+		int queststatusId = -1;
+		int questID = -1;
+		int status = -1;
 		if(reader.Read()){
 			//UPDATE
-			mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = '" + quest.getCompleted() + "' WHERE questID = '" + quest.getId() + "'");
+			queststatusId = reader.GetInt32("id");
+			mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = '" + quest.getCompleted() + "' WHERE questID = '" + quest.getId() + "' AND characterID = '"+characterId+"'");
             
 		} else {
 			//INSERT
-			mysqlNonQuerySelector(out conn, "INSERT INTO queststatus(questID, characterID, status) VALUES('"+quest.getId()+"', '"+getCharacterID(quest.getCharacterName())+"', '"+quest.getCompleted()+"')");
+			questID = quest.getId();
+			status = quest.getCompleted();
+			mysqlNonQuerySelector(out conn, "INSERT INTO queststatus(questID, characterID, status) VALUES('"+quest.getId()+"', '"+characterId+"', '"+quest.getCompleted()+"')");
+		}
+		Debug.Log("TRYING TO ADD / UPDATE: " + characterId + " | " + quest.getCharacterName() + " | " + queststatusId);
+			
+		/*if(status != -1) {
+			mysqlReader(out conn, out reader, "SELECT COUNT(id) FROM queststatus");
+			queststatusId = reader.GetInt32("COUNT(id)");
+			Debug.Log("QUEST_STATUS_ID: " + queststatusId);
+		}*/
+
+
+		//FIX THIS CRAP TOMORROW @ SCHEWL
+		//FIX THIS CRAP TOMORROW @ SCHEWL
+		//FIX THIS CRAP TOMORROW @ SCHEWL
+		//FIX THIS CRAP TOMORROW @ SCHEWL
+		//FIX THIS CRAP TOMORROW @ SCHEWL
+
+		if(queststatusId != -1){
+			if(questID == -1 && status == -1){
+				Debug.Log("LENGTH_UPDATE: " + quest.getMobIds().Length + " | " + queststatusId);
+				for(int i=0;i<quest.getMobIds().Length;i++){
+					mysqlNonQuerySelector(out conn, "UPDATE queststatusmobs SET count = '" + quest.getMobKills(quest.getMobIds()[i]) + "' WHERE queststatusID = '" + queststatusId + "'");
+				}
+	        } else {
+				Debug.Log("LENGTH_INSERT: " + quest.getMobIds().Length);
+				for(int i=0;i<quest.getMobIds().Length;i++){
+					Debug.Log("inserting to database..");
+					mysqlNonQuerySelector(out conn, "INSERT INTO queststatusmobs(queststatusID, mob, count) VALUES('"+queststatusId+"', '"+quest.getMobIds()[i]+"', '"+quest.getMobKills(quest.getMobIds()[i])+"')");
+				}
+	        }
 		}
 
-        int queststatusId = reader.GetInt32("id");
-        mysqlReader(out conn, out reader, "SELECT queststatusID FROM queststatusmobs WHERE queststatusID = " + queststatusId);
-        if (reader.Read()) {
-            mysqlNonQuerySelector(out conn, "UPDATE queststatusmobs SET count = '" + quest.getMobKills() + "' WHERE queststatusID = " + queststatusId);
-        } else {
-             mysqlNonQuerySelector(out conn, "INSERT INTO queststatusmobs(queststatusID, mob, count) VALUES('"+queststatusId+"', '"+quest.getMobId()+"', '"+quest.getMobKills()+"')");
-        }
-
-		QuestInfo questInfo = new QuestInfo();
-		questInfo.questClassInBytes = Tools.objectToByteArray(quest);
-		NetworkServer.SendToClient(connectionId, PacketTypes.QUEST_START, questInfo);
+		if(sendOutToClient){
+			QuestInfo questInfo = new QuestInfo();
+			questInfo.questClassInBytes = Tools.objectToByteArray(quest);
+			NetworkServer.SendToClient(connectionId, PacketTypes.QUEST_START, questInfo);
+		}
+		return true;
 		conn.Close();
+		reader.Close();
 	}
 
 	/*public Quest[] getQuestArrayFromPlayerServer(PlayerServer playerServer){
@@ -188,9 +233,10 @@ public class Server : NetworkManager
 		return quests.ToArray();
 	}*/
 
-	public byte[] sendOutQuestIdsOnCharacterLogin(int characterID){
+	public byte[] sendOutQuestByteArrayOnCharacterLogin(PlayerServer pServer){
 		MySqlConnection conn;
 		MySqlDataReader reader;
+		int characterID = pServer.getPlayerID();
 		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
 
 		List<int> questsToSendOut = new List<int>();
@@ -199,7 +245,7 @@ public class Server : NetworkManager
 			questsToSendOut.Add(reader.GetInt32("questID"));
 		}
 		foreach(int i in questsToSendOut.ToArray()){
-			Quest q = new Quest(i);
+			Quest q = new Quest(i, pServer.playerName);
 			questManager.startQuest(q);
 			quests.Add(q);
 		}
@@ -293,7 +339,8 @@ public class Server : NetworkManager
 
     public static Monster getMonsterFromJson(int monsterId)
     {
-        Monster monsters = JsonUtility.FromJson<Monster>(File.ReadAllText("Assets/XML/Monster.json"));
+		Monster monsters = JsonManager.readJson<Monster>(e_Paths.JSON_MONSTERS);
+		//Monster monsters = JsonUtility.FromJson<Monster>(File.ReadAllText("Assets/XML/Monster.json"));
         foreach(Monster monster in monsters.Monsters) {
             if(monster.id == monsterId) {
                 return monster;
@@ -340,14 +387,14 @@ public class Server : NetworkManager
         SkillInfo skillInfo = netMsg.ReadMessage<SkillInfo>();
         MySqlConnection conn;
         MySqlDataReader reader;
-        int playerID = getPlayerIDFromDir(skillInfo.playerName);
+		int playerID = getCharacterIDFromDir(skillInfo.playerName);
 
         //Read
         mysqlReader(out conn, out reader, "SELECT * FROM skills");
         int idFound = -1;
         while (reader.Read() && idFound == -1)
         {
-            if (reader.GetInt32("playerID").Equals(playerID) && reader.GetInt32("skillId").Equals(skillInfo.id))
+            if (reader.GetInt32("characterID").Equals(playerID) && reader.GetInt32("skillId").Equals(skillInfo.id))
             {
                 idFound = skillInfo.id;
                 break;
@@ -355,11 +402,11 @@ public class Server : NetworkManager
         }
         if (idFound != -1)
         {
-            mysqlNonQuerySelector(out conn, "UPDATE skills SET skillId='" + idFound + "', currentPoints='" + skillInfo.currentPoints + "', maxPoints='" + skillInfo.maxPoints + "' WHERE playerID='" + playerID + "' AND skillId='" + idFound + "'");
+            mysqlNonQuerySelector(out conn, "UPDATE skills SET skillId='" + idFound + "', currentPoints='" + skillInfo.currentPoints + "', maxPoints='" + skillInfo.maxPoints + "' WHERE characterID='" + playerID + "' AND skillId='" + idFound + "'");
         }
         else
         {
-            mysqlNonQuerySelector(out conn, "INSERT INTO skills(playerID, skillId, currentPoints, maxPoints) VALUES('" + playerID + "', '" + skillInfo.id + "', '" + skillInfo.currentPoints + "', '" + skillInfo.maxPoints + "')");
+            mysqlNonQuerySelector(out conn, "INSERT INTO skills(characterID, skillId, currentPoints, maxPoints) VALUES('" + playerID + "', '" + skillInfo.id + "', '" + skillInfo.currentPoints + "', '" + skillInfo.maxPoints + "')");
         }
         //Finish
         conn.Close();
@@ -371,7 +418,7 @@ public class Server : NetworkManager
         SkillInfo skillInfo = netMsg.ReadMessage<SkillInfo>();
         MySqlConnection conn;
         MySqlDataReader reader;
-        int playerID = getPlayerIDFromDir(skillInfo.playerName);
+		int playerID = getCharacterIDFromDir(skillInfo.playerName);
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE skillId='" + skillInfo.id + "'");
 
         int skillIdFromDatabase = 0;
@@ -383,7 +430,7 @@ public class Server : NetworkManager
         {
             results++;
             skillIdFromDatabase = reader.GetInt32("skillId");
-            playerIdFromDatabase = reader.GetInt32("playerID");
+            playerIdFromDatabase = reader.GetInt32("characterID");
             maxPointsFromDatabase = reader.GetInt32("maxPoints");
         }
 
@@ -391,7 +438,7 @@ public class Server : NetworkManager
         {
             if (maxPointsFromDatabase > skillInfo.currentPoints)
             {
-                mysqlNonQuerySelector(out conn, "UPDATE skills SET skillId='" + skillInfo.id + "', currentPoints='" + (skillInfo.currentPoints+1) + "', maxPoints='" + skillInfo.maxPoints + "' WHERE playerID='" + playerID + "' AND skillId='" + skillInfo.id + "'");
+                mysqlNonQuerySelector(out conn, "UPDATE skills SET skillId='" + skillInfo.id + "', currentPoints='" + (skillInfo.currentPoints+1) + "', maxPoints='" + skillInfo.maxPoints + "' WHERE characterID='" + playerID + "' AND skillId='" + skillInfo.id + "'");
                 NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.VERIFY_SKILL, skillInfo);
             }
             else
@@ -401,7 +448,7 @@ public class Server : NetworkManager
         }
         else
         {
-            mysqlNonQuerySelector(out conn, "INSERT INTO skills(playerID, skillId, currentPoints, maxPoints) VALUES('" + playerID + "', '" + skillInfo.id + "', '" + (skillInfo.currentPoints+1) + "', '" + skillInfo.maxPoints + "')");
+            mysqlNonQuerySelector(out conn, "INSERT INTO skills(characterID, skillId, currentPoints, maxPoints) VALUES('" + playerID + "', '" + skillInfo.id + "', '" + (skillInfo.currentPoints+1) + "', '" + skillInfo.maxPoints + "')");
             NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.VERIFY_SKILL, skillInfo);
         }
         conn.Close();
@@ -460,7 +507,7 @@ public class Server : NetworkManager
 
         MySqlConnection conn;
         MySqlDataReader reader;
-        mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE playerID = '" + id + "'");
+        mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");
         List<int> skillProperties = new List<int>();
         Debug.Log("SERVER: wew");
         while (reader.Read()) {
@@ -470,12 +517,16 @@ public class Server : NetworkManager
         }
         player.setSkills(skillProperties.ToArray());
         packet.skillProperties = skillProperties.ToArray();
-		packet.questClasses = sendOutQuestIdsOnCharacterLogin(id);
-		
+
+		packet.questClasses = sendOutQuestByteArrayOnCharacterLogin(playerReal);
+
+		Debug.Log("PACKET CLASSES LENGTH: " + packet.questClasses.Length);
+
         Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
-        Debug.Log("lol r u null nigga");
+		Debug.Log("QUESTS LENGTH" + quests.Length);
         foreach(Quest q in quests) {
             playerReal.questList.Add(q);
+			Debug.Log("IS PLAYERREAL'S QUESTLIST BEING INCREMENTED??");
         }
 
         MySqlDataReader reader1;
@@ -485,16 +536,23 @@ public class Server : NetworkManager
 
         List<int> queststatusIds = new List<int>();
 
+		Debug.Log("CHARACTER ID: " + characterID);
+
         while (reader1.Read()) {
             queststatusIds.Add(reader1.GetInt32("id"));
+			Debug.Log("READER1 READING");
         }
 
         while (reader.Read()) {
+			Debug.Log("READER READING");
+			Debug.Log("PLAYERREAL_QUEST_ARRAY_LENGTH: " + playerReal.questList.ToArray().Length);
             foreach(Quest q in playerReal.questList.ToArray()) {
+				Debug.Log("QUESTSTATUSIDS.COUNT: " + queststatusIds.Count);
                 for(int i=0;i<queststatusIds.Count;i++){
+					Debug.Log("READERGETINT: " + reader.GetInt32("queststatusID") + " | " + queststatusIds[i]);
                     if(reader.GetInt32("queststatusID") == queststatusIds[i]){
                         q.initilizeMobQuest(reader.GetInt32("mob"), reader.GetInt32("count"));
-                        Debug.Log("COUNT : " + reader.GetInt32("count"));
+                        Debug.Log("MOB COUNT: " + reader.GetInt32("count"));
                     }
                 }
             }

@@ -21,6 +21,7 @@ public class Player : NetworkBehaviour
     private QuestInformationData questInformationData;
     private GameObject questInformationObject;
 	private QuestWrapper questWrapper;
+	private GameObject npcManager;
 
     [Header("Player Attributes")]
     public string playerName;
@@ -110,7 +111,22 @@ public class Player : NetworkBehaviour
 		//QuestWrapper
 		questWrapper = getUI().transform.GetChild(getUI().transform.childCount-1).GetChild(1).GetChild(0).GetComponent<QuestWrapper>();
 
+		//QuestManager
+		this.npcManager = GameObject.FindWithTag("NPCManager");
+		npcManager.GetComponent<NPCController>().initilize(this);
+
     }
+	public bool hasQuest(Quest quest){
+		foreach(Quest q in quests.ToArray()){
+			if(quest.getId().Equals(q.getId())){
+				return true;
+			}
+		}
+		return false;
+	}
+	public GameObject getNpcManager(){
+		return this.npcManager;
+	}
 	public QuestWrapper getQuestWrapper(){
 		return this.questWrapper;
 	}
