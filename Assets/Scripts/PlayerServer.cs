@@ -54,18 +54,15 @@ public class PlayerServer {
         return false;
     }
 
-    public bool useItem(Item item) {
-
-        string file = File.ReadAllText("Assets/itemsJson/item_" + Mathf.CeilToInt(item.getID() / 500) * 500);
-        if (item.getID() > 0 && item.getID() <= 500)
+    public ItemVariables useItem(Item item) {
+        ItemVariables pot = ItemDataProvider.getInstance().getStats(item.getID());
+        if (item.getID().isItemType(e_itemTypes.USE))
         {
-            UseInterface pot = JsonUtility.FromJson<UseInterface>(file);
-            this.health = Mathf.Min(this.health + pot.health, maxHealth);
-            this.mana = Mathf.Min(this.mana + pot.mana, maxMana);
+            this.health = Mathf.Min(this.health + pot.getInt("health"), maxHealth);
+            this.mana = Mathf.Min(this.mana + pot.getInt("mana"), maxMana);
             item.setQuantity(item.getQuantity() - 1);
-            return true;
         }
-        return false;
+        return pot;
     }
 
     public void replaceItems(Item item1, Item item2) {

@@ -42,8 +42,8 @@ public class ItemInfoHandler : MonoBehaviour {
         return this.equip;
     }
     public void setUseClicked() {
-        //player.getNetwork().onItemUse(item);
-        Debug.Log("item use clicked");
+        player.getNetwork().onItemUse(item);
+        //Debug.Log("item use clicked");
     }
     public void setEquipClicked() {
         destroyItemInInventory();

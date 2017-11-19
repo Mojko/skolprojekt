@@ -20,6 +20,7 @@ public class ItemInfo : MessageBase
 {
     public byte[] item;
     public byte[] oldItem;
+    public byte[] itemVariables;
 }
 
 public class MobInfo : MessageBase

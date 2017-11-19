@@ -9,7 +9,6 @@ public class ItemInfoButton : MonoBehaviour {
 	void Start () {
         handler = this.transform.parent.gameObject.GetComponent<ItemInfoHandler>();
         button = this.GetComponent<Button>();
-
     }
 	
 	// Update is called once per frame
@@ -22,12 +21,12 @@ public class ItemInfoButton : MonoBehaviour {
             case 0:
                 Debug.Log("EQUIP METHOD!");
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(delegate { onEquip(); });
+                button.onClick.AddListener(() => onEquip());
                 break;
             case 1:
                 Debug.Log("USE METHOD!");
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(delegate { onUse(); });
+                button.onClick.AddListener(() => onUse());
                 break;
             case 2:
 

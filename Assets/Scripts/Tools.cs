@@ -11,6 +11,10 @@ public enum ErrorID
 {
     INVALID_ITEM = 0, HACK
 };
+public enum e_itemTypes
+{
+    USE = 500, ETC = 1000, HATS = 1500, ACCESSORY = 2000, FACE = 2500, WEAPON = 3000, SHIELD = 3500, BODY = 4000, GLOVE = 4500, PANTS = 5000, BOOTS = 5500, NPC = 6000, QUESTS = 6500, MOBS
+};
 public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
 };
@@ -135,6 +139,12 @@ public static class Tools
     public static PlayerServer getPlayer(this NetworkMessage msg)
     {
         return Server.playerObjects[msg.conn.connectionId];
+    }
+    public static bool isItemType(this int itemID, e_itemTypes type) {
+        return (Mathf.Ceil((itemID + 1) / 500f) * 500 == (int)type);
+    }
+    public static ItemDataAll getChild(this ItemDataAll data, int itemID) {
+        return null;
     }
 }
 

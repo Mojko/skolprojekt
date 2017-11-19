@@ -21,6 +21,7 @@ public class Player : NetworkBehaviour
     private QuestInformationData questInformationData;
     private GameObject questInformationObject;
 	private QuestWrapper questWrapper;
+    private UIPlayerHandler UIPlayer;
 
     [Header("Player Attributes")]
     public string playerName;
@@ -28,8 +29,9 @@ public class Player : NetworkBehaviour
     public int health = 100;
     public int mana = 100;
     public int money = 0;
-    
-    
+    public int maxHealth = 3000;
+    public int maxMana = 3000;
+
     [Space(20)]
     [Header("Quests")]
     public List<Quest> quests = new List<Quest>();
@@ -64,37 +66,45 @@ public class Player : NetworkBehaviour
         ClientScene.RegisterPrefab((GameObject)Resources.Load("Particles/ImpactOnGround"));
         ClientScene.RegisterPrefab(skillPrefab);
         ClientScene.RegisterPrefab(skillEffectPrefab);*/
-
+        this.maxHealth = 1000;
+        this.maxMana = 1000;
+        //UI
         UICanvas = GameObject.Find("UI");
         login = Tools.findInactiveChild(UICanvas,"Login_UI").GetComponent<Login>();
         this.movement = GetComponent<PlayerMovement>();
-
+        //skills
         this.skillUi = GameObject.Find("Actionbar_UI").GetComponent<SkillUIManager>();
         this.skillUi.init(this);
-
         this.skillManager = GetComponent<SkillManager>();
 		this.skillManager.init(this, getSkillUiManager());
 
         //this.skillTreeUi = GameObject.Find(this.skillTreeUi.name)
 
-        this.equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
-
+        //network
 		network = GetComponent<playerNetwork>();
         network.initialize (this);
 
         this.skillTreeUi = Tools.getChild(UICanvas, this.skillTreeUi.name);
 
+        //chat
         chat = Tools.getChild(UICanvas, "Chat_UI").GetComponent<Chat>();
         chat.setPlayer(this);
-		camera = Camera.main;
+
+        //inventory
 		this.inventory = this.GetComponent<Inventory> ();
 		this.inventory.init (this);
 
+        //equip
+        this.equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
         equip.setEquipmentUI(Tools.getChild(UICanvas, "Equipment_UI"));
         equip.setPlayer(this);
-		camera.GetComponent<MainCamera> ().player = this.gameObject;
+
+        //camera
+        camera = Camera.main;
+        camera.GetComponent<MainCamera> ().player = this.gameObject;
 		camera.GetComponent<MainCamera> ().setState ((int)e_cameraStates.DEFAULT);
 
+        //worlds
         worlds[0] = GameObject.Find("login_World");
         worlds[1] = GameObject.Find("World");
 
@@ -106,9 +116,13 @@ public class Player : NetworkBehaviour
         tempQuestUI.transform.SetAsLastSibling();
         questInformationObject = tempQuestUI;
 
-
 		//QuestWrapper
 		questWrapper = getUI().transform.GetChild(getUI().transform.childCount-1).GetChild(1).GetChild(0).GetComponent<QuestWrapper>();
+
+        //UIPlayer
+        this.UIPlayer = Tools.findInactiveChild(UICanvas, "Footer_UI").GetComponent<UIPlayerHandler>();
+        this.UIPlayer.setPlayer(this);
+        this.UIPlayer.gameObject.SetActive(true);
 
     }
 	public QuestWrapper getQuestWrapper(){
@@ -220,6 +234,18 @@ public class Player : NetworkBehaviour
 	}
     public Chat getChat() {
         return chat;
+    }
+    public void setHealth(int health) {
+        this.health = health;
+        UIPlayer.onHealthChange();
+    }
+    public void setMana(int mana)
+    {
+        this.mana = mana;
+        UIPlayer.onManaChange();
+    }
+    public int getMaxHealth() {
+        return this.maxHealth;
     }
     public void pickup(Item item, e_ItemTypes type)
     {

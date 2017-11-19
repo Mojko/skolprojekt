@@ -380,15 +380,13 @@ public class Inventory : MonoBehaviour
             item = items[i];
 
             GameObject instansiatedSlot = (GameObject)Instantiate(InventorySlot);
-            InventorySlot slot = new InventorySlot();
-            slot = instansiatedSlot.GetComponent<InventorySlot>();
+            InventorySlot slot = instansiatedSlot.GetComponent<InventorySlot>();
             slot.setID(i);
             slot.setItem(item.getPosition(), item);
             slot.setImage(slot.getItem());
             //itemIDString[i] = instansiatedSlot.GetComponentInChildren<Text> ();
 
             slot.gameObject.transform.SetParent(canvas[item.getInventoryType()].transform);
-
             //invSlot[i].gameObject.GetComponent<RectTransform>().localPosition = new Vector3((invSlot[i].getItem().getStats()[8] % i) * 50, -25 - Mathf.Floor(invSlot[i].getItem().getStats()[8] / 4) * 50, 0);
             slot.gameObject.GetComponent<RectTransform>().localPosition = new Vector3((item.getPosition() % 4) * 50, -25 - Mathf.Floor(item.getPosition() / 4) * 50, 0);
             itemsOwned.Add(slot);

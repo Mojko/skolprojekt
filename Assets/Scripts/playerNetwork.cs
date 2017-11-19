@@ -59,17 +59,27 @@ public class playerNetwork : NetworkBehaviour{
         Destroy(login_world);
     }
     void onItemUse(NetworkMessage netMsg) {
-        Item item = (Item)Tools.byteArrayToObject(netMsg.ReadMessage<ItemInfo>().item);
-        Item orgItem = (Item)Tools.byteArrayToObject(netMsg.ReadMessage<ItemInfo>().item);
+        ItemInfo info = netMsg.ReadMessage<ItemInfo>();
+        Item item = (Item)Tools.byteArrayToObject(info.item);
+        ItemVariables vars = (ItemVariables)Tools.byteArrayToObject(info.itemVariables);
+        Item orgItem = item;
         if (item.getInventoryType() != (int)e_ItemTypes.EQUIP)
         {
+            if (item.getID().isItemType(e_itemTypes.USE)) {
+                onPotUse(vars);
+            }
             if (item.getQuantity() == 0)
             {
                 player.getInventory().removeItem(item);
                 return;
             }
+            item.setQuantity(item.getQuantity() - 1);
             player.getInventory().updateItem(orgItem, item);
         }
+    }
+    void onPotUse(ItemVariables vars) {
+        this.player.setHealth(Mathf.Min(this.player.health + vars.getInt("health"), player.maxHealth));
+        this.player.setMana(Mathf.Min(this.player.mana + vars.getInt("mana"), player.maxMana));
     }
     void onUnEquip(NetworkMessage netMsg)
     {

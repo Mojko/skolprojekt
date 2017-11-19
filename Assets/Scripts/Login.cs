@@ -23,6 +23,9 @@ public class Login : NetworkBehaviour {
 			//Debug.Log(GetComponentInParent<Transform>().gameObject.name);
 		}
 	}
+    public void Start()
+    {
+    }
     public string getName() {
         return this.name;
     }

@@ -620,7 +620,7 @@ public class Server : NetworkManager
                     -1,
                     -1,
                 };
-                player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
+                player.addItem(new Item(reader.GetInt32("id"), reader.GetInt32("position"), invType, reader.GetInt32("quantity"), item));
             }
         }
         conn.Close();
@@ -641,9 +641,8 @@ public class Server : NetworkManager
         {
             sendError(player, ErrorID.INVALID_ITEM, true, "changed item values");
         }
-        if (!player.useItem(item)) {
-            sendError(player, ErrorID.INVALID_ITEM, false, "Something went wrong!");
-        }
+        ItemVariables vars = player.useItem(item);
+        info.itemVariables = Tools.objectToByteArray(vars);
         //om spelaren har använt ett item och det finns noll kvar ska det tas bort från databasen. annars ska den minska med 1 i databasen.
         if (item.getQuantity() == 0)
         {
@@ -654,6 +653,7 @@ public class Server : NetworkManager
         {
             mysqlNonQuerySelector(out conn, "UPDATE inventory SET quantity = '" + item.getQuantity() + "' WHERE  id = '" + item.getKeyID() + "'");
         }
+        info.item = Tools.objectToByteArray(item);
         conn.Close();
         //skicka tillbaka det till spelaren.
         NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_USE, info);
