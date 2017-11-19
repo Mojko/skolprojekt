@@ -15,6 +15,7 @@ public class PlayerServer {
     public int maxHealth = 100;
     public int maxMana = 100;
 	public string playerName = "";
+	public int characterIdPlayingAs = -1;
 	public List<Quest> questList = new List<Quest>();
     //public Quest[] quests;
     int[] stats = new int[5];

@@ -23,9 +23,6 @@ public class SkillTree : UIHandler {
 	int xType = -1;
 	int yType = -1;
 
-	string path;
-	string jsonString;
-
 	float xRoot = Screen.width/2;
 	float yRoot = Screen.height/2;
 	float zRoot = 0;
@@ -41,19 +38,17 @@ public class SkillTree : UIHandler {
 
 		playerNetwork = player.getNetwork ();
 		this.player = player;
-		path = "Assets/XML/SkillTree.json";
-		jsonString = File.ReadAllText (path);
 
 		GameObject UI = GameObject.Find("UI");
 
 		transform.SetParent(UI.transform.Find("SkillTree_UI"));
         UI.GetComponent<UIReferences>().skillTreeReference = this.gameObject;
 
-		Skill skills = JsonUtility.FromJson<Skill> (jsonString);
+		Skill skills = JsonManager.readJson<Skill>(e_Paths.JSON_SKILLTREE);
 
-        Debug.Log("Is  this running?");
 
 		potrait = Instantiate(skillTreeSlotPrefab);
+		Debug.Log("Is  this running? " + potrait);
 		potrait.GetComponent<SkillId>().setSkillTree(this);
 		potrait.transform.SetParent(this.transform);
 		potrait.transform.position = new Vector3(xRoot, yRoot, zRoot);
@@ -162,12 +157,14 @@ public class SkillTree : UIHandler {
 		if(Input.GetKey(KeyCode.O)) potrait.transform.position += new Vector3(0, 5, 0);
 		if(Input.GetKey(KeyCode.L)) potrait.transform.position += new Vector3(5, 0, 0);
 		if(Input.GetKey(KeyCode.J)) potrait.transform.position += new Vector3(-5, 0, 0);*/
-        if(Input.GetAxis("Mouse ScrollWheel") < 0 && potrait.transform.localScale.x > 0.5f) {
-            potrait.transform.localScale -= new Vector3(0.1f, 0.1f, 0);
-        }
-        if(Input.GetAxis("Mouse ScrollWheel") > 0) {
-            potrait.transform.localScale += new Vector3(0.1f, 0.1f, 0);
-        }
+		if(potrait != null){
+	        if(Input.GetAxis("Mouse ScrollWheel") < 0 && potrait.transform.localScale.x > 0.5f) {
+	            potrait.transform.localScale -= new Vector3(0.1f, 0.1f, 0);
+	        }
+	        if(Input.GetAxis("Mouse ScrollWheel") > 0) {
+	            potrait.transform.localScale += new Vector3(0.1f, 0.1f, 0);
+	        }
+		}
 	}
 
 	public void confirmSkills(){

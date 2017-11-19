@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Chat : UIHandler {
-    Text text;
+    public Text text;
     InputField field;
     Player player;
     List<string> messages = new List<string>();
@@ -12,7 +12,7 @@ public class Chat : UIHandler {
 	// Use this for initialization
 	void Start () {
         base.initUI();
-        this.text = Tools.getChild(this.gameObject,"TextBox").GetComponent<Text>();
+        //this.text = Tools.getChild(this.gameObject,"TextBox").GetComponent<Text>();
         this.field = Tools.getChild(this.gameObject, "InputChat").GetComponent<InputField>();
         Debug.Log(this.text.text);
 	}

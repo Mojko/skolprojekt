@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class QuestWrapper : MonoBehaviour {
 
@@ -11,14 +12,8 @@ public class QuestWrapper : MonoBehaviour {
 		QuestContainer clicked = null;
 		foreach(QuestContainer qContainer in questContainers){
 			if(qContainer.isClicked){
-				clickAmount++;
-				if(clickAmount > 1){
-					clicked.isClicked = false;
-					clickAmount = 0;
-					return;
-				} else {
-					clicked = qContainer;
-				}
+				qContainer.isClicked = false;
+				return;
 			}
 		}
 	}

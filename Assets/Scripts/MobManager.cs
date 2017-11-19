@@ -19,7 +19,7 @@ public class MobManager : NetworkBehaviour {
 	public GameObject part;
     public GameObject target;
     private PlayerServer targetNetwork;
-    public int targetId;
+    public int targetId = -1;
 
 	public Server server;
 
@@ -133,12 +133,14 @@ public class MobManager : NetworkBehaviour {
 		NetworkServer.SendToClient(p.connectionToServer.connectionId, PacketTypes.QUEST_UPDATE, qInfo);*/
 
         foreach(Quest q in targetNetwork.questList.ToArray()){
-
-			Debug.Log("A QUEST: " + " | " + q.getMobId() + " | " + getId());
-			if(q.getMobId() == getId()){
-			    q.increaseMobKills();
-                questsToSend.Add(q);
-		    }
+			
+			int[] ids = q.getMobIds();
+			for(int i=0;i<ids.Length;i++){
+				if(ids[i] == getId()){
+					q.increaseMobKills(this.getId());
+	                questsToSend.Add(q);
+			    }
+			}
 	    }
         if(questsToSend.Count > 0){
             QuestInfo qInfo = new QuestInfo();

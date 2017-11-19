@@ -108,10 +108,16 @@ public class playerNetwork : NetworkBehaviour{
 
 	public void onQuestUpdate(NetworkMessage netMsg){
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
+
 		Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(questInfo.questClassInBytes);
+
+		//Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(questInfo.questClassInBytes);
 		foreach(Quest q in quests){
 			foreach(Quest playerQ in player.getQuests()){
-				playerQ.setMobKills(q.getMobKills());
+				int[] ids = q.getMobIds();
+				for(int i=0;i<ids.Length;i++){
+					playerQ.setMobKills(ids[i], q.getMobKills(ids[i]));
+				}
 				foreach(QuestContainer container in player.getQuestWrapper().questContainers.ToArray()){
 					container.setQuestInformation();
 				}
@@ -322,9 +328,17 @@ public class playerNetwork : NetworkBehaviour{
         }
 
 		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
-		QuestJson clientJson = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
+		QuestJson clientJson = JsonManager.readJson<QuestJson>(e_Paths.JSON_QUESTS);
+		//QuestJson clientJson = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
+
+		Debug.Log("CLIENTJSON: " + clientJson.quests.Length);
+		this.sendMessage("acess0? " + clientJson.quests.Length, MessageTypes.CHAT, "");
+
 		foreach(QuestJson quests in clientJson.quests){
+			//this.sendMessage("acess1? " + quests.id + " | " + clientJson.quests.Length, MessageTypes.CHAT, "");
 			foreach(Quest quest in questArray){
+				//this.sendMessage("acess? " + quest.getId() + " | " + quests.id + " | " + clientJson.quests.Length, MessageTypes.EVERYONE, "");
+				Debug.Log("acess here? " + quest.getId() + " | " + quests.id);
 				if(quest.getId() == quests.id){
 					player.quests.Add(quest);
 					this.player.getQuestInformationData().addNewQuestPanel(quest);
