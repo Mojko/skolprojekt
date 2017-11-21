@@ -9,7 +9,7 @@ public class ItemDataProvider {
     private ItemData items;
 
     protected ItemDataProvider() {
-        items = ItemDataProviderFactory.getItemProvider(new ItemDirectory("Assets/Items.I"));
+        items = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.getPath(e_Paths.USE)));
         Debug.Log("datapprovider: " + items);
     }
     public static ItemDataProvider getInstance() {

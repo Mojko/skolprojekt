@@ -44,15 +44,17 @@ public static class DefaultIds {
 public enum e_Paths {
 	JSON_QUESTS,
 	JSON_SKILLTREE,
-	JSON_MONSTERS
+	JSON_MONSTERS,
+    USE
 }
 
 public static class JsonManager {
 	public static readonly string[] paths = {
 		Application.persistentDataPath+"/Resources/Visuals/Quests.json",
 		Application.persistentDataPath+"/Resources/Visuals/SkillTree.json",
-		Application.persistentDataPath+"/Resources/Visuals/Monster.json"
-	};
+		Application.persistentDataPath+"/Resources/Visuals/Monster.json",
+        Application.persistentDataPath+"/Resources/Visuals/Items.I"
+    };
 
 	public static T readJson<T>(e_Paths path){
 		Debug.Log("PATH: " + getPath(path));

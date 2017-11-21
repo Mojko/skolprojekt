@@ -21,11 +21,8 @@ public class Player : NetworkBehaviour
     private QuestInformationData questInformationData;
     private GameObject questInformationObject;
 	private QuestWrapper questWrapper;
-<<<<<<< HEAD
     private UIPlayerHandler UIPlayer;
-=======
 	private GameObject npcManager;
->>>>>>> db5a129cae6e71d9f951cf02ea86eaba50f274d6
 
     [Header("Player Attributes")]
     public string playerName;
@@ -123,16 +120,13 @@ public class Player : NetworkBehaviour
 		//QuestWrapper
 		questWrapper = getUI().transform.GetChild(getUI().transform.childCount-1).GetChild(1).GetChild(0).GetComponent<QuestWrapper>();
 
-<<<<<<< HEAD
         //UIPlayer
         this.UIPlayer = Tools.findInactiveChild(UICanvas, "Footer_UI").GetComponent<UIPlayerHandler>();
         this.UIPlayer.setPlayer(this);
         this.UIPlayer.gameObject.SetActive(true);
-=======
 		//QuestManager
 		this.npcManager = GameObject.FindWithTag("NPCManager");
 		npcManager.GetComponent<NPCController>().initilize(this);
->>>>>>> db5a129cae6e71d9f951cf02ea86eaba50f274d6
 
     }
 	public bool hasQuest(Quest quest){
