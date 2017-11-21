@@ -157,6 +157,9 @@ public class ItemVariables {
     public void setVariables(Dictionary<string, object> variables) {
         this.variables = variables;
     }
+    public Dictionary<string, object> getDictionary() {
+        return variables;
+    }
 }
 [Serializable]
 public class ItemDataAll {
@@ -195,6 +198,7 @@ public class ItemDataPots : ItemDataAll
     public int damage;
     public int mana;
     public int imageIndex;
+    public string description;
 }
 [Serializable]
 public class ItemDataEquips : ItemDataAll
@@ -204,6 +208,7 @@ public class ItemDataEquips : ItemDataAll
     public int health;
     public int mana;
     public int imageIndex;
+    public string description;
 }
 [Serializable]
 public class ItemDataScrolls : ItemDataAll
@@ -213,6 +218,7 @@ public class ItemDataScrolls : ItemDataAll
     public int health;
     public int mana;
     public int imageIndex;
+    public string description;
 }
 [Serializable]
 public class ItemDataEtc : ItemDataAll
@@ -222,4 +228,5 @@ public class ItemDataEtc : ItemDataAll
     public int health;
     public int mana;
     public int imageIndex;
+    public string description;
 }

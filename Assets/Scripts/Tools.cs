@@ -73,8 +73,9 @@ public static class Tools
     public static readonly int ITEM_INTERVAL = 500;
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
-		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
-		foreach(Transform t in transforms){
+        RectTransform[] transforms = parent.GetComponentsInChildren<RectTransform>(true);
+		foreach(RectTransform t in transforms){
+            Debug.Log("names!!!!: " + t.name);
 			if(t.name.Equals(name)){
 				return t.gameObject;
 			}

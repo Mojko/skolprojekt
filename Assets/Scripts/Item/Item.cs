@@ -14,6 +14,7 @@ public enum e_ItemTypes
 [System.Serializable]
 public class Item {
 	public int[] stats = new int[Tools.ITEM_PROPERTY_SIZE];
+    private ItemVariables dataDisplay;
     private int position;
 	private int id;
     private int keyID;
@@ -28,6 +29,9 @@ public class Item {
         this.inventoryType = inventoryType;
         this.quantity = 1;
 
+    }
+    public void setItemVariables(ItemVariables dataDisplay) {
+        this.dataDisplay = dataDisplay;
     }
     public Item(int keyID, int position, int inventoryType,int quantity, params int[] stats)
     {
