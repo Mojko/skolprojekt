@@ -21,8 +21,8 @@ public class Player : NetworkBehaviour
     private QuestInformationData questInformationData;
     private GameObject questInformationObject;
 	private QuestWrapper questWrapper;
-    private UIPlayerHandler UIPlayer;
 	private GameObject npcManager;
+	private UIPlayerHandler UIPlayer;
 
     [Header("Player Attributes")]
     public string playerName;
@@ -48,6 +48,7 @@ public class Player : NetworkBehaviour
 
     [Space(20)]
     [Header("System")]
+
     public Camera camera;
 	public playerNetwork network;
 	public GameObject npcTalkingTo;
@@ -124,6 +125,7 @@ public class Player : NetworkBehaviour
         this.UIPlayer = Tools.findInactiveChild(UICanvas, "Footer_UI").GetComponent<UIPlayerHandler>();
         this.UIPlayer.setPlayer(this);
         this.UIPlayer.gameObject.SetActive(true);
+
 		//QuestManager
 		this.npcManager = GameObject.FindWithTag("NPCManager");
 		npcManager.GetComponent<NPCController>().initilize(this);
@@ -136,6 +138,11 @@ public class Player : NetworkBehaviour
 			}
 		}
 		return false;
+	}
+	public void completeQuest(Quest quest){
+		this.quests.Remove(quest);
+		this.getQuestInformationData().removeQuestPanel(quest);
+		Debug.Log("Quest removed AND completed");
 	}
 	public GameObject getNpcManager(){
 		return this.npcManager;

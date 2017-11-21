@@ -40,6 +40,7 @@ public class Server : NetworkManager
     public string database, username, password, host;
 	private QuestManager questManager;
     string connectionString;
+
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         addPlayer(conn, playerControllerId);
@@ -171,38 +172,33 @@ public class Server : NetworkManager
             
 		} else {
 			//INSERT
-			questID = quest.getId();
-			status = quest.getCompleted();
 			mysqlNonQuerySelector(out conn, "INSERT INTO queststatus(questID, characterID, status) VALUES('"+quest.getId()+"', '"+characterId+"', '"+quest.getCompleted()+"')");
 		}
 		Debug.Log("TRYING TO ADD / UPDATE: " + characterId + " | " + quest.getCharacterName() + " | " + queststatusId);
-			
-		/*if(status != -1) {
-			mysqlReader(out conn, out reader, "SELECT COUNT(id) FROM queststatus");
-			queststatusId = reader.GetInt32("COUNT(id)");
-			Debug.Log("QUEST_STATUS_ID: " + queststatusId);
-		}*/
 
+		if(quest.getStatus() == e_QuestStatus.COMPLETED){
+			mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+queststatusId+"'");
+			Debug.Log("DELETED QUEST");
+			return true;
+		}
 
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
+		reader = null;
+		if(queststatusId == -1){
+			mysqlReader(out conn, out reader, "SELECT id FROM queststatus WHERE questID = '"+quest.getId()+"' AND characterID = '"+characterId+"'");
+			queststatusId = reader.GetInt32("id");
+		}
 
 		if(queststatusId != -1){
-			if(questID == -1 && status == -1){
-				Debug.Log("LENGTH_UPDATE: " + quest.getMobIds().Length + " | " + queststatusId);
+			if(reader == null){
 				for(int i=0;i<quest.getMobIds().Length;i++){
 					mysqlNonQuerySelector(out conn, "UPDATE queststatusmobs SET count = '" + quest.getMobKills(quest.getMobIds()[i]) + "' WHERE queststatusID = '" + queststatusId + "'");
 				}
 	        } else {
-				Debug.Log("LENGTH_INSERT: " + quest.getMobIds().Length);
 				for(int i=0;i<quest.getMobIds().Length;i++){
-					Debug.Log("inserting to database..");
+					Debug.Log("inserting quest to database..");
 					mysqlNonQuerySelector(out conn, "INSERT INTO queststatusmobs(queststatusID, mob, count) VALUES('"+queststatusId+"', '"+quest.getMobIds()[i]+"', '"+quest.getMobKills(quest.getMobIds()[i])+"')");
 				}
-	        }
+			}
 		}
 
 		if(sendOutToClient){
@@ -509,7 +505,6 @@ public class Server : NetworkManager
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");
         List<int> skillProperties = new List<int>();
-        Debug.Log("SERVER: wew");
         while (reader.Read()) {
             skillProperties.Add(reader.GetInt16("skillId"));
             skillProperties.Add(reader.GetInt16("currentPoints"));
@@ -518,44 +513,56 @@ public class Server : NetworkManager
         player.setSkills(skillProperties.ToArray());
         packet.skillProperties = skillProperties.ToArray();
 
-		packet.questClasses = sendOutQuestByteArrayOnCharacterLogin(playerReal);
-
-		Debug.Log("PACKET CLASSES LENGTH: " + packet.questClasses.Length);
-
-        Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
-		Debug.Log("QUESTS LENGTH" + quests.Length);
-        foreach(Quest q in quests) {
-            playerReal.questList.Add(q);
-			Debug.Log("IS PLAYERREAL'S QUESTLIST BEING INCREMENTED??");
-        }
-
         MySqlDataReader reader1;
         MySqlConnection conn1;
         mysqlReader(out conn, out reader, "SELECT * FROM queststatusmobs");
         mysqlReader(out conn1, out reader1, "SELECT * FROM queststatus WHERE characterID = '"+characterID+"'");
 
+
+
         List<int> queststatusIds = new List<int>();
-
-		Debug.Log("CHARACTER ID: " + characterID);
-
+		List<int> queststatus = new List<int>();
         while (reader1.Read()) {
             queststatusIds.Add(reader1.GetInt32("id"));
-			Debug.Log("READER1 READING");
+			queststatus.Add(reader1.GetInt32("status"));
         }
 
+		//Quests
+		packet.questClasses = sendOutQuestByteArrayOnCharacterLogin(playerReal);
+		Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
+		foreach(Quest q in quests) {
+			playerReal.questList.Add(q);
+		}
+		foreach(Quest q in quests) {
+			foreach(int status in queststatus){
+				Debug.Log("STATUS_INT: " + status);
+				q.intToQuestStatus(status);
+			}
+		}
+		foreach(Quest q in playerReal.questList) {
+			Debug.Log("STATUS_SERVER: " + q.getStatus() + playerReal.questList.Count);
+		}
+		//End
+
+
         while (reader.Read()) {
-			Debug.Log("READER READING");
-			Debug.Log("PLAYERREAL_QUEST_ARRAY_LENGTH: " + playerReal.questList.ToArray().Length);
             foreach(Quest q in playerReal.questList.ToArray()) {
-				Debug.Log("QUESTSTATUSIDS.COUNT: " + queststatusIds.Count);
                 for(int i=0;i<queststatusIds.Count;i++){
-					Debug.Log("READERGETINT: " + reader.GetInt32("queststatusID") + " | " + queststatusIds[i]);
                     if(reader.GetInt32("queststatusID") == queststatusIds[i]){
                         q.initilizeMobQuest(reader.GetInt32("mob"), reader.GetInt32("count"));
-                        Debug.Log("MOB COUNT: " + reader.GetInt32("count"));
                     }
                 }
             }
+
+			/*foreach(Quest q in playerReal.questList.ToArray()) {
+				for(int i=0;i<queststatuses.Count;i++){
+					Debug.Log("THE FUCKNG STATIS IS: " + queststatuses[i]);
+					if(queststatuses[i] == 1){
+						playerReal.questList.Remove(q);
+						q.setStatus(e_QuestStatus.COMPLETED);
+					}
+				}
+			}*/
         }
 
         //QuestStatusMobData questStatusMob = new QuestStatusMobData();

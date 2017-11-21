@@ -82,8 +82,7 @@ public class Quest
 
 	//int mobKillsOfSpecifiedMobId = 0;
 	Dictionary<int, int> mobKills = new Dictionary<int, int>();
-    int mobId = 0;
-    int itemId = 0;
+	Dictionary<int, int> itemCount = new Dictionary<int, int>();
     string description;
 
 	//int[] requirementData;
@@ -113,7 +112,11 @@ public class Quest
 			if(isCompletionIdMobId(i)){
 				this.mobKills.Add(questJson.completionData.completionId[i], 0);
 			}
+			if(isCompletionIdItemId(i)){
+				setItemCount(questJson.completionData.completionId[i], 0);
+			}
 		}
+		checkForCompletion();
 	}
 
 	public int getId(){
@@ -150,15 +153,18 @@ public class Quest
 
     public void initilizeMobQuest(int mobId, int kills)
     {
-        this.mobId = mobId;
 		setMobKills(mobId, kills);
 		checkForCompletion();
     }
 
-    public void setMobId(int mobId)
-    {
-        this.mobId = mobId;
-    }
+	public void setItemCount(int itemId, int count){
+		this.itemCount.Add(itemId, count);
+	}
+
+	public int getItemCount(int itemId){
+		return this.itemCount[itemId];
+	}
+
 	public void setMobKills(int mobId, int mobKills){
 		if(this.mobKills.ContainsKey(mobId)){
 			this.mobKills[mobId] = mobKills;
@@ -213,12 +219,25 @@ public class Quest
 			int id = getCompletionData().completionId[i];
 			int value = getCompletionData().completionValue[i];
 
+			bool completed = false;
 			if(isCompletionIdMobId(i)){
 				if(this.getMobKills(id) >= value){
-					//completed
-					this.status = e_QuestStatus.COMPLETED;
-					return true;
+					completed = true;
+				} else {
+					completed = false;
 				}
+			}
+
+			if(isCompletionIdItemId(i)){
+				if(getItemCount(id) >= value){
+					completed = true;
+				} else {
+					completed = false;
+				}
+			}
+			if(completed){
+				this.status = e_QuestStatus.COMPLETED;
+				return true;
 			}
 		}
 		return false;
@@ -244,6 +263,19 @@ public class Quest
 	public string getCharacterName(){
 		return this.characterName;
 	}
+
+	public void setStatus(e_QuestStatus status){
+		this.status = status;
+	}
+
+	public void intToQuestStatus(int status){
+		Debug.Log("SERVER_STATUS_PARSER: " + status);
+		if(status == 1) this.status = e_QuestStatus.COMPLETED;
+		else if(status == 0) this.status = e_QuestStatus.STARTED;
+	}
+	/*public int questStatusToInt(){
+
+	}*/
 
 	public int getCompleted(){
 		if(this.status == e_QuestStatus.COMPLETED) return 1; else return 0;

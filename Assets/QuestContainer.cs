@@ -106,6 +106,20 @@ public class QuestContainer : MonoBehaviour {
 		}
 	}
 
+	public void delete(){
+		isClicked = false;
+		for(int i=0;i<this.questObjectiveTexts.Count;i++){
+			if(this.questObjectiveTexts[i] != null){
+				this.questObjectiveTexts[i].text = "";
+			}
+		}
+		this.questInformationDescription.GetComponent<Text>().text = "";
+		npcController.updateSprite(null);
+		this.questName.text = "";
+		thisImage.color = Tools.hexColor(0x6CB95D);
+		toggleTextAndImages(false);
+	}
+
 	public void onClick(){
 		this.questWrapper.onQuestContainerClick();
 		isClicked = true;

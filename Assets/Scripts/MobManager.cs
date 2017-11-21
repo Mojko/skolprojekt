@@ -132,17 +132,25 @@ public class MobManager : NetworkBehaviour {
 		qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
 		NetworkServer.SendToClient(p.connectionToServer.connectionId, PacketTypes.QUEST_UPDATE, qInfo);*/
 
+		bool shouldUpdate = true;
         foreach(Quest q in targetNetwork.questList.ToArray()){
-			
 			int[] ids = q.getMobIds();
 			for(int i=0;i<ids.Length;i++){
 				if(ids[i] == getId()){
 					q.increaseMobKills(this.getId());
 	                questsToSend.Add(q);
+					if(q.checkForCompletion()){
+						this.server.addOrUpdateQuestStatusToDatabase(q, targetNetwork, false);
+						QuestInfo qInfo = new QuestInfo();
+						qInfo.questClassInBytes = Tools.objectToByteArray(q);
+						NetworkServer.SendToClient(targetNetwork.connectionID, PacketTypes.QUEST_COMPLETE, qInfo);
+						shouldUpdate = false;
+						Debug.Log("completing quest..");
+					}
 			    }
 			}
 	    }
-        if(questsToSend.Count > 0){
+		if(questsToSend.Count > 0 && shouldUpdate){
             QuestInfo qInfo = new QuestInfo();
             qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
             NetworkServer.SendToClient(targetId, PacketTypes.QUEST_UPDATE, qInfo);

@@ -34,7 +34,11 @@ public class QuestInformationData : MonoBehaviour {
     }
 
 	public void removeQuestPanel(Quest quest){
-		questPanels.Remove(quest.getId());
+		if(questPanels.ContainsKey(quest.getId())){
+			questPanels[quest.getId()].GetComponent<QuestContainer>().delete();
+			Destroy(questPanels[quest.getId()]);
+			questPanels.Remove(quest.getId());
+		}
 	}
 }
 
