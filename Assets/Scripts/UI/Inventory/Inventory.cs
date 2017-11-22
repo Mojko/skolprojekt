@@ -166,6 +166,7 @@ public class Inventory : MonoBehaviour
         itemsOwned.RemoveAt(findItem(item));
     }
     public void updateItem(Item oldItem, Item newItem) {
+        Debug.Log("item: " + findItem(oldItem));
         itemsOwned[findItem(oldItem)].setItem(newItem.getPosition(), newItem);
     }
     public int findItem(Item item) {
@@ -227,6 +228,14 @@ public class Inventory : MonoBehaviour
         itemsOwned.Add(slot);
         recalcPos(itemsOwned.Count - 1, item.getPosition());
         return true;
+    }
+    public inventoryInformation getItemInformationObject() {
+        return this.information;
+    }
+    public void hideItemActionMenu() {
+        hasRightClicked = false;
+        isDoneLoading = true;
+        itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, 0F);
     }
     public int mouseOver = 0;
     void updateInventory()
@@ -322,6 +331,7 @@ public class Inventory : MonoBehaviour
                     itemInfoHandler.setButton(0, "Use", e_itemMethods.USE);
                 }
             }
+
             if (!itemInfoHandler.isMouseOver() && (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) && hasRightClicked && isDoneLoading) {
                 hasRightClicked = false;
                 isDoneLoading = true;
@@ -343,15 +353,12 @@ public class Inventory : MonoBehaviour
             }
         }
         if (itemSettings)
-        shouldUpdateInventory = false;
+            shouldUpdateInventory = false;
     }
     void Update()
     {
         //if (shouldUpdateInventory)
         updateInventory();
-    }
-    bool isItemInSameTab(int item) {
-        return false;
     }
     int getSlot(int slot)
     {

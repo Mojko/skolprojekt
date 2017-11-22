@@ -26,7 +26,6 @@ public class InventorySlot : MonoBehaviour {
 	public void setItem(int position, Item item){
         this.item = item;
         this.item.stats[8] = position;
-        Debug.Log("quantity: " + item.getQuantity());
         quantityText.text = item.getQuantity() + "";
 
     }

@@ -9,12 +9,10 @@ public class PlayerServer {
     public int databaseID;
     public int connectionID;
     public int playerID;
-	public int level = 0;
-    public int health = 0;
-    public int mana = 0;
-    public int maxHealth = 100;
-    public int maxMana = 100;
-	public string playerName = "";
+
+    PlayerStats info;
+
+    public string playerName = "";
 	public int characterIdPlayingAs = -1;
 	public List<Quest> questList = new List<Quest>();
     //public Quest[] quests;
@@ -22,12 +20,16 @@ public class PlayerServer {
 
     int[] skills;
     public PlayerServer( int databaseID, int connectionID) {
+        info = new PlayerStats();
         this.databaseID = databaseID;
         this.connectionID = connectionID;
         for (int i = 0; i < 9; i++) {
             equips.Add(null);
         }
 
+    }
+    public PlayerStats getPlayerInfo() {
+        return info;
     }
     public void setPlayerID(int id) {
         this.playerID = id;
@@ -56,14 +58,21 @@ public class PlayerServer {
     }
 
     public ItemVariables useItem(Item item) {
+
+        //hämtar items variablar.
         ItemVariables pot = ItemDataProvider.getInstance().getStats(item.getID());
+        //kollar om det är en use så den läser in rätt variablar
         if (item.getID().isItemType(e_itemTypes.USE))
         {
-            this.health = Mathf.Min(this.health + pot.getInt("health"), maxHealth);
-            this.mana = Mathf.Min(this.mana + pot.getInt("mana"), maxMana);
+            //ökar hpet på spelare och manan.
+            this.getPlayerInfo().health = Mathf.Min(this.getPlayerInfo().health + pot.getInt("health"), getPlayerInfo().maxHealth);
+            this.getPlayerInfo().mana = Mathf.Min(this.getPlayerInfo().mana + pot.getInt("mana"), getPlayerInfo().maxMana);
+            //gör så att mängden minskar med 1.
             item.setQuantity(item.getQuantity() - 1);
         }
         return pot;
+
+
     }
 
     public void replaceItems(Item item1, Item item2) {

@@ -486,6 +486,30 @@ public class Server : NetworkManager
         }
         */
     }
+    void loadCharacterInfoFromDatabase(PlayerServer player) {
+        MySqlConnection conn;
+        MySqlDataReader reader;
+        mysqlReader(out conn, out reader, "SELECT * FROM characters WHERE characterName = '" + player.playerName + "'");
+
+        while (reader.Read()) {
+            player.getPlayerInfo().health = reader.GetInt16("health");
+            player.getPlayerInfo().maxHealth = reader.GetInt16("maxHealth");
+            player.getPlayerInfo().maxMana = reader.GetInt16("maxMana");
+            player.getPlayerInfo().mana = reader.GetInt16("mana");
+            player.getPlayerInfo().level = reader.GetInt16("level");
+            player.getPlayerInfo().maxHealth = reader.GetInt16("maxHealth");
+            player.getPlayerInfo().maxHealth = reader.GetInt16("maxHealth");
+
+            player.getPlayerInfo().s_luk = reader.GetInt16("luk");
+            player.getPlayerInfo().s_int = reader.GetInt16("int");
+            player.getPlayerInfo().s_str = reader.GetInt16("str");
+            player.getPlayerInfo().s_dex = reader.GetInt16("dex");
+
+            player.getPlayerInfo().hairColor = reader.GetInt16("hairColor");
+            player.getPlayerInfo().eyeColor = reader.GetInt16("eyeColor");
+            player.getPlayerInfo().skinColor = reader.GetInt16("skinColor");
+        }
+    }
     void onLoadCharacter(NetworkMessage msg)
     {
         Debug.Log("message ID_2: " + msg.conn.connectionId);
@@ -501,10 +525,10 @@ public class Server : NetworkManager
         charactersOnline.Add(packet.characterName, getCharacterID(packet.characterName));
         characterConnections.Add(msg.conn.connectionId, packet.characterName);
         playerReal.playerName = packet.characterName;
+        loadCharacterInfoFromDatabase(playerReal);
         playerObjects.Add(msg.conn.connectionId, playerReal);
         Debug.Log("loaded character!");
-
-
+        packet.stats = player.getPlayerInfo();
         MySqlConnection conn;
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");

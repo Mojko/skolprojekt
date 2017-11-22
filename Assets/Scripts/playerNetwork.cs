@@ -62,7 +62,7 @@ public class playerNetwork : NetworkBehaviour{
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Item item = (Item)Tools.byteArrayToObject(info.item);
         ItemVariables vars = (ItemVariables)Tools.byteArrayToObject(info.itemVariables);
-        Item orgItem = item;
+        Item orgItem = (Item)Tools.byteArrayToObject(info.oldItem);
         if (item.getInventoryType() != (int)e_ItemTypes.EQUIP)
         {
             if (item.getID().isItemType(e_itemTypes.USE)) {
@@ -70,16 +70,15 @@ public class playerNetwork : NetworkBehaviour{
             }
             if (item.getQuantity() == 0)
             {
-                player.getInventory().removeItem(item);
+                player.getInventory().removeItem(orgItem);
                 return;
             }
-            item.setQuantity(item.getQuantity() - 1);
             player.getInventory().updateItem(orgItem, item);
         }
     }
     void onPotUse(ItemVariables vars) {
-        this.player.setHealth(Mathf.Min(this.player.health + vars.getInt("health"), player.maxHealth));
-        this.player.setMana(Mathf.Min(this.player.mana + vars.getInt("mana"), player.maxMana));
+        this.player.setHealth(Mathf.Min(this.player.stats.health + vars.getInt("health"), player.stats.maxHealth));
+        this.player.setMana(Mathf.Min(this.player.stats.mana + vars.getInt("mana"), player.stats.maxMana));
     }
     void onUnEquip(NetworkMessage netMsg)
     {
@@ -214,11 +213,11 @@ public class playerNetwork : NetworkBehaviour{
 		Player player = playerObject.GetComponent<Player>();
 		switch(statType){
 			case e_StatType.HEALTH:
-				player.health += value;
+				player.stats.health += value;
 				Debug.Log("You just got healed!");
 			break;
 			case e_StatType.MANA:
-				player.mana += value;
+				player.stats.mana += value;
 				Debug.Log("You just got mana!");
 			break;
 			case e_StatType.DAMAGE:

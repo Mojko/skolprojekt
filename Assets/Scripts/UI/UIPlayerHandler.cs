@@ -16,7 +16,7 @@ public class UIPlayerHandler : MonoBehaviour {
     public void setPlayer(Player player) {
         this.player = player;
         this.nameUI.text = player.playerName;
-        this.levelUI.text = "Level " + player.level;
+        this.levelUI.text = "Level " + player.stats.level;
         onHealthChange();
         onManaChange();
     }
@@ -25,15 +25,14 @@ public class UIPlayerHandler : MonoBehaviour {
 		
 	}
     public void onHealthChange() {
-        Debug.Log("irhgt msadffdsaasfdafsdsdfaafsdasfdafsdfdsaadfsfadsafdsasdfdfsadafsasdffdsaadsfdsafdsfa8: " + 150 * (((float)player.maxHealth - (float)player.health) / (float)player.maxHealth));
-        healthBar.offsetMax = new Vector2(-150 * (((float)player.maxHealth - (float)player.health) / (float)player.maxHealth), 0);
-        healthBarText[0].text = player.health + "/" + player.maxHealth;
-        healthBarText[1].text = player.health + "/" + player.maxHealth;
+        healthBar.offsetMax = new Vector2(-150 * (((float)player.stats.maxHealth - (float)player.stats.health) / (float)player.stats.maxHealth), 0);
+        healthBarText[0].text = player.stats.health + "/" + player.stats.maxHealth;
+        healthBarText[1].text = player.stats.health + "/" + player.stats.maxHealth;
     }
     public void onManaChange()
     {
-        manaBar.offsetMax = new Vector2(-150 * (((float)player.maxMana - (float)player.mana) / (float)player.maxMana), 0);
-        manaBarText[0].text = player.mana + "/" + player.maxMana;
-        manaBarText[0].text = player.mana + "/" + player.maxMana;
+        manaBar.offsetMax = new Vector2(-150 * (((float)player.stats.maxMana - (float)player.stats.mana) / (float)player.stats.maxMana), 0);
+        manaBarText[0].text = player.stats.mana + "/" + player.stats.maxMana;
+        manaBarText[0].text = player.stats.mana + "/" + player.stats.maxMana;
     }
 }

@@ -3,16 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-enum game {
-
-}
 public class inventoryInformation : UI {
     public Item item;
     bool isShowing = false;
     MouseOverUI mouse;
+    Text statsText, description, name;
 	void Start () {
-		
-	}
+        name = this.transform.GetChild(0).gameObject.GetComponent<Text>();
+        description = this.transform.GetChild(1).gameObject.GetComponent<Text>();
+        statsText = this.transform.GetChild(2).gameObject.GetComponent<Text>();
+    }
     public void setItem(Item item) {
         this.item = item;
     }
@@ -22,10 +22,12 @@ public class inventoryInformation : UI {
     }
     public void show(MouseOverUI mouse) {
         this.mouse = mouse;
-        this.transform.GetChild(0).gameObject.GetComponent<Text>().text = item.getName();
+        name.text = item.getName();
         //this.transform.GetChild(1).gameObject.GetComponent<Text>().text =
         //"Stats \n Watt: " + item.getDamage() + " \n Matt: " + item.getMagicAttack() + " \n Luk: " + item.getLuk() + "";
-        this.transform.GetChild(1).gameObject.GetComponent<Text>().text = displayInfo().getString();
+        InventoryInformationString data = displayInfo();
+        description.text = data.getDescription();
+        statsText.text = data.getString();
         //this.gameObject.SetActive(true);
         isShowing = true;
         this.transform.position = new Vector3(this.mouse.position().x, this.mouse.position().y, 0f);
@@ -37,6 +39,8 @@ public class inventoryInformation : UI {
         data.setDescription(info.getString("description"));
         if (itemID.isItemType(e_itemTypes.HATS) || itemID.isItemType(e_itemTypes.PANTS) || itemID.isItemType(e_itemTypes.BODY) || itemID.isItemType(e_itemTypes.BOOTS) || itemID.isItemType(e_itemTypes.WEAPON) || itemID.isItemType(e_itemTypes.GLOVE) || itemID.isItemType(e_itemTypes.FACE) || itemID.isItemType(e_itemTypes.ACCESSORY))
         {
+        }
+        else {
             data.addInformation(info);
         }
         return data;
@@ -48,7 +52,7 @@ public class inventoryInformation : UI {
 	}
 }
 public class InventoryInformationString{
-    private string str = "Stats \n ";
+    private string str = "Stats \n";
     private string description = "";
     public string getDescription() {
         return description;
@@ -57,9 +61,21 @@ public class InventoryInformationString{
         this.description = description;
     }
     public void addInformation(ItemVariables data) {
-        foreach (KeyValuePair<string, object> item in data.getDictionary())
+        str = "";
+        foreach (KeyValuePair<string, string> item in data.getStrings())
         {
-            str += item.Key + ": " +(string)item.Value + " \n ";
+            if(data.shouldShow(item.Key))
+                str += item.Key + ": " + item.Value + " \n";
+        }
+        foreach (KeyValuePair<string, float> item in data.getFloats())
+        {
+            if (data.shouldShow(item.Key))
+                str += item.Key + ": " + item.Value + " \n";
+        }
+        foreach (KeyValuePair<string, int> item in data.getInts())
+        {
+            if (data.shouldShow(item.Key))
+                str += item.Key + ": " + item.Value + " \n";
         }
     }
     public string getString() {

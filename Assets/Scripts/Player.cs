@@ -25,13 +25,10 @@ public class Player : NetworkBehaviour
 	private GameObject npcManager;
 
     [Header("Player Attributes")]
+    public PlayerStats stats;
     public string playerName;
-    public int level;
-    public int health = 100;
-    public int mana = 100;
     public int money = 0;
-    public int maxHealth = 3000;
-    public int maxMana = 3000;
+
 
     [Space(20)]
     [Header("Quests")]
@@ -67,8 +64,6 @@ public class Player : NetworkBehaviour
         ClientScene.RegisterPrefab((GameObject)Resources.Load("Particles/ImpactOnGround"));
         ClientScene.RegisterPrefab(skillPrefab);
         ClientScene.RegisterPrefab(skillEffectPrefab);*/
-        this.maxHealth = 1000;
-        this.maxMana = 1000;
         //UI
         UICanvas = GameObject.Find("UI");
         login = Tools.findInactiveChild(UICanvas,"Login_UI").GetComponent<Login>();
@@ -251,16 +246,16 @@ public class Player : NetworkBehaviour
         return chat;
     }
     public void setHealth(int health) {
-        this.health = health;
+        this.stats.health = health;
         UIPlayer.onHealthChange();
     }
     public void setMana(int mana)
     {
-        this.mana = mana;
+        this.stats.mana = mana;
         UIPlayer.onManaChange();
     }
     public int getMaxHealth() {
-        return this.maxHealth;
+        return this.stats.maxHealth;
     }
     public void pickup(Item item, e_ItemTypes type)
     {
@@ -272,7 +267,7 @@ public class Player : NetworkBehaviour
     }
     public void damage(int dmg, GameObject damager)
     {
-        this.health -= dmg;
+        this.stats.health -= dmg;
 		StartCoroutine(flash());
     }
 

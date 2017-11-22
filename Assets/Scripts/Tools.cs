@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEngine.Networking;
+using System;
 public enum inventoryTabs {
     EQUIPPED = -1, EQUIP = 0, USE, ETC, QUEST, MONEY
 };
@@ -82,6 +83,15 @@ public static class Tools
 		}
 		return null;
 	}
+    public static T CastData<T>(object input)
+    {
+        return (T)input;
+    }
+
+    public static T ConvertData<T>(object input)
+    {
+        return (T)Convert.ChangeType(input, typeof(T));
+    }
     public static GameObject loadObjectFromResources(e_Objects obj)
     {
         return (GameObject)Resources.Load(ResourceStructure.getPathForObject(obj));
