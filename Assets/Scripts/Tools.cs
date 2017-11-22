@@ -34,6 +34,7 @@ public static class DefaultIds {
 		5001 - 5500 = Boots
 		5501 - 6000 = NPC
 		6001 - 6500 = quests
+		9999 - money/mesos
 		> 10000 = mobs
 	*/
 	public static int getNpcDefault(){

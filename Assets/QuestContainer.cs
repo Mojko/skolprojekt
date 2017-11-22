@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class QuestContainer : MonoBehaviour {
-	
-	private QuestInformationData questInformationData;
-	private Quest quest;
 
+	private Quest quest;
+	private QuestInformationData questInformationData;
 	private GameObject questInformationDescription;
 	private GameObject questObjectiveWrapper;
 	private GameObject questObjective;
@@ -131,5 +130,6 @@ public class QuestContainer : MonoBehaviour {
 		if(this.questGiver != null){
 			npcController.updateSprite(this.questGiver.getSprite());
 		}
+		this.questInformationData.toggleActive(true, this);
 	}
 }

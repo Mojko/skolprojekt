@@ -23,6 +23,8 @@ public class Player : NetworkBehaviour
 	private QuestWrapper questWrapper;
 	private GameObject npcManager;
 	private UIPlayerHandler UIPlayer;
+	public delegate void PickupEventHandler(Item item);
+	public event PickupEventHandler pickupEventHandler;
 
     [Header("Player Attributes")]
     public string playerName;
@@ -227,6 +229,7 @@ public class Player : NetworkBehaviour
         equip.setEquips(equips);
         equip.updateSlots();
     }
+
     public void Update() {
         if (!isLocalPlayer) return;
         if (Input.GetKeyDown(KeyCode.C)) {
@@ -245,6 +248,17 @@ public class Player : NetworkBehaviour
             getQuestInformationObject().SetActive(!getQuestInformationObject().activeInHierarchy);
             //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
         }
+		if(Input.GetKeyDown(KeyCode.B)){
+			//Send pickup packet to server
+
+			/*
+			 	(C Press B) --> (S checks if player standing on coin)
+			 								if(true)
+											(S attempts to pickup)
+											if(true)
+											(mySql) <-- (S) --> (C) 
+			 */
+		}
     }
 
 	void OnCollisionEnter (Collision col) {
@@ -268,14 +282,6 @@ public class Player : NetworkBehaviour
     }
     public int getMaxHealth() {
         return this.maxHealth;
-    }
-    public void pickup(Item item, e_ItemTypes type)
-    {
-        switch (type) {
-            case e_ItemTypes.MONEY:
-                this.money += 10;
-                break;
-        }
     }
     public void damage(int dmg, GameObject damager)
     {

@@ -3,26 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class Drop : MonoBehaviour {
+public class Drop : NetworkBehaviour {
 	private Item item;
     private GameObject model;
     private bool move;
     private float dirX;
     private float dirY = 4;
     private Vector3 randomDir;
+	private PlayerServer playerServer;
 
     Renderer renderer = null;
 
     private string nameOfDrop;
-
-    public void setName(string name)
-    {
-        this.nameOfDrop = name;
-    }
-    public void setItem(Item item)
-    {
-        this.item = item;
-    }
+	public void initilize(Item item, PlayerServer playerServer){
+		this.name = item.getName();
+		this.playerServer = playerServer;
+		this.item = item;
+	}
 
     float choose(float val1, float val2)
     {
@@ -63,12 +60,22 @@ public class Drop : MonoBehaviour {
 
 	void OnTriggerStay(Collider col) {
         //renderer.material.SetFloat("_Flash", 0.25f);
+		if(!isServer) return;
 		if (col.gameObject.CompareTag("Player") && Input.GetKey(KeyCode.B)) {
-			Player player = col.gameObject.GetComponent<Player>();
-            player.pickup(item, this.item.getItemType());
-            NetworkServer.Destroy(this.gameObject);
+			/*Player player = col.gameObject.GetComponent<Player>();
+			player.getNetwork().sendItem(PacketTypes.INVENTORY_PICKUP_ITEM, item);
+            NetworkServer.Destroy(this.gameObject);*/
 		}
 
+	}
+	void OnTriggerEnter(Collider col){
+		if(!isServer) return;
+		if(col.gameObject.CompareTag("Player")){
+			ItemInfo itemInfo = new ItemInfo();
+			itemInfo.item = Tools.objectToByteArray(this.item);
+			NetworkServer.SendToClient(this.playerServer.connectionID, PacketTypes.STANDBY_PICKUP, itemInfo);
+			Debug.Log("Sent!");
+		}
 	}
     void OnTriggerExit(Collider col){
 		

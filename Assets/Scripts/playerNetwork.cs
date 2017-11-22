@@ -45,7 +45,9 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnEquip);
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
+		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
+		con.RegisterHandler(PacketTypes.STANDBY_PICKUP, onStandbyPickup);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -59,6 +61,31 @@ public class playerNetwork : NetworkBehaviour{
         Destroy(login.transform.parent.gameObject);
         Destroy(login_world);
     }
+
+	/*public Item itemOnStandby;
+	void onStandbyPickup(NetworkMessage netMsg){
+		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
+		itemOnStandby = (Item)Tools.byteArrayToObject(itemInfo.item);
+		this.player.pickupEventHandler += new Player.PickupEventHandler(onPickup);
+		Debug.Log("added new standby event");
+	}
+	void onPickup(Item item){
+		Debug.Log("PICKING UP ITEM: " + item.getID() + " | " + item.isMoney());
+		if(item.isMoney()){
+			this.player.money += item.getQuantity();
+			return;
+		}
+	}*/
+	void onItemPickup(NetworkMessage netMsg){
+		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
+		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
+		Debug.Log("PICKING UP ITEM: " + item + " | " + item.isMoney());
+		if(item.isMoney()){
+			this.player.money += item.getQuantity();
+			return;
+		}
+	}
+
     void onItemUse(NetworkMessage netMsg) {
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Item item = (Item)Tools.byteArrayToObject(info.item);
@@ -197,6 +224,10 @@ public class playerNetwork : NetworkBehaviour{
         }
     }
 
+	public void destroyGameObject(){
+
+	}
+
     //#Spawn monster
     public void spawnMobFromClient(int mobId, int amount)
     {
@@ -207,13 +238,13 @@ public class playerNetwork : NetworkBehaviour{
     }
 
     //#Skill
-    public void sendProjectile(string path, string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler)
+    public void sendProjectile(string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler)
     {
         ProjectTileInfo projectTileInfo = new ProjectTileInfo();
-        projectTileInfo.pathToObject = path;
         projectTileInfo.pathToEffect = pathToEffect;
         projectTileInfo.spawnPosition = spawnPosition;
         projectTileInfo.rotationInEuler = rotationInEuler;
+		projectTileInfo.netId = this.GetComponent<NetworkIdentity>().netId;
         con.Send(PacketTypes.PROJECTILE_CREATE, projectTileInfo);
     }
 

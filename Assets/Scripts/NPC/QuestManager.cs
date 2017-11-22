@@ -88,18 +88,21 @@ public class Quest
 	//int[] requirementData;
 	QuestJson questJson;
 	e_QuestStatus status;
+	QuestSQLData sqlData;
 
 	public Quest(int id, string characterName)
     {
 		this.characterName = characterName;
 		this.id = id;
 		status = e_QuestStatus.NOT_STARTED;
+		sqlData = new QuestSQLData();
     }
 
 	public Quest(int id)
 	{
 		this.id = id;
 		status = e_QuestStatus.NOT_STARTED;
+		sqlData = new QuestSQLData();
 	}
 
 	public void start(/*int[] requirementData,*/ QuestJson questJson){
@@ -117,6 +120,10 @@ public class Quest
 			}
 		}
 		checkForCompletion();
+	}
+
+	public QuestSQLData getData(){
+		return this.sqlData;
 	}
 
 	public int getId(){
@@ -215,11 +222,11 @@ public class Quest
 
 	public bool checkForCompletion(){
 		
+		bool completed = false;
 		for(int i=0;i<getCompletionData().completionId.Count;i++){
 			int id = getCompletionData().completionId[i];
 			int value = getCompletionData().completionValue[i];
 
-			bool completed = false;
 			if(isCompletionIdMobId(i)){
 				if(this.getMobKills(id) >= value){
 					completed = true;
@@ -229,16 +236,16 @@ public class Quest
 			}
 
 			if(isCompletionIdItemId(i)){
-				if(getItemCount(id) >= value){
+				if(this.getItemCount(id) >= value){
 					completed = true;
 				} else {
 					completed = false;
 				}
 			}
-			if(completed){
-				this.status = e_QuestStatus.COMPLETED;
-				return true;
-			}
+		}
+		if(completed){
+			this.status = e_QuestStatus.COMPLETED;
+			return true;
 		}
 		return false;
 	}
@@ -248,8 +255,19 @@ public class Quest
 	}
 		
 	public void increaseMobKills(int mobId){
-		this.mobKills[mobId] += 1;
-		checkForCompletion();
+		if(this.mobKills[mobId] < getCompletionValue(mobId)){
+			this.mobKills[mobId] += 1;
+			checkForCompletion();
+		}
+	}
+
+	public int getCompletionValue(int id){
+		for(int i=0;i<getCompletionData().completionId.Count;i++){
+			if(id == getCompletionData().completionId[i]){
+				return getCompletionData().completionValue[i];
+			}
+		}
+		return -1;
 	}
 
 	public int getMobKills(int mobId){
@@ -268,10 +286,10 @@ public class Quest
 		this.status = status;
 	}
 
-	public void intToQuestStatus(int status){
-		Debug.Log("SERVER_STATUS_PARSER: " + status);
-		if(status == 1) this.status = e_QuestStatus.COMPLETED;
-		else if(status == 0) this.status = e_QuestStatus.STARTED;
+	public e_QuestStatus intToQuestStatus(int status){
+		if(status == 1) return e_QuestStatus.COMPLETED;
+		else if(status == 0) return e_QuestStatus.STARTED;
+		return e_QuestStatus.NOT_STARTED;
 	}
 	/*public int questStatusToInt(){
 
@@ -323,6 +341,11 @@ public class QuestManager {
 		}
 		return null;
 	}
+}
+
+[System.Serializable]
+public class QuestSQLData {
+	public int queststatusId;
 }
 
 

@@ -39,7 +39,7 @@ public class SkillManager : NetworkBehaviour {
     
 
     //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-	[Command]
+	/*[Command]
 	void CmdSendSkillServerToServer(string pathToSkillEffect, float[] posInFloat, float[] rotInFloat){ //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
         Vector3 pos = new Vector3(posInFloat[0], posInFloat[1], posInFloat[2]);
         Quaternion rot = Quaternion.Euler(new Vector3(rotInFloat[0], rotInFloat[1], rotInFloat[2]));
@@ -50,7 +50,7 @@ public class SkillManager : NetworkBehaviour {
         skillEffect.transform.rotation = rot;
 		
         NetworkServer.Spawn(skillEffect);
-    }
+    }*/
     //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
 
 
@@ -59,9 +59,10 @@ public class SkillManager : NetworkBehaviour {
 		if(!hasInit || animator == null) return;
 
 		if(isAnimationFinished(this.currentAnimationPlayingName)) {
-            float[] pos = { player.transform.position.x, player.transform.position.y + 1f, player.transform.position.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-            float[] rot = { player.getPlayerMovement().rot.eulerAngles.x, player.getPlayerMovement().rot.eulerAngles.y, player.getPlayerMovement().rot.eulerAngles.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-            CmdSendSkillServerToServer(this.skill.pathToSkillModel, pos, rot);
+            //float[] pos = { player.transform.position.x, player.transform.position.y + 1f, player.transform.position.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
+            //float[] rot = { player.getPlayerMovement().rot.eulerAngles.x, player.getPlayerMovement().rot.eulerAngles.y, player.getPlayerMovement().rot.eulerAngles.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
+			player.getNetwork().sendProjectile(this.skill.pathToSkillModel, player.transform.position, player.getPlayerMovement().rot.eulerAngles);
+			//CmdSendSkillServerToServer(this.skill.pathToSkillModel, pos, rot);
             stopCooldown();
         }
 	}
