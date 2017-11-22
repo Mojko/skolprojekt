@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.AI;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 public class MobManager : NetworkBehaviour {
 	
@@ -79,21 +81,48 @@ public class MobManager : NetworkBehaviour {
         GameObject prefab = (GameObject)Resources.Load("Prefabs/Drops/"+"D_"+nameOfDrop);
         GameObject o = Instantiate(prefab);
         Drop drop = o.GetComponent<Drop>();
-        drop.setName(nameOfDrop);
-        Item item = Item.getEmptyItem(0);
-        drop.setItem(item);
+
+		Monster monster = JsonManager.readJson<Monster>(e_Paths.JSON_MONSTERS);
+		int[] dropIds = monster.dropIds;
+		int[] dropQuantity = monster.dropQuantity;
+		int randomIndex = Random.Range(0,0);
+		int itemId = dropIds[randomIndex];
+		int itemQuantity = dropQuantity[randomIndex];
+
+		Item item = new Item(itemId);
+		item.setQuantity(itemQuantity);
+
         o.transform.position = position;
         NetworkServer.Spawn(o);
     }
+
+	public Monster lookupMonster(int monsterId){
+		Monster monster = JsonUtility.FromJson<Monster>(File.ReadAllText("C:/Users/Jesper/AppData/LocalLow/Wojon/GameServer/Resources/Visuals/Monster.json"));
+		foreach(Monster m in monster.Monsters){
+			if(m.id == this.getId()){
+				return m;
+			}
+		}
+		return null;
+	}
 
     void spawnDrop(string nameOfDrop, Vector3 position)
     {
         GameObject prefab = (GameObject)Resources.Load("Prefabs/Drops/"+"D_"+nameOfDrop);
         GameObject o = Instantiate(prefab);
         Drop drop = o.GetComponent<Drop>();
-        drop.setName(nameOfDrop);
-        Item item = Item.getEmptyItem(0);
-        drop.setItem(item);
+
+		Monster monster = lookupMonster(getId());
+		int randomIndex = Random.Range(0,monster.dropIds.Length);
+		int itemId = monster.dropIds[randomIndex];
+		int itemQuantity = monster.dropQuantity[randomIndex];
+
+		Debug.Log("ITEM_ID: " + itemId + " | QUANITY: " + itemQuantity);
+
+		Item item = new Item(itemId);
+		item.setQuantity(itemQuantity);
+		drop.initilize(item, this.targetNetwork);
+
         o.transform.position = position;
         NetworkServer.Spawn(o);
     }
@@ -116,8 +145,6 @@ public class MobManager : NetworkBehaviour {
 				p.getQuestUI().addNewQuestToolTip(quest.getTooltip());
 			}
 		}*/
-
-		Player p = this.target.GetComponent<Player>();
         
 		//QuestInfo qInfo = new QuestInfo();
 		//PlayerServer pServer = Server.getPlayerObject(targetConnectionId);
@@ -132,17 +159,25 @@ public class MobManager : NetworkBehaviour {
 		qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
 		NetworkServer.SendToClient(p.connectionToServer.connectionId, PacketTypes.QUEST_UPDATE, qInfo);*/
 
+		bool shouldUpdate = true;
         foreach(Quest q in targetNetwork.questList.ToArray()){
-			
 			int[] ids = q.getMobIds();
 			for(int i=0;i<ids.Length;i++){
 				if(ids[i] == getId()){
 					q.increaseMobKills(this.getId());
 	                questsToSend.Add(q);
+					if(q.checkForCompletion()){
+						this.server.addOrUpdateQuestStatusToDatabase(q, targetNetwork, false);
+						QuestInfo qInfo = new QuestInfo();
+						qInfo.questClassInBytes = Tools.objectToByteArray(q);
+						NetworkServer.SendToClient(targetNetwork.connectionID, PacketTypes.QUEST_COMPLETE, qInfo);
+						shouldUpdate = false;
+						Debug.Log("completing quest..");
+					}
 			    }
 			}
 	    }
-        if(questsToSend.Count > 0){
+		if(questsToSend.Count > 0 && shouldUpdate && isServer){
             QuestInfo qInfo = new QuestInfo();
             qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
             NetworkServer.SendToClient(targetId, PacketTypes.QUEST_UPDATE, qInfo);
@@ -186,4 +221,18 @@ public class MobManager : NetworkBehaviour {
         yield return new WaitForSeconds(0.1f);
         RpcToggleFlash(1);
     }
+}
+
+[System.Serializable]
+public class Monster
+{
+	public Monster[] Monsters;
+	public int id;
+	public string name;
+	public int[] stats;
+	public int level;
+	public string pathToModel;
+	public int[] dropIds;
+	public int[] dropQuantity;
+
 }

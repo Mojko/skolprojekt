@@ -45,6 +45,9 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnEquip);
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
+		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
+		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
+		con.RegisterHandler(PacketTypes.STANDBY_PICKUP, onStandbyPickup);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -58,6 +61,31 @@ public class playerNetwork : NetworkBehaviour{
         Destroy(login.transform.parent.gameObject);
         Destroy(login_world);
     }
+
+	/*public Item itemOnStandby;
+	void onStandbyPickup(NetworkMessage netMsg){
+		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
+		itemOnStandby = (Item)Tools.byteArrayToObject(itemInfo.item);
+		this.player.pickupEventHandler += new Player.PickupEventHandler(onPickup);
+		Debug.Log("added new standby event");
+	}
+	void onPickup(Item item){
+		Debug.Log("PICKING UP ITEM: " + item.getID() + " | " + item.isMoney());
+		if(item.isMoney()){
+			this.player.money += item.getQuantity();
+			return;
+		}
+	}*/
+	void onItemPickup(NetworkMessage netMsg){
+		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
+		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
+		Debug.Log("PICKING UP ITEM: " + item + " | " + item.isMoney());
+		if(item.isMoney()){
+			this.player.money += item.getQuantity();
+			return;
+		}
+	}
+
     void onItemUse(NetworkMessage netMsg) {
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Item item = (Item)Tools.byteArrayToObject(info.item);
@@ -105,6 +133,19 @@ public class playerNetwork : NetworkBehaviour{
         return this.con;
     }
 
+	public void onQuestStart(NetworkMessage netMsg){
+		startQuest((Quest)Tools.byteArrayToObject(netMsg.ReadMessage<QuestInfo>().questClassInBytes));
+	}
+
+	public void startQuest(Quest quest){
+		this.player.startNewQuest(quest);
+		Debug.Log("STATUS_CLIENT: " + quest.getStatus());
+		if(quest.getStatus() == e_QuestStatus.STARTED){
+			this.player.getQuestInformationData().addNewQuestPanel(quest);
+		}
+		Debug.Log("QUEST STARTED");
+	}
+
 	public void onQuestUpdate(NetworkMessage netMsg){
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 
@@ -142,13 +183,12 @@ public class playerNetwork : NetworkBehaviour{
 		Debug.Log("QUEST UPDATED");
 	}
 
-	public void onQuestStart(NetworkMessage netMsg){
+	public void onQuestComplete(NetworkMessage netMsg){
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
-		this.player.startNewQuest(quest);
-		this.player.getQuestInformationData().addNewQuestPanel(quest);
-        //this.questUI.addNewQuestPanel(quest);
-		Debug.Log("QUEST STARTED");
+		if(this.player.hasQuest(quest)){
+			this.player.completeQuest(quest);
+		}
 	}
 
 	public void sendQuestToServer(Quest quest)
@@ -157,6 +197,9 @@ public class playerNetwork : NetworkBehaviour{
 		questInfo.questClassInBytes = Tools.objectToByteArray(quest);
 		con.Send(PacketTypes.QUEST_START, questInfo);
 		Debug.Log("QUEST SENT");    
+	}
+
+	public void loadQuests(PlayerInfo m){
 	}
 
     /*public void sendNpcInteractionRequest(int npcId, int playerConnectionId, int state)
@@ -180,6 +223,10 @@ public class playerNetwork : NetworkBehaviour{
         }
     }
 
+	public void destroyGameObject(){
+
+	}
+
     //#Spawn monster
     public void spawnMobFromClient(int mobId, int amount)
     {
@@ -190,13 +237,13 @@ public class playerNetwork : NetworkBehaviour{
     }
 
     //#Skill
-    public void sendProjectile(string path, string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler)
+    public void sendProjectile(string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler)
     {
         ProjectTileInfo projectTileInfo = new ProjectTileInfo();
-        projectTileInfo.pathToObject = path;
         projectTileInfo.pathToEffect = pathToEffect;
         projectTileInfo.spawnPosition = spawnPosition;
         projectTileInfo.rotationInEuler = rotationInEuler;
+		projectTileInfo.netId = this.GetComponent<NetworkIdentity>().netId;
         con.Send(PacketTypes.PROJECTILE_CREATE, projectTileInfo);
     }
 
@@ -328,30 +375,11 @@ public class playerNetwork : NetworkBehaviour{
 
 		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
 		QuestJson clientJson = JsonManager.readJson<QuestJson>(e_Paths.JSON_QUESTS);
-		//QuestJson clientJson = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
 
-		Debug.Log("CLIENTJSON: " + clientJson.quests.Length);
-		this.sendMessage("acess0? " + clientJson.quests.Length, MessageTypes.CHAT, "");
-
-		foreach(QuestJson quests in clientJson.quests){
-			//this.sendMessage("acess1? " + quests.id + " | " + clientJson.quests.Length, MessageTypes.CHAT, "");
-			foreach(Quest quest in questArray){
-				//this.sendMessage("acess? " + quest.getId() + " | " + quests.id + " | " + clientJson.quests.Length, MessageTypes.EVERYONE, "");
-				Debug.Log("acess here? " + quest.getId() + " | " + quests.id);
-				if(quest.getId() == quests.id){
-					player.quests.Add(quest);
-					this.player.getQuestInformationData().addNewQuestPanel(quest);
-                    //this.questUI.addNewQuestPanel(quest);
-				}
-			}
-			/*for(int i=0;i<m.questIds.Length;i++){
-				if(m.questIds[i] == quests.id){
-					Quest q = new Quest(m.questIds[i], quests.name);
-					player.quests.Add(q);
-					this.questUI.addNewQuestPanel(q);
-				}
-			}*/
+		foreach(Quest quest in questArray){
+			startQuest(quest);
 		}
+
 		//Initilize skill tree
         List<Skill> skillsToVerifyFromServer = new List<Skill>();
         for(int i=2;i<m.skillProperties.Length;i += 3){

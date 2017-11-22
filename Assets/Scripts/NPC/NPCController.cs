@@ -18,7 +18,7 @@ public class NPCController : NetworkBehaviour {
 	public void initilize(Player player) {
 		this.player = player;
 		UI = player.getUI();
-		questGiverObject = player.getQuestInformationData().transform.GetChild(2).GetChild(0).gameObject;
+		questGiverObject = player.getQuestInformationData().transform.GetChild(3).GetChild(0).gameObject;
 		img = questGiverObject.GetComponent<Image>();
 		wrapper = player.getQuestInformationData().questWrapper.GetComponent<QuestWrapper>();
 

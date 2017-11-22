@@ -21,8 +21,10 @@ public class Player : NetworkBehaviour
     private QuestInformationData questInformationData;
     private GameObject questInformationObject;
 	private QuestWrapper questWrapper;
-    private UIPlayerHandler UIPlayer;
 	private GameObject npcManager;
+	private UIPlayerHandler UIPlayer;
+	public delegate void PickupEventHandler(Item item);
+	public event PickupEventHandler pickupEventHandler;
 
     [Header("Player Attributes")]
     public PlayerStats stats;
@@ -45,6 +47,7 @@ public class Player : NetworkBehaviour
 
     [Space(20)]
     [Header("System")]
+
     public Camera camera;
 	public playerNetwork network;
 	public GameObject npcTalkingTo;
@@ -119,6 +122,7 @@ public class Player : NetworkBehaviour
         this.UIPlayer = Tools.findInactiveChild(UICanvas, "Footer_UI").GetComponent<UIPlayerHandler>();
         this.UIPlayer.setPlayer(this);
         this.UIPlayer.gameObject.SetActive(true);
+
 		//QuestManager
 		this.npcManager = GameObject.FindWithTag("NPCManager");
 		npcManager.GetComponent<NPCController>().initilize(this);
@@ -131,6 +135,11 @@ public class Player : NetworkBehaviour
 			}
 		}
 		return false;
+	}
+	public void completeQuest(Quest quest){
+		this.quests.Remove(quest);
+		this.getQuestInformationData().removeQuestPanel(quest);
+		Debug.Log("Quest removed AND completed");
 	}
 	public GameObject getNpcManager(){
 		return this.npcManager;
@@ -215,6 +224,7 @@ public class Player : NetworkBehaviour
         equip.setEquips(equips);
         equip.updateSlots();
     }
+
     public void Update() {
         if (!isLocalPlayer) return;
         if (Input.GetKeyDown(KeyCode.C)) {
@@ -233,6 +243,17 @@ public class Player : NetworkBehaviour
             getQuestInformationObject().SetActive(!getQuestInformationObject().activeInHierarchy);
             //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
         }
+		if(Input.GetKeyDown(KeyCode.B)){
+			//Send pickup packet to server
+
+			/*
+			 	(C Press B) --> (S checks if player standing on coin)
+			 								if(true)
+											(S attempts to pickup)
+											if(true)
+											(mySql) <-- (S) --> (C) 
+			 */
+		}
     }
 
 	void OnCollisionEnter (Collision col) {
@@ -256,14 +277,6 @@ public class Player : NetworkBehaviour
     }
     public int getMaxHealth() {
         return this.stats.maxHealth;
-    }
-    public void pickup(Item item, e_ItemTypes type)
-    {
-        switch (type) {
-            case e_ItemTypes.MONEY:
-                this.money += 10;
-                break;
-        }
     }
     public void damage(int dmg, GameObject damager)
     {

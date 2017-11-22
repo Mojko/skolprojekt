@@ -4,10 +4,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class QuestContainer : MonoBehaviour {
-	
-	private QuestInformationData questInformationData;
-	private Quest quest;
 
+	private Quest quest;
+	private QuestInformationData questInformationData;
 	private GameObject questInformationDescription;
 	private GameObject questObjectiveWrapper;
 	private GameObject questObjective;
@@ -106,6 +105,20 @@ public class QuestContainer : MonoBehaviour {
 		}
 	}
 
+	public void delete(){
+		isClicked = false;
+		for(int i=0;i<this.questObjectiveTexts.Count;i++){
+			if(this.questObjectiveTexts[i] != null){
+				this.questObjectiveTexts[i].text = "";
+			}
+		}
+		this.questInformationDescription.GetComponent<Text>().text = "";
+		npcController.updateSprite(null);
+		this.questName.text = "";
+		thisImage.color = Tools.hexColor(0x6CB95D);
+		toggleTextAndImages(false);
+	}
+
 	public void onClick(){
 		this.questWrapper.onQuestContainerClick();
 		isClicked = true;
@@ -117,5 +130,6 @@ public class QuestContainer : MonoBehaviour {
 		if(this.questGiver != null){
 			npcController.updateSprite(this.questGiver.getSprite());
 		}
+		this.questInformationData.toggleActive(true, this);
 	}
 }

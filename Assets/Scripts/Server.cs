@@ -40,6 +40,7 @@ public class Server : NetworkManager
     public string database, username, password, host;
 	private QuestManager questManager;
     string connectionString;
+
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         addPlayer(conn, playerControllerId);
@@ -171,38 +172,33 @@ public class Server : NetworkManager
             
 		} else {
 			//INSERT
-			questID = quest.getId();
-			status = quest.getCompleted();
 			mysqlNonQuerySelector(out conn, "INSERT INTO queststatus(questID, characterID, status) VALUES('"+quest.getId()+"', '"+characterId+"', '"+quest.getCompleted()+"')");
 		}
 		Debug.Log("TRYING TO ADD / UPDATE: " + characterId + " | " + quest.getCharacterName() + " | " + queststatusId);
-			
-		/*if(status != -1) {
-			mysqlReader(out conn, out reader, "SELECT COUNT(id) FROM queststatus");
-			queststatusId = reader.GetInt32("COUNT(id)");
-			Debug.Log("QUEST_STATUS_ID: " + queststatusId);
-		}*/
 
+		if(quest.getStatus() == e_QuestStatus.COMPLETED){
+			mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+queststatusId+"'");
+			Debug.Log("DELETED QUEST");
+			return true;
+		}
 
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
-		//FIX THIS CRAP TOMORROW @ SCHEWL
+		reader = null;
+		if(queststatusId == -1){
+			mysqlReader(out conn, out reader, "SELECT id FROM queststatus WHERE questID = '"+quest.getId()+"' AND characterID = '"+characterId+"'");
+			queststatusId = reader.GetInt32("id");
+		}
 
 		if(queststatusId != -1){
-			if(questID == -1 && status == -1){
-				Debug.Log("LENGTH_UPDATE: " + quest.getMobIds().Length + " | " + queststatusId);
+			if(reader == null){
 				for(int i=0;i<quest.getMobIds().Length;i++){
 					mysqlNonQuerySelector(out conn, "UPDATE queststatusmobs SET count = '" + quest.getMobKills(quest.getMobIds()[i]) + "' WHERE queststatusID = '" + queststatusId + "'");
 				}
 	        } else {
-				Debug.Log("LENGTH_INSERT: " + quest.getMobIds().Length);
 				for(int i=0;i<quest.getMobIds().Length;i++){
-					Debug.Log("inserting to database..");
+					Debug.Log("inserting quest to database..");
 					mysqlNonQuerySelector(out conn, "INSERT INTO queststatusmobs(queststatusID, mob, count) VALUES('"+queststatusId+"', '"+quest.getMobIds()[i]+"', '"+quest.getMobKills(quest.getMobIds()[i])+"')");
 				}
-	        }
+			}
 		}
 
 		if(sendOutToClient){
@@ -233,26 +229,6 @@ public class Server : NetworkManager
 		return quests.ToArray();
 	}*/
 
-	public byte[] sendOutQuestByteArrayOnCharacterLogin(PlayerServer pServer){
-		MySqlConnection conn;
-		MySqlDataReader reader;
-		int characterID = pServer.getPlayerID();
-		mysqlReader(out conn, out reader, "SELECT questID FROM queststatus WHERE characterID = " + characterID);
-
-		List<int> questsToSendOut = new List<int>();
-		List<Quest> quests = new List<Quest>();
-		while(reader.Read()){
-			questsToSendOut.Add(reader.GetInt32("questID"));
-		}
-		foreach(int i in questsToSendOut.ToArray()){
-			Quest q = new Quest(i, pServer.playerName);
-			questManager.startQuest(q);
-			quests.Add(q);
-		}
-		return Tools.objectArrayToByteArray(quests.ToArray());
-		conn.Close();
-	}
-
     private void onSpawnItem(NetworkMessage netMsg)
     {
         ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
@@ -275,17 +251,16 @@ public class Server : NetworkManager
     public void onProjectTileCreate(NetworkMessage netMsg)
     {
         ProjectTileInfo pInfo = netMsg.ReadMessage<ProjectTileInfo>();
-
-        GameObject skillPrefab = (GameObject)Resources.Load(pInfo.pathToObject);
         GameObject skillEffectPrefab = (GameObject)Resources.Load(pInfo.pathToEffect);
 
-        GameObject skillObject = Instantiate(skillPrefab);
         GameObject skillEffect = Instantiate(skillEffectPrefab);
-
-        skillEffect.transform.SetParent(skillObject.transform);
-        skillObject.transform.position = new Vector3(pInfo.spawnPosition.x, pInfo.spawnPosition.y+1f, pInfo.spawnPosition.z);
-        skillObject.transform.rotation = Quaternion.Euler(pInfo.rotationInEuler);
-        NetworkServer.Spawn(skillObject);
+		skillEffect.transform.position = new Vector3(pInfo.spawnPosition.x, pInfo.spawnPosition.y+1f, pInfo.spawnPosition.z);
+		skillEffect.transform.rotation = Quaternion.Euler(pInfo.rotationInEuler);
+		//Player player = ClientScene.FindLocalObject(netMsg.conn.connectionId).GetComponent<Player>();
+		GameObject caster = (GameObject)ClientScene.FindLocalObject(pInfo.netId);
+		PlayerServer pServer = this.getPlayerObject(netMsg.conn.connectionId);
+		skillEffect.GetComponent<SkillMovement>().cast(caster,this, pServer);
+		NetworkServer.Spawn(skillEffect);
     }
 
 	public void onPlayerBuff(NetworkMessage netMsg){
@@ -533,7 +508,6 @@ public class Server : NetworkManager
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");
         List<int> skillProperties = new List<int>();
-        Debug.Log("SERVER: wew");
         while (reader.Read()) {
             skillProperties.Add(reader.GetInt16("skillId"));
             skillProperties.Add(reader.GetInt16("currentPoints"));
@@ -542,44 +516,35 @@ public class Server : NetworkManager
         player.setSkills(skillProperties.ToArray());
         packet.skillProperties = skillProperties.ToArray();
 
-		packet.questClasses = sendOutQuestByteArrayOnCharacterLogin(playerReal);
 
-		Debug.Log("PACKET CLASSES LENGTH: " + packet.questClasses.Length);
+		//Quests
+		mysqlReader(out conn, out reader, "SELECT * FROM queststatus WHERE characterID = '"+characterID+"'");
 
-        Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
-		Debug.Log("QUESTS LENGTH" + quests.Length);
-        foreach(Quest q in quests) {
-            playerReal.questList.Add(q);
-			Debug.Log("IS PLAYERREAL'S QUESTLIST BEING INCREMENTED??");
+		while (reader.Read()) {
+			Quest q = new Quest(reader.GetInt32("questID"), playerReal.playerName);
+			q.getData().queststatusId = reader.GetInt32("id");
+			questManager.startQuest(q);
+			q.setStatus(q.intToQuestStatus(reader.GetInt32("status")));
+			playerReal.questList.Add(q);
         }
 
-        MySqlDataReader reader1;
-        MySqlConnection conn1;
-        mysqlReader(out conn, out reader, "SELECT * FROM queststatusmobs");
-        mysqlReader(out conn1, out reader1, "SELECT * FROM queststatus WHERE characterID = '"+characterID+"'");
-
-        List<int> queststatusIds = new List<int>();
-
-		Debug.Log("CHARACTER ID: " + characterID);
-
-        while (reader1.Read()) {
-            queststatusIds.Add(reader1.GetInt32("id"));
-			Debug.Log("READER1 READING");
-        }
-
+		mysqlReader(out conn, out reader, "SELECT * FROM queststatusmobs");
         while (reader.Read()) {
-			Debug.Log("READER READING");
-			Debug.Log("PLAYERREAL_QUEST_ARRAY_LENGTH: " + playerReal.questList.ToArray().Length);
             foreach(Quest q in playerReal.questList.ToArray()) {
-				Debug.Log("QUESTSTATUSIDS.COUNT: " + queststatusIds.Count);
-                for(int i=0;i<queststatusIds.Count;i++){
-					Debug.Log("READERGETINT: " + reader.GetInt32("queststatusID") + " | " + queststatusIds[i]);
-                    if(reader.GetInt32("queststatusID") == queststatusIds[i]){
-                        q.initilizeMobQuest(reader.GetInt32("mob"), reader.GetInt32("count"));
-                        Debug.Log("MOB COUNT: " + reader.GetInt32("count"));
-                    }
+				if(reader.GetInt32("queststatusID") == q.getData().queststatusId){
+                    q.initilizeMobQuest(reader.GetInt32("mob"), reader.GetInt32("count"));
                 }
             }
+
+			/*foreach(Quest q in playerReal.questList.ToArray()) {
+				for(int i=0;i<queststatuses.Count;i++){
+					Debug.Log("THE FUCKNG STATIS IS: " + queststatuses[i]);
+					if(queststatuses[i] == 1){
+						playerReal.questList.Remove(q);
+						q.setStatus(e_QuestStatus.COMPLETED);
+					}
+				}
+			}*/
         }
 
         //QuestStatusMobData questStatusMob = new QuestStatusMobData();
@@ -788,13 +753,23 @@ public class Server : NetworkManager
 
     public void onPickupItem(NetworkMessage netMsg)
     {
-        moveItem moveItem = netMsg.ReadMessage<moveItem>();
-        Item item = (Item)Tools.byteArrayToObject(moveItem.item1);
+		MySqlConnection conn = null;
+		MySqlDataReader reader;
+
+        //moveItem moveItem = netMsg.ReadMessage<moveItem>();
+		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
+		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
         PlayerServer player = playerObjects[netMsg.conn.connectionId];
-        MySqlConnection conn;
-        MySqlDataReader reader;
         int playerID = player.getPlayerID();
+		if(item.isMoney()) {
+			mysqlNonQuerySelector(out conn, "UPDATE characters SET money = '"+item.getQuantity()+"' WHERE id = '"+playerID+"'");
+			NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.INVENTORY_PICKUP_ITEM, itemInfo);
+			Debug.Log("MONEY ADDED!!! " + item.getQuantity());
+			conn.Close();
+			return;
+		}
         int[] stats = item.getStats();
+		/*
         if (item.getInventoryType() == (int)e_ItemTypes.EQUIP)
         {
             mysqlNonQuerySelector(out conn, "INSERT INTO inventory (playerID, itemID, inventoryType, quantity, position) VALUES ('" + player.getPlayerID() + "','" + item.getID() + "','" + item.getInventoryType() + "','" + item.getQuantity() + "','" + item.getPosition() + "')");
@@ -808,8 +783,7 @@ public class Server : NetworkManager
         }
         else {
             mysqlNonQuerySelector(out conn, "INSERT INTO inventory (playerID, itemID, inventoryType, quantity, position) VALUES ('" + player.getPlayerID() + "','" + item.getID() + "','" + item.getInventoryType() + "','" + item.getQuantity() + "','" + item.getPosition() + "')");
-        }
-        conn.Close();
+        }*/
     }
     public void onChangeItem(NetworkMessage netMsg)
     {
@@ -1028,17 +1002,6 @@ public class Server : NetworkManager
         error.shouldKick = shouldKick;
         //NetworkServer.SendToClient(player.connectionID, PacketTypes.ERROR, error);
     }
-}
-
-[System.Serializable]
-public class Monster
-{
-    public Monster[] Monsters;
-    public int id;
-    public string name;
-    public int[] stats;
-    public int level;
-    public string pathToModel;
 }
 
 public class QuestStatusMobData

@@ -46,6 +46,7 @@ public class StatInfo : MessageBase
 
 public class ProjectTileInfo : MessageBase
 {
+	public NetworkInstanceId netId;
     public string pathToObject;
     public string pathToEffect;
     public Vector3 spawnPosition;
