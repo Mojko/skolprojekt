@@ -9,7 +9,6 @@ public class PlayerServer {
     public int databaseID;
     public int connectionID;
     public int playerID;
-<<<<<<< HEAD
 	public int level = 0;
     public int health = 0;
     public int mana = 0;
@@ -17,12 +16,7 @@ public class PlayerServer {
     public int maxMana = 100;
 	public int money = 0;
 	public string playerName = "";
-=======
-
     PlayerStats info;
-
-    public string playerName = "";
->>>>>>> a72f5e004a5ce21ede80c762cb4dce70bc2d4bb1
 	public int characterIdPlayingAs = -1;
 	public List<Quest> questList = new List<Quest>();
     //public Quest[] quests;
@@ -38,15 +32,12 @@ public class PlayerServer {
         }
 
     }
-<<<<<<< HEAD
 	public void setMoney(int money){
 		this.money += money;
 	}
-=======
     public PlayerStats getPlayerInfo() {
         return info;
     }
->>>>>>> a72f5e004a5ce21ede80c762cb4dce70bc2d4bb1
     public void setPlayerID(int id) {
         this.playerID = id;
     }

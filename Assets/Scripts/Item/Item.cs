@@ -93,11 +93,7 @@ public class Item {
         return stats[Tools.ITEM_PROPERTY_SIZE - 2];
     }
 	public int getID(){
-<<<<<<< HEAD
 		return this.id;
-=======
-		return id;
->>>>>>> a72f5e004a5ce21ede80c762cb4dce70bc2d4bb1
 	}
     public int getKeyID()
     {

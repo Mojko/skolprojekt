@@ -12,20 +12,23 @@ Prefab:
   m_RootGameObject: {fileID: 1041442643811354}
   m_IsPrefabParent: 1
 --- !u!1 &1000618247073762
-GameObjec
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
   m_Component:
   - component: {fileID: 224546575255090796}
-  - component: {fileID: 222627193899357548}
   - component: {fileID: 114379398153257906}
   - component: {fileID: 114255832911068110}
   - component: {fileID: 114575992978987920}
-  m_Layer: 5
-  m_Name: Panel
+  m_Layer: 0
+  m_Name: UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1004205375995784
 GameObject:
   m_ObjectHideFlags: 1
@@ -3178,7 +3181,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!114 &114255832911068110
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000618247073762}
@@ -3787,7 +3790,7 @@ MonoBehaviour:
   m_Text: Quest
 --- !u!114 &114379398153257906
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000618247073762}
@@ -4792,7 +4795,7 @@ MonoBehaviour:
   m_Text: NPC Name
 --- !u!114 &114575992978987920
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000618247073762}
@@ -8858,7 +8861,7 @@ RectTransform:
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224546575255090796
 RectTransform:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000618247073762}
