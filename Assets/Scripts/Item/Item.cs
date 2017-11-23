@@ -8,18 +8,21 @@ public enum e_ItemTypes
     USE,
     ETC,
     NOT_DEFINED,
-    MONEY
+	MONEY
 }
 
 [System.Serializable]
 public class Item {
 	public int[] stats = new int[Tools.ITEM_PROPERTY_SIZE];
+	public static readonly int ID_MONEY = 9999;
+    private ItemVariables dataDisplay;
     private int position;
 	private int id;
     private int keyID;
     private int inventoryType;
     private int quantity;
     private e_ItemTypes type;
+	private int money;
 	public Item(int keyID, int position, int inventoryType, params int[] stats){
 		this.id = stats[0];
 		this.stats = stats;
@@ -29,7 +32,10 @@ public class Item {
         this.quantity = 1;
 
     }
-    public Item(int keyID, int position, int inventoryType,int quantity, params int[] stats)
+    public void setItemVariables(ItemVariables dataDisplay) {
+        this.dataDisplay = dataDisplay;
+    }
+    public Item(int keyID, int position, int inventoryType, int quantity, params int[] stats)
     {
         this.id = stats[0];
         this.stats = stats;
@@ -39,6 +45,10 @@ public class Item {
         this.quantity = quantity;
 
     }
+	public Item(int id)
+	{
+		this.id = id;
+	}
     public void setQuantity(int amount) {
         this.quantity = amount;
     }
@@ -59,6 +69,10 @@ public class Item {
         }
         return false;
     }
+
+	public bool isMoney(){
+		return getID() == ID_MONEY;
+	}
     public int getQuantity() {
         return quantity;
     }
@@ -79,7 +93,7 @@ public class Item {
         return stats[Tools.ITEM_PROPERTY_SIZE - 2];
     }
 	public int getID(){
-		return stats[0];
+		return id;
 	}
     public int getKeyID()
     {

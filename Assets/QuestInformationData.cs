@@ -9,12 +9,37 @@ public class QuestInformationData : MonoBehaviour {
     public GameObject npcObject;
     public GameObject questWrapper;
     public GameObject questContainer;
- 
-	private Dictionary<int, GameObject> questPanels = new Dictionary<int, GameObject>();
+	public GameObject closeButton;
 
+	private Dictionary<int, GameObject> questPanels = new Dictionary<int, GameObject>();
+	private List<QuestContainer> questPanelContainers = new List<QuestContainer>();
+	private Image image;
 
 	void Start () {
 		this.transform.SetAsFirstSibling();
+		image = this.GetComponent<Image>();
+		toggleActive(false);
+	}
+
+	public void toggleActive(bool toggle){
+		this.image.enabled = toggle;
+		this.closeButton.SetActive(toggle);
+
+		foreach(QuestContainer container in questPanelContainers){
+			container.isClicked = toggle;
+		}
+
+		foreach(Transform childTransform in this.transform.getAllChildren()){
+			childTransform.gameObject.SetActive(toggle);
+		}
+	}
+	public void toggleActive(bool toggle, QuestContainer container){
+		this.image.enabled = toggle;
+		this.closeButton.SetActive(toggle);
+		container.isClicked = toggle;
+		foreach(Transform childTransform in this.transform.getAllChildren()){
+			childTransform.gameObject.SetActive(toggle);
+		}
 	}
 
     public void addNewQuestPanel(Quest quest)
@@ -28,13 +53,19 @@ public class QuestInformationData : MonoBehaviour {
 		rect.localPosition = new Vector2(0,170+(rect.sizeDelta.y*-questPanels.Count));
 		rect.sizeDelta = new Vector2(0,50);
 
-		tempQuestPanel.GetComponent<QuestContainer>().init(quest);
+		QuestContainer container = tempQuestPanel.GetComponent<QuestContainer>();
+		container.init(quest);
+		questPanelContainers.Add(container);
 		questPanels.Add(quest.getId(), tempQuestPanel);
 		Debug.Log("new quest panel added");
     }
 
 	public void removeQuestPanel(Quest quest){
-		questPanels.Remove(quest.getId());
+		if(questPanels.ContainsKey(quest.getId())){
+			questPanels[quest.getId()].GetComponent<QuestContainer>().delete();
+			Destroy(questPanels[quest.getId()]);
+			questPanels.Remove(quest.getId());
+		}
 	}
 }
 

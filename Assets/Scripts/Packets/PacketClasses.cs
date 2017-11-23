@@ -46,6 +46,7 @@ public class StatInfo : MessageBase
 
 public class ProjectTileInfo : MessageBase
 {
+	public NetworkInstanceId netId;
     public string pathToObject;
     public string pathToEffect;
     public Vector3 spawnPosition;
@@ -70,9 +71,9 @@ public class PlayerInfo : MessageBase
     public NetworkInstanceId id;
     public string name;
     public string characterName;
-    public int level = 0;
     public int[] skillProperties;
 	public byte[] questClasses;
+    public PlayerStats stats;
 }
 
 public class LoginPacket : MessageBase

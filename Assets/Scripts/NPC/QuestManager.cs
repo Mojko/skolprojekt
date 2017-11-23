@@ -82,25 +82,27 @@ public class Quest
 
 	//int mobKillsOfSpecifiedMobId = 0;
 	Dictionary<int, int> mobKills = new Dictionary<int, int>();
-    int mobId = 0;
-    int itemId = 0;
+	Dictionary<int, int> itemCount = new Dictionary<int, int>();
     string description;
 
 	//int[] requirementData;
 	QuestJson questJson;
 	e_QuestStatus status;
+	QuestSQLData sqlData;
 
 	public Quest(int id, string characterName)
     {
 		this.characterName = characterName;
 		this.id = id;
 		status = e_QuestStatus.NOT_STARTED;
+		sqlData = new QuestSQLData();
     }
 
 	public Quest(int id)
 	{
 		this.id = id;
 		status = e_QuestStatus.NOT_STARTED;
+		sqlData = new QuestSQLData();
 	}
 
 	public void start(/*int[] requirementData,*/ QuestJson questJson){
@@ -113,7 +115,15 @@ public class Quest
 			if(isCompletionIdMobId(i)){
 				this.mobKills.Add(questJson.completionData.completionId[i], 0);
 			}
+			if(isCompletionIdItemId(i)){
+				setItemCount(questJson.completionData.completionId[i], 0);
+			}
 		}
+		checkForCompletion();
+	}
+
+	public QuestSQLData getData(){
+		return this.sqlData;
 	}
 
 	public int getId(){
@@ -150,15 +160,18 @@ public class Quest
 
     public void initilizeMobQuest(int mobId, int kills)
     {
-        this.mobId = mobId;
 		setMobKills(mobId, kills);
 		checkForCompletion();
     }
 
-    public void setMobId(int mobId)
-    {
-        this.mobId = mobId;
-    }
+	public void setItemCount(int itemId, int count){
+		this.itemCount.Add(itemId, count);
+	}
+
+	public int getItemCount(int itemId){
+		return this.itemCount[itemId];
+	}
+
 	public void setMobKills(int mobId, int mobKills){
 		if(this.mobKills.ContainsKey(mobId)){
 			this.mobKills[mobId] = mobKills;
@@ -209,17 +222,30 @@ public class Quest
 
 	public bool checkForCompletion(){
 		
+		bool completed = false;
 		for(int i=0;i<getCompletionData().completionId.Count;i++){
 			int id = getCompletionData().completionId[i];
 			int value = getCompletionData().completionValue[i];
 
 			if(isCompletionIdMobId(i)){
 				if(this.getMobKills(id) >= value){
-					//completed
-					this.status = e_QuestStatus.COMPLETED;
-					return true;
+					completed = true;
+				} else {
+					completed = false;
 				}
 			}
+
+			if(isCompletionIdItemId(i)){
+				if(this.getItemCount(id) >= value){
+					completed = true;
+				} else {
+					completed = false;
+				}
+			}
+		}
+		if(completed){
+			this.status = e_QuestStatus.COMPLETED;
+			return true;
 		}
 		return false;
 	}
@@ -229,8 +255,19 @@ public class Quest
 	}
 		
 	public void increaseMobKills(int mobId){
-		this.mobKills[mobId] += 1;
-		checkForCompletion();
+		if(this.mobKills[mobId] < getCompletionValue(mobId)){
+			this.mobKills[mobId] += 1;
+			checkForCompletion();
+		}
+	}
+
+	public int getCompletionValue(int id){
+		for(int i=0;i<getCompletionData().completionId.Count;i++){
+			if(id == getCompletionData().completionId[i]){
+				return getCompletionData().completionValue[i];
+			}
+		}
+		return -1;
 	}
 
 	public int getMobKills(int mobId){
@@ -244,6 +281,19 @@ public class Quest
 	public string getCharacterName(){
 		return this.characterName;
 	}
+
+	public void setStatus(e_QuestStatus status){
+		this.status = status;
+	}
+
+	public e_QuestStatus intToQuestStatus(int status){
+		if(status == 1) return e_QuestStatus.COMPLETED;
+		else if(status == 0) return e_QuestStatus.STARTED;
+		return e_QuestStatus.NOT_STARTED;
+	}
+	/*public int questStatusToInt(){
+
+	}*/
 
 	public int getCompleted(){
 		if(this.status == e_QuestStatus.COMPLETED) return 1; else return 0;
@@ -291,6 +341,11 @@ public class QuestManager {
 		}
 		return null;
 	}
+}
+
+[System.Serializable]
+public class QuestSQLData {
+	public int queststatusId;
 }
 
 

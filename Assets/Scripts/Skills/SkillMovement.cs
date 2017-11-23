@@ -3,14 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GlobalTools;
+using UnityEngine.Networking;
 
-public class SkillMovement : MonoBehaviour {
+public class SkillMovement : NetworkBehaviour {
 
     public float speed = 4f;
 	private GameObject target;
     ToolsGlobal tools = new ToolsGlobal();
     public GameObject activationEffect;
     Player player;
+	PlayerServer playerServer;
+	Server server;
+	GameObject caster;
+
+	public void cast(GameObject caster, Server server, PlayerServer playerServer){
+		this.caster = caster;
+		this.server = server;
+		this.playerServer = playerServer;
+	}
 
     private void Update () 
     {
@@ -26,9 +36,6 @@ public class SkillMovement : MonoBehaviour {
 
 					target = colliders[i].gameObject;
 					float yDeltaRotation = Mathf.Abs((tools.rotateTowards(this.transform, target.transform.position).eulerAngles.y - this.transform.rotation.eulerAngles.y));
-
-					Debug.Log("yDeltaRotation: " + yDeltaRotation);
-						
 				}
 			}
 		}
@@ -47,18 +54,23 @@ public class SkillMovement : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
+		if(!isServer) return;
         if (other.transform.CompareTag("Enemy")) {
-            AI ai = other.GetComponent<AI>();
-            ai.damage(5,null,null);
-            Destroy(this.gameObject);
-        }        
+			Debug.Log("It hit! " + this.server + " | collider");
+			AI ai = other.GetComponent<AI>();
+			ai.damage(5, this.caster, this.playerServer);
+			NetworkServer.Destroy(this.gameObject);
+        }   
     }
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter(Collision other)
     {
-        if (collision.transform.CompareTag("Enemy")) {
-            AI ai = collision.gameObject.GetComponent<AI>();
-            ai.damage(5, null,null);
-            Destroy(this.gameObject);
-        }
+		if(!isServer) return;
+		if (other.transform.CompareTag("Enemy")) {
+			AI ai = other.gameObject.GetComponent<AI>();
+			ai.damage(5, this.caster, this.playerServer);
+			Debug.Log("It hit! " + this.server + " | " + " collision");
+			NetworkServer.Destroy(this.gameObject);
+		}
+
     }
 }
