@@ -19,6 +19,29 @@ public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
 };
 
+public class ConnectGameObject {
+	public void updateClients(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		RpcPositionToClients(netId, pos, rot);
+	}
+	public void updateServerAndClients(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		CmdPositionToServer(netId, pos, rot);
+	}
+	[Command]
+	void CmdPositionToServer(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		GameObject o = NetworkServer.FindLocalObject(netId);
+		o.transform.position = pos;
+		o.transform.rotation = rot;
+		RpcPositionToClients(netId, pos, rot);
+	}
+
+	[ClientRpc]
+	void RpcPositionToClients(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		GameObject o = ClientScene.FindLocalObject(netId);
+		o.transform.position = pos;
+		o.transform.rotation = rot;
+	}
+}
+
 public static class DefaultIds {
 	/*
 		0-500 = pots

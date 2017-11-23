@@ -45,9 +45,9 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnEquip);
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
-		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
-		con.RegisterHandler(PacketTypes.STANDBY_PICKUP, onStandbyPickup);
+		con.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
+		con.RegisterHandler(PacketTypes.DROP_INIT, onDropInit);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -76,7 +76,12 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
-	void onItemPickup(NetworkMessage netMsg){
+	void onDropInit(NetworkMessage netMsg){
+		DropInfo dropInfo = netMsg.ReadMessage<DropInfo>();
+		Item item = (Item)Tools.byteArrayToObject(dropInfo.item);
+		ClientScene.FindLocalObject(dropInfo.netId).GetComponent<Drop>().initilize(item, null);
+	}
+	void onSpawnItem(NetworkMessage netMsg){
 		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
 		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
 		Debug.Log("PICKING UP ITEM: " + item + " | " + item.isMoney());
@@ -224,8 +229,10 @@ public class playerNetwork : NetworkBehaviour{
         }
     }
 
-	public void destroyGameObject(){
-
+	public void destroyGameObject(NetworkInstanceId netId){
+		NetworkInstanceIdInfo netIdInfo = new NetworkInstanceIdInfo();
+		netIdInfo.netId = netId;
+		con.Send(PacketTypes.DESTROY, netIdInfo);
 	}
 
     //#Spawn monster
@@ -444,6 +451,7 @@ public class playerNetwork : NetworkBehaviour{
         ItemInfo itemInfo = new ItemInfo();
         itemInfo.item = Tools.objectToByteArray(item);
         con.Send(PacketTypes.SPAWN_ITEM, itemInfo);
+		Debug.Log("item sent");
     }
     public void moveItem(Item itemMoved, Item itemReplaced, short packetType, Player player) {
         moveItem item = new moveItem();

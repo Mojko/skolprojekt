@@ -14,6 +14,7 @@ public class PlayerServer {
     public int mana = 0;
     public int maxHealth = 100;
     public int maxMana = 100;
+	public int money = 0;
 	public string playerName = "";
 	public int characterIdPlayingAs = -1;
 	public List<Quest> questList = new List<Quest>();
@@ -29,6 +30,9 @@ public class PlayerServer {
         }
 
     }
+	public void setMoney(int money){
+		this.money += money;
+	}
     public void setPlayerID(int id) {
         this.playerID = id;
     }

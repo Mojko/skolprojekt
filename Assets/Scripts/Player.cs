@@ -133,6 +133,16 @@ public class Player : NetworkBehaviour
 		npcManager.GetComponent<NPCController>().initilize(this);
 
     }
+	public bool hasCompletedQuest(Quest quest){
+		if(hasQuest(quest)){
+			foreach(Quest q in quests.ToArray()){
+				if(q.getStatus() == e_QuestStatus.COMPLETED){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	public bool hasQuest(Quest quest){
 		foreach(Quest q in quests.ToArray()){
 			if(quest.getId().Equals(q.getId())){
@@ -288,6 +298,11 @@ public class Player : NetworkBehaviour
         this.health -= dmg;
 		StartCoroutine(flash());
     }
+	public void canPickup(GameObject drop){
+		if(Input.GetKey(KeyCode.B)){
+
+		}
+	}
 
 	[ClientRpc]
 	void RpcToggleFlash(int state)
@@ -303,5 +318,19 @@ public class Player : NetworkBehaviour
 		RpcToggleFlash(0);
 		yield return new WaitForSeconds(0.1f);
 		RpcToggleFlash(1);
+	}
+	[Command]
+	public void CmdDestroyObject(NetworkIdentity identity){
+		Debug.Log("destroying");
+		NetworkServer.Destroy(NetworkServer.FindLocalObject(identity.netId));
+	}
+}
+
+public class PlayerData {
+	public int money;
+	public string characterName;
+	public PlayerData(string characterName, int money){
+		this.characterName = characterName;
+		this.money = money;
 	}
 }
