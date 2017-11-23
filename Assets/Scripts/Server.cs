@@ -70,6 +70,9 @@ public class Server : NetworkManager
 				addOrUpdateQuestStatusToDatabase(q, pServer, false);
 				Debug.Log("Updating quest... " + q.getId());
             }
+			MySqlConnection mysqlConn;
+			mysqlNonQuerySelector(out mysqlConn, "UPDATE characters SET money = '"+pServer.money+"' WHERE id = '"+pServer.getPlayerID()+"'");
+			mysqlConn.Close();
 
             Debug.Log("disconnect server func");
             string name = connections[conn.connectionId];
@@ -110,6 +113,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.ITEM_USE, onUseItem);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
+		NetworkServer.RegisterHandler(PacketTypes.DESTROY, onObjectDestroy);
         resourceStructure = new ResourceStructure();
 
         
@@ -117,6 +121,11 @@ public class Server : NetworkManager
         Instantiate(ResourceStructure.getGameObjectFromObject(e_Objects.SYSTEM_RESPAWNER));
 
     }
+
+	public void onObjectDestroy(NetworkMessage netMsg){
+		NetworkInstanceIdInfo info = new NetworkInstanceIdInfo();
+		NetworkServer.Destroy(NetworkServer.FindLocalObject(info.netId));
+	}
 
     public void onDealDamage(NetworkMessage netMsg)
     {
@@ -185,7 +194,9 @@ public class Server : NetworkManager
 		reader = null;
 		if(queststatusId == -1){
 			mysqlReader(out conn, out reader, "SELECT id FROM queststatus WHERE questID = '"+quest.getId()+"' AND characterID = '"+characterId+"'");
-			queststatusId = reader.GetInt32("id");
+			if(reader.Read()) queststatusId = reader.GetInt32("id");
+			conn.Close();
+			reader.Close();
 		}
 
 		if(queststatusId != -1){
@@ -232,7 +243,13 @@ public class Server : NetworkManager
     private void onSpawnItem(NetworkMessage netMsg)
     {
         ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
-        playerObjects[netMsg.conn.connectionId].addItem((Item)(Tools.byteArrayToObject(itemInfo.item)));
+		Item item = (Item)(Tools.byteArrayToObject(itemInfo.item));
+		if(!item.isMoney()){
+			playerObjects[netMsg.conn.connectionId].addItem(item);
+			return;
+		}
+		playerObjects[netMsg.conn.connectionId].setMoney(item.getQuantity());
+		NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.SPAWN_ITEM, itemInfo);
     }
 
     private void onMonsterSpawn(NetworkMessage netMsg)
@@ -506,6 +523,14 @@ public class Server : NetworkManager
         packet.stats = Tools.objectToByteArray(player.getPlayerInfo());
         MySqlConnection conn;
         MySqlDataReader reader;
+		mysqlReader(out conn, out reader, "SELECT money FROM characters WHERE id = '" + id + "'");
+
+		while(reader.Read()){
+			int money = reader.GetInt32("money");
+			playerReal.setMoney(money);
+			Debug.Log("reading money: " + money);
+		}
+
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");
         List<int> skillProperties = new List<int>();
         while (reader.Read()) {
@@ -671,6 +696,7 @@ public class Server : NetworkManager
             }
         }
         conn.Close();
+		reader.Close();
         return player.getItems();
     }
 

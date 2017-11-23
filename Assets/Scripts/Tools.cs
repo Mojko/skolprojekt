@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEngine.Networking;
-using System;
 public enum inventoryTabs {
     EQUIPPED = -1, EQUIP = 0, USE, ETC, QUEST, MONEY
 };
@@ -19,6 +18,29 @@ public enum e_itemTypes
 public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
 };
+
+public class ConnectGameObject {
+	public void updateClients(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		RpcPositionToClients(netId, pos, rot);
+	}
+	public void updateServerAndClients(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		CmdPositionToServer(netId, pos, rot);
+	}
+	[Command]
+	void CmdPositionToServer(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		GameObject o = NetworkServer.FindLocalObject(netId);
+		o.transform.position = pos;
+		o.transform.rotation = rot;
+		RpcPositionToClients(netId, pos, rot);
+	}
+
+	[ClientRpc]
+	void RpcPositionToClients(NetworkInstanceId netId, Vector3 pos, Quaternion rot){
+		GameObject o = ClientScene.FindLocalObject(netId);
+		o.transform.position = pos;
+		o.transform.rotation = rot;
+	}
+}
 
 public static class DefaultIds {
 	/*
@@ -35,7 +57,6 @@ public static class DefaultIds {
 		5001 - 5500 = Boots
 		5501 - 6000 = NPC
 		6001 - 6500 = quests
-		9999 - money/mesos
 		> 10000 = mobs
 	*/
 	public static int getNpcDefault(){
@@ -47,7 +68,7 @@ public enum e_Paths {
 	JSON_QUESTS,
 	JSON_SKILLTREE,
 	JSON_MONSTERS,
-    USE
+    ITEMS
 }
 
 public static class JsonManager {
@@ -75,24 +96,14 @@ public static class Tools
     public static readonly int ITEM_INTERVAL = 500;
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
-        RectTransform[] transforms = parent.GetComponentsInChildren<RectTransform>(true);
-		foreach(RectTransform t in transforms){
-            Debug.Log("names!!!!: " + t.name);
+		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
+		foreach(Transform t in transforms){
 			if(t.name.Equals(name)){
 				return t.gameObject;
 			}
 		}
 		return null;
 	}
-    public static T CastData<T>(object input)
-    {
-        return (T)input;
-    }
-
-    public static T ConvertData<T>(object input)
-    {
-        return (T)Convert.ChangeType(input, typeof(T));
-    }
     public static GameObject loadObjectFromResources(e_Objects obj)
     {
         return (GameObject)Resources.Load(ResourceStructure.getPathForObject(obj));

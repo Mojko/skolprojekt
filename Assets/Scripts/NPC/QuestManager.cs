@@ -312,7 +312,7 @@ public class QuestManager {
 	public QuestManager(Server server){
 		this.server = server;
 		root = JsonManager.readJson<QuestJson>(e_Paths.JSON_QUESTS);
-		//root = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
+		root = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
 
 	}
 
@@ -322,6 +322,7 @@ public class QuestManager {
 		if(qJson != null){
 			quest.start(qJson);
 			server.addOrUpdateQuestStatusToDatabase(quest, playerServer, true);
+			playerServer.questList.Add(quest);
 		}
 	}
 	public void startQuest(Quest quest){

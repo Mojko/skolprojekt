@@ -12,7 +12,6 @@ public class FloatingEffect : NetworkBehaviour {
 	public float periodSpeed = 0.1f;
 
 	void Update () {
-        if(!isLocalPlayer)
 		v += periodSpeed;
 		this.transform.position += new Vector3(0,Mathf.Sin(v/period) * amp * Time.deltaTime,0);
 		this.transform.Rotate(new Vector3(0,rotSpeed * Time.deltaTime,0));

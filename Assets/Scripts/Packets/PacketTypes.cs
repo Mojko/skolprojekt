@@ -49,8 +49,9 @@ public class PacketTypes{
     
     public static readonly short DEAL_DAMAGE = 1024;
 
-	//STANDBY
-	public static readonly short STANDBY_PICKUP = 1800;
+	//MISC
+	public static readonly short DROP_INIT = 1800;
+	public static readonly short DESTROY = 1801;
 
     //ERROR
     public static readonly short ERROR = 9999;

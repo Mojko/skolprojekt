@@ -11,6 +11,10 @@ public class Drop : NetworkBehaviour {
     private float dirY = 4;
     private Vector3 randomDir;
 	private PlayerServer playerServer;
+	private NetworkIdentity netIdentity;
+	private ConnectGameObject connectGameObject;
+	private Player player;
+	private bool isPickedUp = false;
 
     Renderer renderer = null;
 
@@ -19,6 +23,11 @@ public class Drop : NetworkBehaviour {
 		this.name = item.getName();
 		this.playerServer = playerServer;
 		this.item = item;
+		Debug.Log("initilized drop: " + item.getID() + " | Server: " + isServer + " | Client: " + isClient);
+	}
+
+	public Item getItem(){
+		return this.item;
 	}
 
     float choose(float val1, float val2)
@@ -34,13 +43,17 @@ public class Drop : NetworkBehaviour {
 		this.transform.localScale = dropAbleObjects[0].transform.lossyScale;
 		this.renderer = this.GetComponent<Renderer> ();*/
         this.renderer = this.GetComponent<Renderer>();
+		this.netIdentity = GetComponent<NetworkIdentity>();
         move = true;
         dirX = Random.Range(0.5f,2);
         randomDir = chooseRandomDirection();
+		if(isServer) this.connectGameObject = new ConnectGameObject();
 	}
 
     void Update()
     {
+		if(!isServer) return;
+		RpcPositionToClients(this.transform.position);
         if(move){
             dirX = Mathf.Lerp(dirX, 0, 0.25f * Time.deltaTime);
             //dirX -= 0.9f * Time.deltaTime;
@@ -52,31 +65,43 @@ public class Drop : NetworkBehaviour {
         if(Physics.Raycast(this.transform.position, Vector3.down ,out hit, 1) && dirY <= 0){
             if(hit.transform.CompareTag("Ground")){
                 move = false;
-                this.GetComponent<FloatingEffect>().enabled = true;
+				RpcActivateFloatingEffect();
             }
         }
+
+		//this.connectGameObject.updateServerAndClients(netIdentity.netId, this.transform.position, this.transform.rotation);
     }
+
+	[ClientRpc]
+	void RpcPositionToClients(Vector3 pos){
+		transform.position = pos;
+	}
+	[ClientRpc]
+	void RpcActivateFloatingEffect(){
+		this.GetComponent<FloatingEffect>().enabled = true;
+	}
 
 
 	void OnTriggerStay(Collider col) {
-        //renderer.material.SetFloat("_Flash", 0.25f);
-		if(!isServer) return;
-		if (col.gameObject.CompareTag("Player") && Input.GetKey(KeyCode.B)) {
-			/*Player player = col.gameObject.GetComponent<Player>();
-			player.getNetwork().sendItem(PacketTypes.INVENTORY_PICKUP_ITEM, item);
-            NetworkServer.Destroy(this.gameObject);*/
+		if(col.gameObject.CompareTag("Player")){
+			if(isClient){
+				//this.player.canPickup(this.gameObject);
+				if(Input.GetKey(KeyCode.B) && !isPickedUp){
+					Player p = col.GetComponent<Player>();
+					p.getNetwork().sendItem(this.item);
+					isPickedUp = true;
+					p.CmdDestroyObject(this.netIdentity);
+					//p.getNetwork().destroyGameObject(this.GetComponent<NetworkIdentity>().netId);
+				}
+			}
+
 		}
 
 	}
 	void OnTriggerEnter(Collider col){
-		if(!isServer) return;
-		if(col.gameObject.CompareTag("Player")){
-			ItemInfo itemInfo = new ItemInfo();
-			itemInfo.item = Tools.objectToByteArray(this.item);
-			NetworkServer.SendToClient(this.playerServer.connectionID, PacketTypes.STANDBY_PICKUP, itemInfo);
-			Debug.Log("Sent!");
-		}
+		//this.player = col.GetComponent<Player>();
 	}
+
     void OnTriggerExit(Collider col){
 		
         //renderer.material.SetFloat("_Flash", 1);
