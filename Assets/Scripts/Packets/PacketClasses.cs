@@ -73,7 +73,7 @@ public class PlayerInfo : MessageBase
     public string characterName;
     public int[] skillProperties;
 	public byte[] questClasses;
-    public PlayerStats stats;
+    public byte[] stats;
 }
 
 public class LoginPacket : MessageBase

@@ -503,7 +503,7 @@ public class Server : NetworkManager
         loadCharacterInfoFromDatabase(playerReal);
         playerObjects.Add(msg.conn.connectionId, playerReal);
         Debug.Log("loaded character!");
-        packet.stats = player.getPlayerInfo();
+        packet.stats = Tools.objectToByteArray(player.getPlayerInfo());
         MySqlConnection conn;
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");
