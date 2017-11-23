@@ -4,35 +4,38 @@ using UnityEngine;
 using System.IO;
 using System;
 using System.Reflection;
+
 public class ItemDataProvider {
     private static ItemDataProvider provider;
     private ItemData items;
-
+    //säker konstruktor som ser till att ingt annat objekt kan använda konstruktorn.
     protected ItemDataProvider() {
-        items = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.getPath(e_Paths.USE)));
+<<<<<<< HEAD
+        items = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.pa(e_Paths.ITEMS)));
         Debug.Log("datapprovider: " + items);
+=======
+        items = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.getPath(e_Paths.USE)));
+>>>>>>> 6080121ae61488764c2a84865c2c1ee0ab7b9902
     }
+    //returnar nytt objekt om det är null annars returnar den provider variabeln.
     public static ItemDataProvider getInstance() {
         if (provider == null)
             provider = new ItemDataProvider();
 
         return provider;
     }
+    //hämr stats för ett specifikt item
     public ItemVariables getStats(int itemID) {
-        Debug.Log("datapprovider: " + items);
-        return items.getItemStats(itemID);
+        if (itemID.isItemType(e_itemTypes.USE))
+        {
+            return items.getItemStats(itemID);
+        }
+        return null;
     }
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
+
 public class ItemDataProviderFactory{
+    //kollar om directory är en fil och om den är så skapar den en ny Data med det directoryn.
     public static ItemData getItemProvider(ItemDirectory directory) {
         if (directory.isItemDirectory())
             return new ItemData(directory);
@@ -40,6 +43,7 @@ public class ItemDataProviderFactory{
         return null;
     }
 }
+
 public class ItemDirectory {
     private string path;
     private int subFileSize;
@@ -52,7 +56,7 @@ public class ItemDirectory {
     public ItemDirectory(DirectoryInfo directory) {
         constructor(directory.FullName);
     }
-
+    //konstruktorn.
     private void constructor(string path)
     {
         directoryInfo = new DirectoryInfo(path);
@@ -68,16 +72,18 @@ public class ItemDirectory {
         }
         this.path = path;
     }
+    //kollar om det finns någon fils namn innehåller itemID.
     public FileInfo getFileContainingString(int itemID) {
+        //gör så att itemID avrundar till 500 tal.
         int normID = (int)Mathf.Ceil((itemID + 1) / 500f) * 500;
         foreach (FileInfo file in files)
         {
             if (file.Name.Contains(normID + ""))
             {
-                Debug.Log("file found!!! " + file.Name);
                 return file;
             }
         }
+        //rekrusiv funktion. 
         foreach (ItemDirectory directory in subDirectories) {
             return directory.getFileContainingString(normID);
         }
@@ -90,6 +96,7 @@ public class ItemDirectory {
         return (path.ToLower().EndsWith(".i"));
     }
 }
+
 public class ItemData{
     ItemDirectory directory;
     private Dictionary<int, ItemVariables> itemValues = new Dictionary<int, ItemVariables>();
@@ -107,11 +114,11 @@ public class ItemData{
         while ((line = reader.ReadLine()) != null) {
             fileContents += line + Environment.NewLine;
         }
+        reader.Close();
         ItemDataAll ItemDataAll = itemDataConverter(itemID, fileContents);
-        ItemVariables variables = new ItemVariables();
-        ItemDataPots pots = (ItemDataPots)ItemDataAll;
-        variables.setVariables(ItemDataAll.getVariables());
+        ItemVariables variables = ItemDataAll.generateVariables();
         itemValues.Add(itemID, variables);
+        Debug.Log("dictionary size: " + itemValues.Count);
         return variables;
     }
     private ItemDataAll itemDataConverter(int itemID, string file) {
@@ -120,10 +127,16 @@ public class ItemData{
             ItemDataPots data = JsonUtility.FromJson<ItemDataPots>(file);
             data.parentItems = data.items;
             data = (ItemDataPots)getItemFromParent(data,itemID);
-            data.setVariables();
             return data;
         }
-        if (itemID.isItemType(e_itemTypes.HATS) || itemID.isItemType(e_itemTypes.PANTS) || itemID.isItemType(e_itemTypes.BODY) || itemID.isItemType(e_itemTypes.BOOTS) || itemID.isItemType(e_itemTypes.WEAPON) || itemID.isItemType(e_itemTypes.GLOVE) || itemID.isItemType(e_itemTypes.FACE) || itemID.isItemType(e_itemTypes.ACCESSORY))
+        if (itemID.isItemType(e_itemTypes.HATS) || 
+            itemID.isItemType(e_itemTypes.PANTS) || 
+            itemID.isItemType(e_itemTypes.BODY) || 
+            itemID.isItemType(e_itemTypes.BOOTS) || 
+            itemID.isItemType(e_itemTypes.WEAPON) || 
+            itemID.isItemType(e_itemTypes.GLOVE) || 
+            itemID.isItemType(e_itemTypes.FACE) || 
+            itemID.isItemType(e_itemTypes.ACCESSORY))
         {
             return JsonUtility.FromJson<ItemDataEquips>(file);
         }
@@ -135,33 +148,56 @@ public class ItemData{
 }
 [Serializable]
 public class ItemVariables {
-    public Dictionary<string, object> variables = new Dictionary<string,object>();
-    public void addVariable(string variableName, object value) {
-        variables.Add(variableName, value);
-    }
+    public Dictionary<string, int> variables_int = new Dictionary<string, int>();
+    public Dictionary<string, string> variables_string = new Dictionary<string, string>();
+    public Dictionary<string, float> variables_float = new Dictionary<string, float>();
+    public string[] toShow;
     public int getInt(string varName) {
-        return (int)variables[varName];
+        return variables_int[varName];
     }
     public string getString(string varName)
     {
-        return (string)variables[varName];
+        return variables_string[varName];
     }
     public float getFloat(string varName)
     {
-        return (float)variables[varName];
+        return variables_float[varName];
     }
-    public object getObject(string varName)
+    public void addInt(string name, int value) {
+        variables_int.Add(name, value);
+    }
+    public void addString(string name, string value)
     {
-        return variables[varName];
+        variables_string.Add(name, value);
     }
-    public void setVariables(Dictionary<string, object> variables) {
-        this.variables = variables;
+    public void addFloat(string name, float value)
+    {
+        variables_float.Add(name, value);
     }
-    public Dictionary<string, object> getDictionary() {
-        return variables;
+    public Dictionary<string, float> getFloats() {
+        return variables_float;
+    }
+    public Dictionary<string, string> getStrings()
+    {
+        return variables_string;
+    }
+    public void setToShow(string[] toShow) {
+        this.toShow = toShow;
+    }
+    public bool shouldShow(string item) {
+        for (int i = 0; i < toShow.Length; i++) {
+            if (toShow[i] == item)
+                return true;
+        }
+        return false;
+    }
+    public Dictionary<string, int> getInts()
+    {
+        return variables_int;
     }
 }
 [Serializable]
+
 public class ItemDataAll {
     public int startIndex;
     public ItemDataAll[] parentItems;
@@ -176,12 +212,30 @@ public class ItemDataAll {
     public Dictionary<string, object> getVariables() {
         return variables;
     }
-    public void setVariables()
+    public ItemVariables generateVariables()
     {
+        ItemVariables variables = new ItemVariables();
         foreach (FieldInfo field in this.GetType().GetFields())
         {
-            this.variables.Add(field.Name, field.GetValue(this));
+            if (field.FieldType == typeof(int)) {
+                Debug.Log("int found: " + (int)field.GetValue(this));
+                variables.addInt(field.Name,(int)field.GetValue(this));
+            }
+            if (field.FieldType == typeof(float))
+            {
+                Debug.Log("float found: " + (float)field.GetValue(this));
+                variables.addFloat(field.Name, (int)field.GetValue(this));
+            }
+            if (field.FieldType == typeof(string))
+            {
+                Debug.Log("string found: " + (string)field.GetValue(this));
+                variables.addString(field.Name, (string)field.GetValue(this));
+            }
+            if (field.FieldType == typeof(string[]) && field.Name == "show") {
+                variables.setToShow((string[])field.GetValue(this));
+            }
         }
+        return variables;
     }
     public void setVariables(Dictionary<string, object> variables)
     {
@@ -199,7 +253,9 @@ public class ItemDataPots : ItemDataAll
     public int mana;
     public int imageIndex;
     public string description;
+    public string[] show;
 }
+
 [Serializable]
 public class ItemDataEquips : ItemDataAll
 {
@@ -209,7 +265,9 @@ public class ItemDataEquips : ItemDataAll
     public int mana;
     public int imageIndex;
     public string description;
+    public string[] show;
 }
+
 [Serializable]
 public class ItemDataScrolls : ItemDataAll
 {
@@ -219,6 +277,7 @@ public class ItemDataScrolls : ItemDataAll
     public int mana;
     public int imageIndex;
     public string description;
+    public string[] show;
 }
 [Serializable]
 public class ItemDataEtc : ItemDataAll
@@ -229,4 +288,5 @@ public class ItemDataEtc : ItemDataAll
     public int mana;
     public int imageIndex;
     public string description;
+    public string[] show;
 }

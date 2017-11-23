@@ -43,11 +43,13 @@ public class ItemInfoHandler : MonoBehaviour {
     }
     public void setUseClicked() {
         player.getNetwork().onItemUse(item);
+        this.player.getInventory().hideItemActionMenu();
         //Debug.Log("item use clicked");
     }
     public void setEquipClicked() {
         destroyItemInInventory();
         player.getEquipHandler().setEquip(equip.getID(), equip);
+        this.player.getInventory().hideItemActionMenu();
     }
     private void destroyItemInInventory() {
         int index = player.getInventory().getItems().IndexOf(slot);

@@ -57,7 +57,6 @@ public static class DefaultIds {
 		5001 - 5500 = Boots
 		5501 - 6000 = NPC
 		6001 - 6500 = quests
-		9999 - money/mesos
 		> 10000 = mobs
 	*/
 	public static int getNpcDefault(){
@@ -69,7 +68,7 @@ public enum e_Paths {
 	JSON_QUESTS,
 	JSON_SKILLTREE,
 	JSON_MONSTERS,
-    USE
+    ITEMS
 }
 
 public static class JsonManager {
@@ -97,9 +96,8 @@ public static class Tools
     public static readonly int ITEM_INTERVAL = 500;
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
-        RectTransform[] transforms = parent.GetComponentsInChildren<RectTransform>(true);
-		foreach(RectTransform t in transforms){
-            Debug.Log("names!!!!: " + t.name);
+		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
+		foreach(Transform t in transforms){
 			if(t.name.Equals(name)){
 				return t.gameObject;
 			}

@@ -35,7 +35,7 @@ public class Item {
     public void setItemVariables(ItemVariables dataDisplay) {
         this.dataDisplay = dataDisplay;
     }
-    public Item(int keyID, int position, int inventoryType,int quantity, params int[] stats)
+    public Item(int keyID, int position, int inventoryType, int quantity, params int[] stats)
     {
         this.id = stats[0];
         this.stats = stats;
@@ -93,7 +93,11 @@ public class Item {
         return stats[Tools.ITEM_PROPERTY_SIZE - 2];
     }
 	public int getID(){
+<<<<<<< HEAD
 		return this.id;
+=======
+		return id;
+>>>>>>> a72f5e004a5ce21ede80c762cb4dce70bc2d4bb1
 	}
     public int getKeyID()
     {
