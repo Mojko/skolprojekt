@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 public class FloatingEffect : NetworkBehaviour {
 
 	float v = 0;
-	float rotSpeed = 40f;
+	public float rotSpeed = 40f;
 	public float amp = 1f;
 	public float period = 10;
 	public float periodSpeed = 0.1f;

@@ -39,7 +39,7 @@ public class inventoryInformation : UI {
         data.setDescription(info.getString("description"));
         if (Tools.isItemEquip(itemID))
         {
-            data.setString("Stats \n Watt: " + item.getDamage() + " \n Matt: " + item.getMagicAttack() + " \n Luk: " + item.getLuk() + "";);
+            data.setString("Stats \n Watt: " + item.getDamage() + " \n Matt: " + item.getMagicAttack() + " \n Luk: " + item.getLuk() + "");
         }
         else
         {
