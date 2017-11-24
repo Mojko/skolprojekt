@@ -322,6 +322,7 @@ public class QuestManager {
 		if(qJson != null){
 			quest.start(qJson);
 			server.addOrUpdateQuestStatusToDatabase(quest, playerServer, true);
+			playerServer.questList.Add(quest);
 		}
 	}
 	public void startQuest(Quest quest){

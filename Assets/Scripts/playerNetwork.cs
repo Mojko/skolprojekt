@@ -47,7 +47,6 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
-		con.RegisterHandler(PacketTypes.STANDBY_PICKUP, onStandbyPickup);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -343,12 +342,13 @@ public class playerNetwork : NetworkBehaviour{
 
     //# PLAYER
 
-	void sendPlayer(string name, string characterName){
-		PlayerInfo msg = new PlayerInfo();
-		msg.name = name;
-        msg.characterName = characterName;
-        msg.id = this.gameObject.GetComponent<NetworkIdentity>().netId;
-        Debug.Log("players name: " + msg.name);
+    void sendPlayer(string name, string characterName) {
+        PlayerInfo msg = new PlayerInfo {
+            name = name,
+            characterName = characterName,
+            id = this.gameObject.GetComponent<NetworkIdentity>().netId
+        };
+        Debug.Log("players name: " + PacketTypes.LOAD_PLAYER + " : " + con);
 		con.Send(PacketTypes.LOAD_PLAYER, msg);
 	}
     private void OnDisconnect()

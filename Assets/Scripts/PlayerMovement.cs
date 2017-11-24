@@ -177,8 +177,6 @@ public class PlayerMovement : NetworkBehaviour {
         }
 		if(this.player.getSkillManager().isCasting()){
 			freeze();
-		} else {
-			unfreeze();
 		}
 	}
 

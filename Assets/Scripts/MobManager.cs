@@ -117,14 +117,17 @@ public class MobManager : NetworkBehaviour {
 		int itemId = monster.dropIds[randomIndex];
 		int itemQuantity = monster.dropQuantity[randomIndex];
 
-		Debug.Log("ITEM_ID: " + itemId + " | QUANITY: " + itemQuantity);
-
 		Item item = new Item(itemId);
 		item.setQuantity(itemQuantity);
+		Debug.Log("ITEM_ID: " + item.getID() + " | QUANITY: " + item.getQuantity());
 		drop.initilize(item, this.targetNetwork);
 
         o.transform.position = position;
         NetworkServer.Spawn(o);
+		DropInfo dropInfo = new DropInfo();
+		dropInfo.netId = o.GetComponent<NetworkIdentity>().netId;
+		dropInfo.item = Tools.objectToByteArray(drop.getItem());
+		NetworkServer.SendToClient(this.targetNetwork.connectionID, PacketTypes.DROP_INIT, dropInfo);
     }
 
 	void kill(){

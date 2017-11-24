@@ -64,6 +64,7 @@ public class SkillManager : NetworkBehaviour {
 			player.getNetwork().sendProjectile(this.skill.pathToSkillModel, player.transform.position, player.getPlayerMovement().rot.eulerAngles);
 			//CmdSendSkillServerToServer(this.skill.pathToSkillModel, pos, rot);
             stopCooldown();
+			player.getPlayerMovement().unfreeze();
         }
 	}
 

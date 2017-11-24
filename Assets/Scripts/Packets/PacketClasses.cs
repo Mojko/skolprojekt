@@ -8,6 +8,15 @@ public class DisconnectPacket : MessageBase{
     //public List<byte[]> questInBytes;
 }
 
+public class NetworkInstanceIdInfo : MessageBase {
+	public NetworkInstanceId netId;
+}
+
+public class DropInfo : MessageBase {
+	public NetworkInstanceId netId;
+	public byte[] item;
+}
+
 public class DamageInfo : MessageBase
 {
     public NetworkInstanceId clientNetworkInstanceId;
@@ -73,7 +82,7 @@ public class PlayerInfo : MessageBase
     public string characterName;
     public int[] skillProperties;
 	public byte[] questClasses;
-    public PlayerStats stats;
+    public byte[] stats;
 }
 
 public class LoginPacket : MessageBase
