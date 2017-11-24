@@ -43,6 +43,10 @@ public class NPCMain : NetworkBehaviour {
 	public Text dialogue;
 	public GameObject dialogueUI;
 
+    [Space(10)]
+    [Header("Leave these alone")]
+    public GameObject questMark;
+
 
 
 
@@ -52,6 +56,7 @@ public class NPCMain : NetworkBehaviour {
 		Sprite[] sprites = Resources.LoadAll<Sprite>("spritesheet_NpcIcons");
 		Debug.Log("defaultids: " + DefaultIds.getNpcDefault());
 		faceImage = sprites[(npcId/DefaultIds.getNpcDefault())-1];
+        this.questMark = transform.GetChild(0).gameObject;
 		if(faceImage == null)
 			faceImage = sprites[0];
     }
@@ -61,10 +66,11 @@ public class NPCMain : NetworkBehaviour {
 	}
 
 	private void dispose(){
-		isTalking = false; 
+        isTalking = false;
 		dialogueUI.SetActive(false);
 		this.player.getPlayerMovement().unfreeze();
 		this.player = null;
+        this.state = 0;
 	}
 
     private void Update()
@@ -75,9 +81,13 @@ public class NPCMain : NetworkBehaviour {
 				if(layout == e_DialogueLayouts.YESNO || layout == e_DialogueLayouts.OK) canTalk = false;
 
 				if(layout == e_DialogueLayouts.YESNO){ 
-					Quest q = new Quest(questIds[questsCompleted.Count], this.player.getCharacterName());
-					if(!this.player.hasCompletedQuest(q)){
+					Quest q = this.player.lookupQuest(questIds[questsCompleted.Count]);
+                    //Quest q = new Quest(questIds[questsCompleted.Count], this.player.getCharacterName());
+                    if(q == null) q = new Quest(questIds[questsCompleted.Count], this.player.getCharacterName());
+					if(this.player.canTakeQuest(q)){
+                        Debug.Log("status of quest: " + q.getStatus());
 						giveQuestToPlayer(q);
+                        this.questMark.SetActive(false);
 					}
 					dispose();
 					//No more quests to give out
@@ -150,7 +160,8 @@ public class NPCMain : NetworkBehaviour {
 
     private void OnCollisionStay(Collision collision)
     {
-		if(collision.gameObject.CompareTag("Player") && !isTalking && Input.GetMouseButton(0) && canTalk){
+        Debug.Log("Collliding, isTalking: " + isTalking + " | canTalk: " + canTalk);
+		if(collision.gameObject.CompareTag("Player") && canTalk && !isTalking && Input.GetMouseButton(0)){
             this.player = collision.gameObject.GetComponent<Player>();
             this.player.getPlayerMovement().freeze();
             isTalking = true;
@@ -166,4 +177,4 @@ public class NPCMain : NetworkBehaviour {
 		canTalk = true;
 	}
 }
- 
+  

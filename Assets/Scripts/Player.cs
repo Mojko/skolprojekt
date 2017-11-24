@@ -54,6 +54,10 @@ public class Player : NetworkBehaviour
     public Chat chat;
     public GameObject[] prefabsToRegister;
 
+    [Space(20)]
+    [Header("Leave these alone")]
+    public NPCMain npcMain;
+
     public override void OnStartLocalPlayer ()
 	{
         if(!isLocalPlayer) return;
@@ -129,15 +133,33 @@ public class Player : NetworkBehaviour
 
     }
 	public bool hasCompletedQuest(Quest quest){
-		if(hasQuest(quest)){
-			foreach(Quest q in quests.ToArray()){
-				if(q.getStatus() == e_QuestStatus.COMPLETED){
-					return true;
-				}
+		foreach(Quest q in quests.ToArray()){
+			if(q.getStatus() == e_QuestStatus.COMPLETED){
+				return true;
 			}
 		}
 		return false;
 	}
+    public bool hasStartedQuest(Quest quest)
+    {
+        if(quest.getStatus() == e_QuestStatus.STARTED) {
+            return true;
+        }
+        return false;
+    }
+    public bool canTakeQuest(Quest quest)
+    {
+        return (quest == null || quest.getStatus() == e_QuestStatus.NOT_STARTED);
+    }
+    public Quest lookupQuest(int questId)
+    {
+        foreach(Quest quest in this.quests) {
+            if(quest.getId() == questId) {
+                return quest;
+            }
+        }
+        return null;
+    }
 	public bool hasQuest(Quest quest){
 		foreach(Quest q in quests.ToArray()){
 			if(quest.getId().Equals(q.getId())){

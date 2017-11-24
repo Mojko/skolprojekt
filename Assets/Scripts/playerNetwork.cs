@@ -379,6 +379,18 @@ public class playerNetwork : NetworkBehaviour{
 		foreach(Quest quest in questArray){
 			startQuest(quest);
 		}
+        
+        GameObject[] objects = GameObject.FindGameObjectsWithTag("NPC");
+        foreach(GameObject o in objects) {
+            NPCMain main = o.GetComponent<NPCMain>();
+            main.questMark.SetActive(false);
+            int questCompletedCount = 0;
+            for(int i=0;i<main.questIds.Length;i++){
+                if (this.player.canTakeQuest(this.player.lookupQuest(main.questIds[i]))) {
+                    main.questMark.SetActive(true);
+                }
+            }
+        }
 
 		//Initilize skill tree
         List<Skill> skillsToVerifyFromServer = new List<Skill>();
