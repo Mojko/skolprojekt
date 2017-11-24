@@ -14,6 +14,7 @@ public class PlayerServer {
 
     public string playerName = "";
 	public int characterIdPlayingAs = -1;
+    public int money = 0;
 	public List<Quest> questList = new List<Quest>();
     //public Quest[] quests;
     int[] stats = new int[5];
@@ -71,8 +72,15 @@ public class PlayerServer {
             item.setQuantity(item.getQuantity() - 1);
         }
         return pot;
+    }
 
-
+    public void setMoney(int money)
+    {
+        this.money = money;
+    }
+    public int getMoney()
+    {
+        return this.money;
     }
 
     public void replaceItems(Item item1, Item item2) {
