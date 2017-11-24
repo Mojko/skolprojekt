@@ -28,7 +28,7 @@ public class PlayerServer {
         }
 
     }
-    public PlayerStats getPlayerInfo() {
+    public PlayerStats getPlayerStats() {
         return info;
     }
     public void setPlayerID(int id) {
