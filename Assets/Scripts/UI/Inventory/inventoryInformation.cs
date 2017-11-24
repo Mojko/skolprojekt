@@ -22,10 +22,10 @@ public class inventoryInformation : UI {
     }
     public void show(MouseOverUI mouse) {
         this.mouse = mouse;
-        name.text = item.getName();
         //this.transform.GetChild(1).gameObject.GetComponent<Text>().text =
         //"Stats \n Watt: " + item.getDamage() + " \n Matt: " + item.getMagicAttack() + " \n Luk: " + item.getLuk() + "";
         InventoryInformationString data = displayInfo();
+        name.text = data.getName();
         description.text = data.getDescription();
         statsText.text = data.getString();
         //this.gameObject.SetActive(true);
@@ -36,10 +36,11 @@ public class inventoryInformation : UI {
         int itemID = item.getID();
         ItemVariables info = ItemDataProvider.getInstance().getStats(item.getID());
         InventoryInformationString data = new InventoryInformationString();
+        data.setName(info.getString("name"));
         data.setDescription(info.getString("description"));
-        if (Tools.isItemEquip(itemID))
+        if (itemID.isItemType(e_itemTypes.EQUIP))
         {
-            data.setString("Stats \n Watt: " + item.getDamage() + " \n Matt: " + item.getMagicAttack() + " \n Luk: " + item.getLuk() + "";);
+            data.setString("Stats \n Watt: " + item.getDamage() + " \n Matt: " + item.getMagicAttack() + " \n Luk: " + item.getLuk() + "");
         }
         else
         {
@@ -56,8 +57,15 @@ public class inventoryInformation : UI {
 public class InventoryInformationString{
     private string str = "Stats \n";
     private string description = "";
+    private string name;
     public string getDescription() {
         return description;
+    }
+    public string getName() {
+        return this.name;
+    }
+    public void setName(string name) {
+        this.name = name;
     }
     public void setDescription(string description) {
         this.description = description;
