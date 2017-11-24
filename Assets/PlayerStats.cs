@@ -10,9 +10,9 @@ public class PlayerStats {
     public int maxHealth = 100;
     public int maxMana = 100;
 
-    public int hairColor;
-    public int skinColor;
-    public int eyeColor;
+    public string hairColor;
+    public string skinColor;
+    public string eyeColor;
 
     public int s_luk;
     public int s_str;

@@ -66,8 +66,8 @@ public class PlayerServer {
         if (item.getID().isItemType(e_itemTypes.USE))
         {
             //ökar hpet på spelare och manan.
-            this.getPlayerInfo().health = Mathf.Min(this.getPlayerInfo().health + pot.getInt("health"), getPlayerInfo().maxHealth);
-            this.getPlayerInfo().mana = Mathf.Min(this.getPlayerInfo().mana + pot.getInt("mana"), getPlayerInfo().maxMana);
+            this.getPlayerStats().health = Mathf.Min(this.getPlayerStats().health + pot.getInt("health"), getPlayerStats().maxHealth);
+            this.getPlayerStats().mana = Mathf.Min(this.getPlayerStats().mana + pot.getInt("mana"), getPlayerStats().maxMana);
             //gör så att mängden minskar med 1.
             item.setQuantity(item.getQuantity() - 1);
         }

@@ -484,27 +484,25 @@ public class Server : NetworkManager
         mysqlReader(out conn, out reader, "SELECT * FROM characters WHERE characterName = '" + player.playerName + "'");
 
         while (reader.Read()) {
-            player.getPlayerInfo().health = reader.GetInt16("health");
-            player.getPlayerInfo().maxHealth = reader.GetInt16("maxHealth");
-            player.getPlayerInfo().maxMana = reader.GetInt16("maxMana");
-            player.getPlayerInfo().mana = reader.GetInt16("mana");
-            player.getPlayerInfo().level = reader.GetInt16("level");
-            player.getPlayerInfo().maxHealth = reader.GetInt16("maxHealth");
-            player.getPlayerInfo().maxHealth = reader.GetInt16("maxHealth");
+            player.getPlayerStats().health = reader.GetInt16("health");
+            player.getPlayerStats().maxHealth = reader.GetInt16("maxHealth");
+            player.getPlayerStats().mana = reader.GetInt16("mana");
+            player.getPlayerStats().maxMana = reader.GetInt16("maxMana");
+            player.getPlayerStats().level = reader.GetInt16("level");
 
-            player.getPlayerInfo().s_luk = reader.GetInt16("luk");
-            player.getPlayerInfo().s_int = reader.GetInt16("int");
-            player.getPlayerInfo().s_str = reader.GetInt16("str");
-            player.getPlayerInfo().s_dex = reader.GetInt16("dex");
+            player.getPlayerStats().s_luk = reader.GetInt16("luk");
+            player.getPlayerStats().s_int = reader.GetInt16("int");
+            player.getPlayerStats().s_str = reader.GetInt16("str");
+            player.getPlayerStats().s_dex = reader.GetInt16("dex");
 
-            player.getPlayerInfo().hairColor = reader.GetInt16("hairColor");
-            player.getPlayerInfo().eyeColor = reader.GetInt16("eyeColor");
-            player.getPlayerInfo().skinColor = reader.GetInt16("skinColor");
+            player.getPlayerStats().hairColor = reader.GetString("hairColor");
+            player.getPlayerStats().eyeColor = reader.GetString("eyeColor");
+            player.getPlayerStats().skinColor = reader.GetString("skinColor");
         }
     }
     void onLoadCharacter(NetworkMessage msg)
     {
-        Debug.Log("message ID_2: " + msg.conn.connectionId);
+
         PlayerInfo packet = msg.ReadMessage<PlayerInfo>();
         int id = getCharacterID(packet.characterName);
         //PlayerServer player = getPlayerObject(msg.conn.connectionId);
@@ -519,8 +517,7 @@ public class Server : NetworkManager
         playerReal.playerName = packet.characterName;
         loadCharacterInfoFromDatabase(playerReal);
         playerObjects.Add(msg.conn.connectionId, playerReal);
-        Debug.Log("loaded character!");
-        packet.stats = Tools.objectToByteArray(player.getPlayerInfo());
+        packet.stats = Tools.objectToByteArray(player.getPlayerStats());
         MySqlConnection conn;
         MySqlDataReader reader;
 		mysqlReader(out conn, out reader, "SELECT money FROM characters WHERE id = '" + id + "'");

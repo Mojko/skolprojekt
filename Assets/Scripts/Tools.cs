@@ -195,6 +195,9 @@ public static class Tools
         }
         return children;
     }
+    public static bool isItemEquip(int itemID) {
+        return (itemID.isItemType(e_itemTypes.HATS) || itemID.isItemType(e_itemTypes.PANTS) || itemID.isItemType(e_itemTypes.BODY) || itemID.isItemType(e_itemTypes.BOOTS) || itemID.isItemType(e_itemTypes.WEAPON) || itemID.isItemType(e_itemTypes.GLOVE) || itemID.isItemType(e_itemTypes.FACE) || itemID.isItemType(e_itemTypes.ACCESSORY));
+    }
     public static GameObject[] transformsToObject(this Transform[] transforms) {
         GameObject[] children = new GameObject[transforms.Length];
         for (int i = 0; i < children.Length; i++)

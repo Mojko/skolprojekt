@@ -312,7 +312,6 @@ public class QuestManager {
 	public QuestManager(Server server){
 		this.server = server;
 		root = JsonManager.readJson<QuestJson>(e_Paths.JSON_QUESTS);
-		root = JsonUtility.FromJson<QuestJson> (File.ReadAllText("Assets/XML/Quests.json"));
 
 	}
 

@@ -118,23 +118,19 @@ public class ItemData{
         return variables;
     }
     private ItemDataAll itemDataConverter(int itemID, string file) {
-        Debug.Log(itemID);
+
         if (itemID.isItemType(e_itemTypes.USE)) {
             ItemDataPots data = JsonUtility.FromJson<ItemDataPots>(file);
             data.parentItems = data.items;
             data = (ItemDataPots)getItemFromParent(data,itemID);
             return data;
         }
-        if (itemID.isItemType(e_itemTypes.HATS) || 
-            itemID.isItemType(e_itemTypes.PANTS) || 
-            itemID.isItemType(e_itemTypes.BODY) || 
-            itemID.isItemType(e_itemTypes.BOOTS) || 
-            itemID.isItemType(e_itemTypes.WEAPON) || 
-            itemID.isItemType(e_itemTypes.GLOVE) || 
-            itemID.isItemType(e_itemTypes.FACE) || 
-            itemID.isItemType(e_itemTypes.ACCESSORY))
+        if (Tools.isItemEquip(itemID))
         {
-            return JsonUtility.FromJson<ItemDataEquips>(file);
+            ItemDataEquips data = JsonUtility.FromJson<ItemDataEquips>(file);
+            data.parentItems = data.items;
+            data = (ItemDataEquips)getItemFromParent(data, itemID);
+            return data;
         }
         return null;
     }
@@ -255,6 +251,7 @@ public class ItemDataPots : ItemDataAll
 [Serializable]
 public class ItemDataEquips : ItemDataAll
 {
+    public ItemDataEquips[] items;
     public int id;
     public string name;
     public int health;

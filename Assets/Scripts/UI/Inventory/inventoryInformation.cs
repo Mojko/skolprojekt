@@ -37,10 +37,12 @@ public class inventoryInformation : UI {
         ItemVariables info = ItemDataProvider.getInstance().getStats(item.getID());
         InventoryInformationString data = new InventoryInformationString();
         data.setDescription(info.getString("description"));
-        if (itemID.isItemType(e_itemTypes.HATS) || itemID.isItemType(e_itemTypes.PANTS) || itemID.isItemType(e_itemTypes.BODY) || itemID.isItemType(e_itemTypes.BOOTS) || itemID.isItemType(e_itemTypes.WEAPON) || itemID.isItemType(e_itemTypes.GLOVE) || itemID.isItemType(e_itemTypes.FACE) || itemID.isItemType(e_itemTypes.ACCESSORY))
+        if (Tools.isItemEquip(itemID))
         {
+            data.setString("Stats \n Watt: " + item.getDamage() + " \n Matt: " + item.getMagicAttack() + " \n Luk: " + item.getLuk() + "";);
         }
-        else {
+        else
+        {
             data.addInformation(info);
         }
         return data;
@@ -59,6 +61,9 @@ public class InventoryInformationString{
     }
     public void setDescription(string description) {
         this.description = description;
+    }
+    public void setString(string str) {
+        this.str = str;
     }
     public void addInformation(ItemVariables data) {
         str = "";
