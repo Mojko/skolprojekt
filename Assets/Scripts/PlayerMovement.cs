@@ -16,11 +16,14 @@ enum e_PlayerStates {
 
 public class PlayerMovement : NetworkBehaviour {
 
+	[Header("Particles")]
+	public GameObject hitParticlePrefab;
+	public GameObject impactOnGroundParticlePrefab;
+	public GameObject slashParticlePrefab;
+
 	public float acceleration = 0.2f;
 	public float deacceleration = 0.2f;
 
-	public GameObject hitParticlePrefab;
-	public GameObject impactOnGroundParticlePrefab;
     public GameObject o;
 
     Player player;
@@ -110,10 +113,11 @@ public class PlayerMovement : NetworkBehaviour {
 			freezeMovementAndJumpingButNotFalling();
 
 			if(stateInfo0.IsName("Slash") && isTouchingFloor){
-				if (stateInfo0.normalizedTime > 0f) {
-					damageInRange (this.attackRange);
+				if (stateInfo0.normalizedTime > 0.6f) {
+					//Instantiate(slashParticlePrefab).transform.position = new Vector3(this.transform.position.x-0.5f, this.transform.position.y + 1f, this.transform.position.z+0.2f);
 				}
 				if(stateInfo0.normalizedTime > 1f ){
+					damageInRange (this.attackRange);
 					animator.SetBool("slash", false);
 					unfreeze();
 					state = (int)e_PlayerStates.IDLE;

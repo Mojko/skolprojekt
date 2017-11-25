@@ -41,7 +41,7 @@ public class SkillTree : UIHandler {
 
 		GameObject UI = GameObject.Find("UI");
 
-		transform.SetParent(UI.transform.Find("SkillTree_UI"));
+		transform.SetParent(UI.transform.Find("SkillTree_UI").Find("Panel").Find("SkillTreeContainer"));
         UI.GetComponent<UIReferences>().skillTreeReference = this.gameObject;
 
 		Skill skills = JsonManager.readJson<Skill>(e_Paths.JSON_SKILLTREE);

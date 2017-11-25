@@ -19,12 +19,17 @@ enum e_States {
 
 
 public class AI : MobManager {
-
 	e_States state = e_States.IDLE;
 	int range = 4;		
 	
 	//Oldpos behövs för att veta vart enemyn spawnade, så den kan patrullera runt där
+	[Header("AI")]
+	[Header("Leave alone")]
 	public Vector3 oldPos;
+
+	[Space(10)]
+	[Header("Fill in")]
+	public GameObject biteEffectPrefab;
 
 	private float speed;
 	private float angularSpeed;
@@ -36,6 +41,7 @@ public class AI : MobManager {
     private bool hasDamaged;
 	private NavMeshAgent agent;
 	private bool shouldRotate;
+	private bool hasActivatedEffect = false;
 
 
 	void Start () {
@@ -160,13 +166,20 @@ public class AI : MobManager {
                 RaycastHit rayHit;
                 if(canAttack(out rayHit)) {
 				    if(rayHit.transform.CompareTag("Player")){
-                       this.target.GetComponent<Player>().damage(5, this.gameObject); 
+                       	this.target.GetComponent<Player>().damage(5, this.gameObject);
 				    }
                 }
 
 			}
+
+			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.7f && !hasActivatedEffect){
+				Instantiate(biteEffectPrefab).transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z) + (transform.forward*1.2f);
+				hasActivatedEffect = true;
+			}
+
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f){
 				RaycastHit rayHit;
+				hasActivatedEffect = false;
                 if(canAttack(out rayHit)){
 					animator.Play("Bite", 0, 0);
 				} else {

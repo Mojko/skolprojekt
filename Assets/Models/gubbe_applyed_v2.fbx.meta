@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 3555c6171bd555a4fb6ae1db1fdbaa4f
-timeCreated: 1511458508
+guid: a238c6b8ebc5bdc47946bf0bdcb68cb1
+timeCreated: 1511559794
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
@@ -10,65 +10,75 @@ ModelImporter:
     100004: Armature
     100006: Body
     100008: Body_end
-    100010: Cube.002
-    100012: Cube.003
-    100014: Eye_L
-    100016: Eye_L_end
-    100018: Eye_R
-    100020: Eye_R_end
-    100022: Foot_L
-    100024: Foot_L_end
-    100026: Foot_R
-    100028: Foot_R_end
-    100030: //RootNode
-    100032: Hand_L
-    100034: Hand_L_end
-    100036: Hand_R
-    100038: Hand_R_end
-    100040: Head
-    100042: Leg_L
-    100044: Leg_R
-    100046: Shoulder_L
-    100048: Shoulder_R
-    100050: Sphere.004
-    100052: Sphere.005
-    100054: UpperLeg_L
-    100056: UpperLeg_R
+    100010: Camera
+    100012: Cube.002
+    100014: Cube.003
+    100016: Cube.004
+    100018: Eye_L
+    100020: Eye_L_end
+    100022: Eye_R
+    100024: Eye_R_end
+    100026: Foot_L
+    100028: Foot_L_end
+    100030: Foot_R
+    100032: Foot_R_end
+    100034: //RootNode
+    100036: Hand_L
+    100038: Hand_L_end
+    100040: Hand_R
+    100042: Hand_R_end
+    100044: Head
+    100046: Leg_L
+    100048: Leg_R
+    100050: Shoulder_L
+    100052: Shoulder_R
+    100054: Sphere.004
+    100056: Sphere.005
+    100058: UpperLeg_L
+    100060: UpperLeg_R
     400000: Arm_L
     400002: Arm_R
     400004: Armature
     400006: Body
     400008: Body_end
-    400010: Cube.002
-    400012: Cube.003
-    400014: Eye_L
-    400016: Eye_L_end
-    400018: Eye_R
-    400020: Eye_R_end
-    400022: Foot_L
-    400024: Foot_L_end
-    400026: Foot_R
-    400028: Foot_R_end
-    400030: //RootNode
-    400032: Hand_L
-    400034: Hand_L_end
-    400036: Hand_R
-    400038: Hand_R_end
-    400040: Head
-    400042: Leg_L
-    400044: Leg_R
-    400046: Shoulder_L
-    400048: Shoulder_R
-    400050: Sphere.004
-    400052: Sphere.005
-    400054: UpperLeg_L
-    400056: UpperLeg_R
+    400010: Camera
+    400012: Cube.002
+    400014: Cube.003
+    400016: Cube.004
+    400018: Eye_L
+    400020: Eye_L_end
+    400022: Eye_R
+    400024: Eye_R_end
+    400026: Foot_L
+    400028: Foot_L_end
+    400030: Foot_R
+    400032: Foot_R_end
+    400034: //RootNode
+    400036: Hand_L
+    400038: Hand_L_end
+    400040: Hand_R
+    400042: Hand_R_end
+    400044: Head
+    400046: Leg_L
+    400048: Leg_R
+    400050: Shoulder_L
+    400052: Shoulder_R
+    400054: Sphere.004
+    400056: Sphere.005
+    400058: UpperLeg_L
+    400060: UpperLeg_R
+    2000000: Camera
+    2300000: Cube.004
+    3300000: Cube.004
     4300000: Cube.003
     4300002: Cube.002
     4300004: Sphere.005
     4300006: Sphere.004
-    7400000: New Idle
-    7400002: New Walk
+    4300008: Cube.004
+    7400000: Armature|Idle
+    7400002: Armature|Slash
+    7400004: Armature|Slash_2
+    7400006: Armature|Walk
     9500000: //RootNode
     13700000: Cube.002
     13700002: Cube.003
@@ -80,6 +90,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Body
     second: {fileID: 2100000, guid: 1194717ce489bc54ba92be3070de7c77, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Body.002
+    second: {fileID: 2100000, guid: f52f86e45741558409b654b980dd9436, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -115,63 +130,7 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations:
-    - serializedVersion: 16
-      name: New Idle
-      takeName: Armature|Idle
-      firstFrame: 0
-      lastFrame: 18
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
-    - serializedVersion: 16
-      name: New Walk
-      takeName: Armature|Walk
-      firstFrame: 0
-      lastFrame: 14
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 1
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
+    clipAnimations: []
     isReadable: 1
   meshes:
     lODScreenPercentages: []

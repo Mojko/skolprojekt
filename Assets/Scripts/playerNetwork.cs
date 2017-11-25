@@ -401,7 +401,6 @@ public class playerNetwork : NetworkBehaviour{
             tempSkill.maxPoints = m.skillProperties[i]; //maxPoints
             this.player.skillsToVerifyWithFromServer.Add(tempSkill);
         }
-        Debug.Log("SKILLTREE INITILIZED");
         skillTree = Instantiate (skillTreePrefab).GetComponent<SkillTree> ();
 		skillTree.initilize (player);
     }
