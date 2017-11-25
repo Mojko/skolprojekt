@@ -38,47 +38,17 @@ public class Mouse {
 		holdingID = pos;
     }
 }
-
-public enum ItemIDs {
-	SWORD = 9000,
-	BOW = 9100,
-	STAFF = 9200,
-	WAND = 9300
-}
 public static class stringTools {
-    public static string[] Items = new string[]{
-        "Stick",
-        "Fyring pan",
-        "Wand"
-    };
     public static UnityEngine.Object[][] spriteObjects = new UnityEngine.Object[][] {
         Resources.LoadAll("use"),
-        new UnityEngine.Object[0],
-        new UnityEngine.Object[0],
-        new UnityEngine.Object[0],
-        new UnityEngine.Object[0],
-        Resources.LoadAll("weapons"),
-        new UnityEngine.Object[0],
         Resources.LoadAll("weapons"),
         Resources.LoadAll("weapons"),
-    };
-}
-[System.Serializable]
-public class jsonRead{
-    public string[] Items = new string[]{
-        "Stick",
-        "Fyring pan",
-        "Wand"
-    };
-}
-[System.Serializable]
-public class ItemString{
-    public static Dictionary<int, string> itemNames = new Dictionary<int, string> {
-        { 0, "Mana" },
-        { 1, "Hp" },
-        { 2501, "Stick" },
-        { 2500, "Pan" },
-        { 4001, "White Work Gloves" },
+        Resources.LoadAll("weapons"),
+        Resources.LoadAll("weapons"),
+        Resources.LoadAll("weapons"),
+        Resources.LoadAll("weapons"),
+        Resources.LoadAll("weapons"),
+        Resources.LoadAll("weapons"),
     };
 }
 public class Inventory : MonoBehaviour
@@ -245,6 +215,7 @@ public class Inventory : MonoBehaviour
 
         for (int i = 0; i < itemsOwned.Count; i++)
         {
+            Debug.Log("error i: " + i);
             if (itemsOwned[i].isMouseOver() && !information.gameObject.activeSelf)
             {
                 information.setItem(itemsOwned[i].getItem());

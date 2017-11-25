@@ -22,11 +22,7 @@ public class ItemDataProvider {
     }
     //hämr stats för ett specifikt item
     public ItemVariables getStats(int itemID) {
-        if (itemID.isItemType(e_itemTypes.USE))
-        {
-            return items.getItemStats(itemID);
-        }
-        return null;
+        return items.getItemStats(itemID);
     }
 }
 
@@ -71,10 +67,11 @@ public class ItemDirectory {
     //kollar om det finns någon fils namn innehåller itemID.
     public FileInfo getFileContainingString(int itemID) {
         //gör så att itemID avrundar till 500 tal.
-        int normID = (int)Mathf.Ceil((itemID + 1) / 500f) * 500;
+        int normID = (int)Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL;
+        Debug.Log("finding: _" + normID);
         foreach (FileInfo file in files)
         {
-            if (file.Name.Contains(normID + ""))
+            if (file.Name.Contains("_" + normID + ""))
             {
                 return file;
             }
@@ -100,6 +97,7 @@ public class ItemData{
         this.directory = directory;
     }
     public ItemVariables getItemStats(int itemID) {
+        Debug.Log("GETTINGS STATAS!!!!!!!!!!!");
         if (itemValues.ContainsKey(itemID)) {
             return itemValues[itemID];
         }
@@ -118,14 +116,14 @@ public class ItemData{
         return variables;
     }
     private ItemDataAll itemDataConverter(int itemID, string file) {
-
+        Debug.Log("is item equip? " + itemID.isItemType(e_itemTypes.EQUIP));
         if (itemID.isItemType(e_itemTypes.USE)) {
             ItemDataPots data = JsonUtility.FromJson<ItemDataPots>(file);
             data.parentItems = data.items;
             data = (ItemDataPots)getItemFromParent(data,itemID);
             return data;
         }
-        if (Tools.isItemEquip(itemID))
+        if (itemID.isItemType(e_itemTypes.EQUIP))
         {
             ItemDataEquips data = JsonUtility.FromJson<ItemDataEquips>(file);
             data.parentItems = data.items;
@@ -254,11 +252,11 @@ public class ItemDataEquips : ItemDataAll
     public ItemDataEquips[] items;
     public int id;
     public string name;
-    public int health;
-    public int mana;
+    public int damage;
+    public int price;
     public int imageIndex;
     public string description;
-    public string[] show;
+    public string pathToModel;
 }
 
 [Serializable]

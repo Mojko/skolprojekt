@@ -870,12 +870,12 @@ public class Server : NetworkManager
             {
                 names.Add(reader.GetString("characterName"));
 
-                stats.Add(reader.GetInt16("luk"));
-                stats.Add(reader.GetInt16("str"));
-                stats.Add(reader.GetInt16("int"));
-                stats.Add(reader.GetInt16("dex"));
-                stats.Add(reader.GetInt16("hp"));
-                stats.Add(reader.GetInt16("level"));
+                stats.Add(-1);
+                stats.Add(-1);
+                stats.Add(-1);
+                stats.Add(-1);
+                stats.Add(-1);
+                stats.Add(-1);
 
                 color.Add(reader.GetString("hairColor"));
                 color.Add(reader.GetString("eyeColor"));

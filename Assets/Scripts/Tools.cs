@@ -178,6 +178,35 @@ public static class Tools
         }
         return null;
     }
+    public static GameObject[] getChildren(GameObject parent, params string[] children) {
+        GameObject[] returnObject = new GameObject[children.Length];
+        int foundChildren = 0;
+        for (int i = 0; i < parent.transform.childCount; i++)
+        {
+            if (foundChildren >= returnObject.Length)
+                return returnObject;
+            for (int j = 0; j < children.Length; j++)
+            {
+                if (parent.transform.GetChild(i).name.Equals(children[j]))
+                {
+                    returnObject[j] = parent.transform.GetChild(i).gameObject;
+                    foundChildren++;
+                    continue;
+                }
+                if (parent.transform.GetChild(i).childCount > 0)
+                {
+                    GameObject child = getChild(parent.transform.GetChild(i).gameObject, children[j]);
+                    if (child != null)
+                        if (child.name.Equals(children[j]))
+                        {
+                            returnObject[j] = child.gameObject;
+                            foundChildren++;
+                        }
+                }
+            }
+        }
+        return returnObject;
+    }
     public static Color hexColor(int hex)
     {
         int r = (hex >> 16) & 0xFF;
@@ -196,6 +225,7 @@ public static class Tools
         return children;
     }
     public static bool isItemEquip(int itemID) {
+        Debug.Log("id from tools: " + itemID);
         return (itemID.isItemType(e_itemTypes.HATS) || itemID.isItemType(e_itemTypes.PANTS) || itemID.isItemType(e_itemTypes.BODY) || itemID.isItemType(e_itemTypes.BOOTS) || itemID.isItemType(e_itemTypes.WEAPON) || itemID.isItemType(e_itemTypes.GLOVE) || itemID.isItemType(e_itemTypes.FACE) || itemID.isItemType(e_itemTypes.ACCESSORY));
     }
     public static GameObject[] transformsToObject(this Transform[] transforms) {
@@ -216,9 +246,10 @@ public static class Tools
         return Server.playerObjects[msg.conn.connectionId];
     }
     public static bool isItemType(this int itemID, e_itemTypes type) {
-        int ID = (int)(Mathf.Ceil((itemID + 1) / 500f) * 500;
-        if (isItemEquip(ID) && type == e_itemTypes.EQUIP) return true;
-        return ID == (int)type);
+        if (type == e_itemTypes.EQUIP) return isItemEquip(itemID);
+        int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
+        Debug.Log("item id: " + ID);
+        return ID == (int)type;
     }
     public static ItemDataAll getChild(this ItemDataAll data, int itemID) {
         return null;

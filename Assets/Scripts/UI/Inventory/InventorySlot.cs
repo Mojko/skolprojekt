@@ -12,6 +12,7 @@ public class InventorySlot : MonoBehaviour {
         mouse = GetComponent<MouseOverUI>();
     }
     public bool isMouseOver(){
+        Debug.Log("mouse over ui: " + mouse);
 		return mouse.isMouseOver();
 	}
     public MouseOverUI getMouse() {
@@ -25,20 +26,13 @@ public class InventorySlot : MonoBehaviour {
 	}*/
 	public void setItem(int position, Item item){
         this.item = item;
-        this.item.stats[8] = position;
+        this.item.setPosition(position);
         quantityText.text = item.getQuantity() + "";
 
     }
 
     public void setImage(Item item) {
-        //om itemet är tomt så ska det vara en tom bild. annars ska en hämta en bild beroende på vilket item det är.
-        if (this.item.stats[0] == -1)
-        {
-            this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = null;
-        }
-        else {
-            this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = (Sprite)stringTools.spriteObjects[item.getID() / 500][item.getID() % 500 + 1];
-        }
+       this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = (Sprite)stringTools.spriteObjects[item.getID() / 500][item.getID() % 500 + 1];
     }
 
 	public void setID(int ID){

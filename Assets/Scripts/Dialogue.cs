@@ -73,7 +73,7 @@ public class Dialogue {
         string newValue = "<color=\"#6CB95DFF\">";
         if (hasEnded) {
             int p = int.Parse(value);
-            newValue = stringTools.Items[(p-1000)] + "</color>";
+            newValue = ItemDataProvider.getInstance().getStats(p).getString("name") + "</color>";
         }
         tagValue += newValue;
 	}
@@ -86,7 +86,7 @@ public class Dialogue {
         {
             int p = int.Parse(value);
             //hämtar item namnet beroende på vilket id det är mellan tagsen.
-            newValue = stringTools.Items[(p - 1000)] + "'s</color>";
+            newValue = ItemDataProvider.getInstance().getStats(p).getString("name") + "'s</color>";
         }
         tagValue += newValue;
     }

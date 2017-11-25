@@ -136,7 +136,7 @@ public class Item {
 
     }
     public string getName() {
-        return ItemString.itemNames[stats[0]];
+        return ItemDataProvider.getInstance().getStats(id).getString("name");
     }
     public Equip toEquip() {
         if (inventoryType == (int)inventoryTabs.EQUIP)

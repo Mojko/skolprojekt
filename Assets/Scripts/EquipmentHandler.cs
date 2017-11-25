@@ -8,7 +8,11 @@ public class EquipmentHandler : UIHandler {
     GameObject[] slots;
     MouseOverUI[] slotsMouse;
     Player player;
+    GameObject[] playerEquipSlots;
     bool hasLoaded = false;
+    public void setPlayerSlots(Player player) {
+        playerEquipSlots = Tools.getChildren(player.gameObject, "hatStand","armorStand");
+    }
     new void Update() {
         base.Update();
         if (!hasLoaded) return;
@@ -42,7 +46,12 @@ public class EquipmentHandler : UIHandler {
             item.setPosition(equip.getPosition());
             player.getInventory().addItem(item);
         }
+
         equips[index] = equip;
+        GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(equip.getID()).getString("pathToModel")));
+        itemEquip.transform.SetParent(playerEquipSlots[index].transform);
+        itemEquip.transform.localScale = Vector3.one;
+        itemEquip.transform.localPosition = Vector3.zero;
         player.getNetwork().equipItem(equip);
         updateSlots();
     }
