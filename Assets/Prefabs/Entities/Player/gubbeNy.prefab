@@ -900,7 +900,7 @@ Animator:
   m_GameObject: {fileID: 1784219483156812}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 3555c6171bd555a4fb6ae1db1fdbaa4f, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5ffc2daa1ccd59940bef71bdf488e44f, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -919,12 +919,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad84a094ea4ffc74a8003ac1d6a56f5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceleration: 0.2
-  deacceleration: 0.2
   hitParticlePrefab: {fileID: 1934967177221562, guid: 03a064f3f222097478215cd0f33195e9,
     type: 2}
   impactOnGroundParticlePrefab: {fileID: 1830622779039518, guid: 33db9a5d66fe92c44acd005547adc7cb,
     type: 2}
+  slashParticlePrefab: {fileID: 1582871936815380, guid: 255671cbd39ac0e4d97a0ced9504dbd2,
+    type: 2}
+  acceleration: 0.2
+  deacceleration: 0.2
   o: {fileID: 1331270954419286, guid: c4afe6647308b2847befd10f851a42d2, type: 2}
   animator: {fileID: 0}
   rot: {x: 0, y: 0, z: 0, w: 0}
@@ -1018,6 +1020,7 @@ MonoBehaviour:
   - {fileID: 1830622779039518, guid: 33db9a5d66fe92c44acd005547adc7cb, type: 2}
   - {fileID: 1042986856325850, guid: c7116ceb0cd83b4469d2e7fe355a8e63, type: 2}
   - {fileID: 1909951923887278, guid: ed4b4b59595e5684780483c6c30c1f67, type: 2}
+  npcMain: {fileID: 0}
 --- !u!114 &114676889078383612
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1063,6 +1066,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1078,6 +1082,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1123,6 +1128,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1138,6 +1144,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1183,6 +1190,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1198,6 +1206,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1243,6 +1252,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1258,6 +1268,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5

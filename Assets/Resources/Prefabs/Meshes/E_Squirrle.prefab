@@ -582,14 +582,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 275b3debf68e42c4aba3ff8890a80132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mobHolder: {fileID: 0}
   newPos: {x: 0, y: 0, z: 0}
   respawner: {fileID: 0}
   spawner: {fileID: 0}
+  target: {fileID: 0}
+  server: {fileID: 0}
+  targetId: -1
+  rootPos: {x: 0, y: 0, z: 0}
   drop: {fileID: 1056696382670234, guid: 521fda76af7efa34b94646152eaabda3, type: 2}
   part: {fileID: 1934967177221562, guid: 03a064f3f222097478215cd0f33195e9, type: 2}
-  target: {fileID: 0}
-  rootPos: {x: 0, y: 0, z: 0}
   oldPos: {x: 0, y: 0, z: 0}
+  biteEffectPrefab: {fileID: 1644658502274168, guid: 66de6702c4734c7419d218fbab74c6f1,
+    type: 2}
 --- !u!114 &114314382177117744
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -652,6 +657,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -667,6 +673,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -703,6 +710,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -718,6 +726,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -754,6 +763,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -769,6 +779,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -805,6 +816,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -820,6 +832,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5

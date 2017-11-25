@@ -104,6 +104,13 @@ public static class Tools
 		}
 		return null;
 	}
+	public static Texture2D spriteToTexture(Sprite sprite){
+		Texture2D generatedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+		Color[] pixels = sprite.texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, (int)sprite.rect.width, (int)sprite.rect.height);
+		generatedTexture.SetPixels(pixels);
+		generatedTexture.Apply();
+		return generatedTexture;
+	}
     public static GameObject loadObjectFromResources(e_Objects obj)
     {
         return (GameObject)Resources.Load(ResourceStructure.getPathForObject(obj));
@@ -216,9 +223,9 @@ public static class Tools
         return Server.playerObjects[msg.conn.connectionId];
     }
     public static bool isItemType(this int itemID, e_itemTypes type) {
-        int ID = (int)(Mathf.Ceil((itemID + 1) / 500f) * 500;
+		int ID = (int)(Mathf.Ceil((itemID + 1) / 500f) * 500);
         if (isItemEquip(ID) && type == e_itemTypes.EQUIP) return true;
-        return ID == (int)type);
+        return (ID == (int)type);
     }
     public static ItemDataAll getChild(this ItemDataAll data, int itemID) {
         return null;

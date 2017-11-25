@@ -10,26 +10,26 @@ public class MobManager : NetworkBehaviour {
 	
 	[SyncVar] int health = 3;
 	[SyncVar] int mana;
+	private PlayerServer targetNetwork;
+	private float flashTimer = 1;
+	private int id;
 
+	[Header("MobManager")]
+	[Header("Leave these alone")]
     public MobHolder mobHolder;
-
 	public Vector3 newPos;
 	public Respawner respawner;
     public Spawner spawner;
-	
-	public GameObject drop;
-	public GameObject part;
-    public GameObject target;
-    private PlayerServer targetNetwork;
-    public int targetId = -1;
-
+	public GameObject target;
 	public Server server;
+	public int targetId = -1;
+	public Vector3 rootPos;
 
+	[Header("Fill these in")]
+	[Space(10)]
+	[Tooltip("Prefab name: Drop")] public GameObject drop;
+	[Tooltip("Prefab name: Part")] public GameObject part;
 
-    float flashTimer = 1;
-
-    public Vector3 rootPos;
-    private int id;
 
     public void setId(int id)
     {
