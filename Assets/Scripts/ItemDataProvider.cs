@@ -57,15 +57,15 @@ public class ItemDirectory {
     {
         directoryInfo = new DirectoryInfo(path);
         DirectoryInfo[] dirs = directoryInfo.GetDirectories();
-        for (int i = 0; i < dirs.Length; i++)
-        {
-            subDirectories.Add(new ItemDirectory(dirs[i]));
-        }
         FileInfo[] files = directoryInfo.GetFiles("*.json");
         for (int i = 0; i < files.Length; i++)
         {
             this.files.Add(files[i]);
         }
+		for (int i = 0; i < dirs.Length; i++)
+		{
+			//subDirectories.Add(new ItemDirectory(dirs[i]));
+		}
         this.path = path;
     }
     //kollar om det finns någon fils namn innehåller itemID.

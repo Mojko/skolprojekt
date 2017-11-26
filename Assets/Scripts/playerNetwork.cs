@@ -124,6 +124,7 @@ public class playerNetwork : NetworkBehaviour{
         //damageInfo.enemyUniqueId = enemy.GetComponent<MobManager>().getUniqueId();
         damageInfo.damage = damage;
         damageInfo.damageType = e_DamageType.MOB;
+		Debug.Log("damaging enemy...");
         con.Send(PacketTypes.DEAL_DAMAGE, damageInfo);
     }
 
@@ -134,6 +135,7 @@ public class playerNetwork : NetworkBehaviour{
 
 	public void onQuestStart(NetworkMessage netMsg){
 		startQuest((Quest)Tools.byteArrayToObject(netMsg.ReadMessage<QuestInfo>().questClassInBytes));
+		Debug.Log("Quest recieved from server");
 	}
 
 	public void startQuest(Quest quest){
@@ -236,14 +238,17 @@ public class playerNetwork : NetworkBehaviour{
     }
 
     //#Skill
-    public void sendProjectile(string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler)
+	public void sendSkillCast(string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler, string type)
     {
-        ProjectTileInfo projectTileInfo = new ProjectTileInfo();
-        projectTileInfo.pathToEffect = pathToEffect;
-        projectTileInfo.spawnPosition = spawnPosition;
-        projectTileInfo.rotationInEuler = rotationInEuler;
-		projectTileInfo.netId = this.GetComponent<NetworkIdentity>().netId;
-        con.Send(PacketTypes.PROJECTILE_CREATE, projectTileInfo);
+		SkillCastInfo skillInfo = new SkillCastInfo();
+		skillInfo.pathToEffect = pathToEffect;
+		skillInfo.spawnPosition = spawnPosition;
+		skillInfo.rotationInEuler = rotationInEuler;
+		skillInfo.netId = this.GetComponent<NetworkIdentity>().netId;
+		skillInfo.skillType = type;
+		skillInfo.range = 10;
+		Debug.Log("casting skill to server");
+		con.Send(PacketTypes.CREATE_SKILL, skillInfo);
     }
 
 	//#STAT ALLOCATOR
@@ -364,6 +369,7 @@ public class playerNetwork : NetworkBehaviour{
     }
     void onLoadCharacter(NetworkMessage msg)
     {
+		Debug.Log("Character pre- loaded");
         PlayerInfo m = msg.ReadMessage<PlayerInfo>();
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
         Player player;
@@ -372,6 +378,7 @@ public class playerNetwork : NetworkBehaviour{
         } else {
             player = this.GetComponent<Player>();
         }
+
 
 		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
 		QuestJson clientJson = JsonManager.readJson<QuestJson>(e_Paths.JSON_QUESTS);
@@ -401,6 +408,7 @@ public class playerNetwork : NetworkBehaviour{
             tempSkill.maxPoints = m.skillProperties[i]; //maxPoints
             this.player.skillsToVerifyWithFromServer.Add(tempSkill);
         }
+		Debug.Log("Character loaded");
         skillTree = Instantiate (skillTreePrefab).GetComponent<SkillTree> ();
 		skillTree.initilize (player);
     }

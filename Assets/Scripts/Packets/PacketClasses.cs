@@ -46,6 +46,17 @@ public class SkillInfo : MessageBase
 	public int maxPoints;
 }
 
+public class SkillCastInfo : MessageBase 
+{
+	public NetworkInstanceId netId;
+	public string pathToObject;
+	public string pathToEffect;
+	public Vector3 spawnPosition;
+	public Vector3 rotationInEuler;
+	public string skillType;
+	public float range;
+}
+
 public class StatInfo : MessageBase 
 {
 	public string playerName;

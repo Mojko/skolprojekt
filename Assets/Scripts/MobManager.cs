@@ -6,6 +6,13 @@ using UnityEngine.AI;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
+public enum e_States {
+	IDLE,
+	CHASE,
+	ATTACK,
+	DIE
+}
+
 public class MobManager : NetworkBehaviour {
 	
 	[SyncVar] int health = 3;
@@ -13,6 +20,7 @@ public class MobManager : NetworkBehaviour {
 	private PlayerServer targetNetwork;
 	private float flashTimer = 1;
 	private int id;
+	private SkillCastManager skillCastManager;
 
 	[Header("MobManager")]
 	[Header("Leave these alone")]
@@ -24,6 +32,9 @@ public class MobManager : NetworkBehaviour {
 	public Server server;
 	public int targetId = -1;
 	public Vector3 rootPos;
+	[SyncVar] public bool targeted;
+	public Animator animator;
+	public e_States state = e_States.IDLE;
 
 	[Header("Fill these in")]
 	[Space(10)]
@@ -44,6 +55,7 @@ public class MobManager : NetworkBehaviour {
     private void Start()
     {
         this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
+		Debug.Log("Mob initilized");
         if(this.id == 0) {
             setId(10000);
         }
@@ -64,14 +76,29 @@ public class MobManager : NetworkBehaviour {
     }
 
 	public void damage (int damage, GameObject damager, PlayerServer playerServer) {
-        targetNetwork = playerServer;
+		Debug.Log("wew reached here without error");
+		targetNetwork = playerServer;
         StartCoroutine(flash());
-		health -= 1;
+		health -= damage;
         if(damager != null){
             target = damager;
         }
 		if (health <= 0) {
-			kill();
+			//kill();
+			this.state = e_States.DIE;
+		}
+	}
+	public void damage (int damage, GameObject damager, PlayerServer playerServer, SkillCastManager skillCastManager) {
+		targetNetwork = playerServer;
+		this.skillCastManager = skillCastManager;
+		StartCoroutine(flash());
+		health -= damage;
+		if(damager != null){
+			target = damager;
+		}
+		if (health <= 0) {
+			//kill();
+			this.state = e_States.DIE;
 		}
 	}
 
@@ -97,7 +124,8 @@ public class MobManager : NetworkBehaviour {
     }
 
 	public Monster lookupMonster(int monsterId){
-		Monster monster = JsonUtility.FromJson<Monster>(File.ReadAllText("C:/Users/Jesper/AppData/LocalLow/Wojon/GameServer/Resources/Visuals/Monster.json"));
+		Monster monster = JsonManager.readJson<Monster>(e_Paths.JSON_MONSTERS);
+		//Monster monster = JsonUtility.FromJson<Monster>(File.ReadAllText("C:/Users/Jesper/AppData/LocalLow/Wojon/GameServer/Resources/Visuals/Monster.json"));
 		foreach(Monster m in monster.Monsters){
 			if(m.id == this.getId()){
 				return m;
@@ -130,10 +158,10 @@ public class MobManager : NetworkBehaviour {
 		NetworkServer.SendToClient(this.targetNetwork.connectionID, PacketTypes.DROP_INIT, dropInfo);
     }
 
-	void kill(){
+	public void kill(){
 		if(!isServer) return;
-        if(this.respawner == null) this.respawner = GameObject.FindWithTag("Respawner").GetComponent<Respawner>();
-        if(this.spawner == null) this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
+        //if(this.respawner == null) this.respawner = GameObject.FindWithTag("Respawner").GetComponent<Respawner>();
+        //if(this.spawner == null) this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
 
         Vector3 pos = new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward;
         Server.spawnObject(e_Objects.PARTICLE_DEATH, pos);
@@ -141,29 +169,12 @@ public class MobManager : NetworkBehaviour {
             spawnDrop("Coin_gold", pos);
         }
 
-		/*Player p = this.target.GetComponent<Player>();
-		foreach(Quest quest in p.getQuests()){
-			if(quest.getType().Equals("mob")){
-				quest.increaseMobKills();
-				p.getQuestUI().addNewQuestToolTip(quest.getTooltip());
-			}
-		}*/
-        
-		//QuestInfo qInfo = new QuestInfo();
-		//PlayerServer pServer = Server.getPlayerObject(targetConnectionId);
-		List<Quest> questsToSend = new List<Quest>();//Server.getQuestArrayFromPlayerName(server.getPlayerObject(p.connectionToServer.connectionId).playerName);
-		//List<Quest> questsToSend = new List<Quest>();
-		/*foreach(Quest q in pServer.questList.ToArray()){
-			if(q.getType().Equals("mob")){
-				q.increaseMobKills();
-				questsToSend.Add(q);
-			}
-		}
-		qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
-		NetworkServer.SendToClient(p.connectionToServer.connectionId, PacketTypes.QUEST_UPDATE, qInfo);*/
+		List<Quest> questsToSend = new List<Quest>();
 
 		bool shouldUpdate = true;
         foreach(Quest q in targetNetwork.questList.ToArray()){
+			Debug.Log("is this array going " + targetNetwork.questList.Count);
+			if(q.getStatus() == e_QuestStatus.COMPLETED) continue;
 			int[] ids = q.getMobIds();
 			for(int i=0;i<ids.Length;i++){
 				if(ids[i] == getId()){
@@ -179,8 +190,8 @@ public class MobManager : NetworkBehaviour {
 					}
 			    }
 			}
-	    }
-		if(questsToSend.Count > 0 && shouldUpdate && isServer){
+		}
+		if(questsToSend != null && questsToSend.Count > 0 && shouldUpdate){
             QuestInfo qInfo = new QuestInfo();
             qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
             NetworkServer.SendToClient(targetId, PacketTypes.QUEST_UPDATE, qInfo);
@@ -189,6 +200,9 @@ public class MobManager : NetworkBehaviour {
 		//Server.spawnObject(drop, this.transform.position);
 		//Server.spawnObject(part, new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward);
         spawner.totalEnemiesInArea--;
+		if(this.skillCastManager != null){
+			NetworkServer.Destroy(this.skillCastManager.gameObject);
+		}
 		NetworkServer.Destroy(this.gameObject);
 	}
 	

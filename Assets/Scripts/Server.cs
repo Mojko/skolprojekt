@@ -105,7 +105,6 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.PICK_CHAR, onCharPicked);
         NetworkServer.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkills);
 		NetworkServer.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
-        NetworkServer.RegisterHandler(PacketTypes.PROJECTILE_CREATE, onProjectTileCreate);
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
 		NetworkServer.RegisterHandler(PacketTypes.QUEST_START, OnQuestRecieveFromClient);
@@ -114,6 +113,8 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
 		NetworkServer.RegisterHandler(PacketTypes.DESTROY, onObjectDestroy);
+		NetworkServer.RegisterHandler(PacketTypes.TEST, onTest);
+		NetworkServer.RegisterHandler(PacketTypes.CREATE_SKILL, onSkillCreate);
         resourceStructure = new ResourceStructure();
 
         
@@ -126,6 +127,9 @@ public class Server : NetworkManager
 		NetworkInstanceIdInfo info = new NetworkInstanceIdInfo();
 		NetworkServer.Destroy(NetworkServer.FindLocalObject(info.netId));
 	}
+	public void onTest(NetworkMessage netMsg){
+		Debug.Log("WEW U HAVE REACHED THE SERVER DSFDSFSDFSD");
+	}
 
     public void onDealDamage(NetworkMessage netMsg)
     {
@@ -135,6 +139,8 @@ public class Server : NetworkManager
         GameObject enemy = NetworkServer.FindLocalObject(damageInfo.enemyNetworkInstanceId);
 
         PlayerServer pServer = playerObjects[netMsg.conn.connectionId];
+
+		Debug.Log("wew reached here without error");
 
         if(damageInfo.damageType == e_DamageType.MOB) {
             MobManager enemyMobManager = enemy.GetComponent<MobManager>();
@@ -265,19 +271,36 @@ public class Server : NetworkManager
         return this.resourceStructure;
     }
 
-    public void onProjectTileCreate(NetworkMessage netMsg)
-    {
-        ProjectTileInfo pInfo = netMsg.ReadMessage<ProjectTileInfo>();
-        GameObject skillEffectPrefab = (GameObject)Resources.Load(pInfo.pathToEffect);
-
-        GameObject skillEffect = Instantiate(skillEffectPrefab);
-		skillEffect.transform.position = new Vector3(pInfo.spawnPosition.x, pInfo.spawnPosition.y+1f, pInfo.spawnPosition.z);
-		skillEffect.transform.rotation = Quaternion.Euler(pInfo.rotationInEuler);
-		//Player player = ClientScene.FindLocalObject(netMsg.conn.connectionId).GetComponent<Player>();
-		GameObject caster = (GameObject)ClientScene.FindLocalObject(pInfo.netId);
-		PlayerServer pServer = this.getPlayerObject(netMsg.conn.connectionId);
-		skillEffect.GetComponent<SkillMovement>().cast(caster,this, pServer);
+	private void createSkill(SkillCastInfo skillInfo, GameObject caster, PlayerServer pServer, GameObject target){
+		GameObject skillEffect = Instantiate((GameObject)Resources.Load(skillInfo.pathToEffect));
+		skillEffect.transform.position = new Vector3(skillInfo.spawnPosition.x, skillInfo.spawnPosition.y+1f, skillInfo.spawnPosition.z);
+		skillEffect.transform.rotation = Quaternion.Euler(skillInfo.rotationInEuler);
+		skillEffect.GetComponent<SkillCastManager>().cast(caster, this, pServer, skillInfo.skillType, target);
 		NetworkServer.Spawn(skillEffect);
+	}
+
+    public void onSkillCreate(NetworkMessage netMsg)
+    {
+		Debug.Log("are u actually here??");
+		SkillCastInfo skillInfo = netMsg.ReadMessage<SkillCastInfo>();
+		PlayerServer pServer = this.getPlayerObject(netMsg.conn.connectionId);
+		//GameObject skillEffectPrefab = (GameObject)Resources.Load(skillInfo.pathToEffect);
+		GameObject caster = (GameObject)NetworkServer.FindLocalObject(skillInfo.netId);
+
+		GameObject target = null;
+		if(skillInfo.skillType.Equals("target")){
+			Collider[] targetColliders = Physics.OverlapSphere(caster.transform.position, skillInfo.range);
+			foreach(Collider c in targetColliders){
+				if(c.CompareTag("Enemy")){
+					target = c.gameObject;
+					MobManager m = target.GetComponent<MobManager>();
+					if(!m.targeted) createSkill(skillInfo, caster, pServer, target);
+					m.targeted = true;
+				}
+			}
+			return;
+		}
+		createSkill(skillInfo, caster, pServer, null);
     }
 
 	public void onPlayerBuff(NetworkMessage netMsg){
@@ -557,42 +580,13 @@ public class Server : NetworkManager
                     q.initilizeMobQuest(reader.GetInt32("mob"), reader.GetInt32("count"));
                 }
             }
-
-			/*foreach(Quest q in playerReal.questList.ToArray()) {
-				for(int i=0;i<queststatuses.Count;i++){
-					Debug.Log("THE FUCKNG STATIS IS: " + queststatuses[i]);
-					if(queststatuses[i] == 1){
-						playerReal.questList.Remove(q);
-						q.setStatus(e_QuestStatus.COMPLETED);
-					}
-				}
-			}*/
         }
-
-        //QuestStatusMobData questStatusMob = new QuestStatusMobData();
-
-        /*List<QuestStatusMobData> mobData = new List<QuestStatusMobData>();
-        mysqlReader(out conn, out reader, "SELECT * FROM queststatusmobs");
-        while (reader.Read()) {
-            foreach(Quest q in playerReal.questList){
-                mobData.Add(new QuestStatusMobData(, reader.GetInt32("mob"), reader.GetInt32("count")))
-            }
-        }
-
-        foreach(Quest q in playerReal.questList.ToArray()){
-            foreach(QuestStatusMobData data in mobData){
-                
-                //q.initilizeMobQuest(data.mobID, data.count);
-            }
-        }*/
 
         packet.questClasses = Tools.objectArrayToByteArray(playerReal.questList.ToArray());
 
-        //playerObjects[msg.conn.connectionId].quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
-
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_PLAYER, packet);
         conn.Close();
-
+		reader.Close();
 
     }
     void onReciveMessage(NetworkMessage msg)

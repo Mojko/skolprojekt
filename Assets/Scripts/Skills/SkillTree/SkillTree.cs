@@ -46,6 +46,8 @@ public class SkillTree : UIHandler {
 
 		Skill skills = JsonManager.readJson<Skill>(e_Paths.JSON_SKILLTREE);
 
+		Debug.Log("e_paths.jsonskilltree: " + JsonManager.getPath(e_Paths.JSON_SKILLTREE));
+		Debug.Log("skills: " + skills);
 
 		potrait = Instantiate(skillTreeSlotPrefab);
 		Debug.Log("Is  this running? " + potrait);

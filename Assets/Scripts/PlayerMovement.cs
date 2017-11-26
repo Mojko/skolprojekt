@@ -174,9 +174,12 @@ public class PlayerMovement : NetworkBehaviour {
 		}
 
 		//SKILL
-
-		Skill skillThatWillBeLaunched = player.getSkillManager().isPlayerTryingToActivateSkill();
+		Skill skillThatWillBeLaunched = null;
+		if(Input.anyKeyDown){
+			skillThatWillBeLaunched = player.getSkillManager().isPlayerTryingToActivateSkill();
+		}
         if(skillThatWillBeLaunched != null) {
+			Debug.Log("Player is trying to activate skill...");
 			this.player.getSkillManager().castSkill(skillThatWillBeLaunched, skillThatWillBeLaunched.name);
         }
 		if(this.player.getSkillManager().isCasting()){

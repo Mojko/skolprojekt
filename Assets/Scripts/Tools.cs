@@ -94,6 +94,7 @@ public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
+	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
@@ -103,6 +104,10 @@ public static class Tools
 			}
 		}
 		return null;
+	}
+	public static Sprite getSprite(this int itemID) {
+		ItemVariables vars = ItemDataProvider.getInstance().getStats(itemID);
+		return (Sprite)sprites[vars.getInt("imageIndex")];
 	}
 	public static Texture2D spriteToTexture(Sprite sprite){
 		Texture2D generatedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
@@ -222,11 +227,11 @@ public static class Tools
     {
         return Server.playerObjects[msg.conn.connectionId];
     }
-    public static bool isItemType(this int itemID, e_itemTypes type) {
-		int ID = (int)(Mathf.Ceil((itemID + 1) / 500f) * 500);
-        if (isItemEquip(ID) && type == e_itemTypes.EQUIP) return true;
-        return (ID == (int)type);
-    }
+	public static bool isItemType(this int itemID, e_itemTypes type) {
+		if (type == e_itemTypes.EQUIP) return isItemEquip(itemID);
+		int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
+		return ID == (int)type;
+	}
     public static ItemDataAll getChild(this ItemDataAll data, int itemID) {
         return null;
     }
