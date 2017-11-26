@@ -23,6 +23,7 @@ public class Player : NetworkBehaviour
 	private QuestWrapper questWrapper;
 	private GameObject npcManager;
 	private UIPlayerHandler UIPlayer;
+    public NetworkIdentity identity;
 	public delegate void PickupEventHandler(Item item);
 	public event PickupEventHandler pickupEventHandler;
 
@@ -130,6 +131,8 @@ public class Player : NetworkBehaviour
 		//QuestManager
 		this.npcManager = GameObject.FindWithTag("NPCManager");
 		npcManager.GetComponent<NPCController>().initilize(this);
+
+        identity = this.GetComponent<NetworkIdentity>();
 
     }
 	public bool hasCompletedQuest(Quest quest){
@@ -258,6 +261,7 @@ public class Player : NetworkBehaviour
     }
     public void updateStats(PlayerStats stats) {
         this.stats = stats;
+        this.UIPlayer.updateInfo();
     }
     public void Update() {
         if (!isLocalPlayer) return;

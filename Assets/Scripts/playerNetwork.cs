@@ -44,6 +44,7 @@ public class playerNetwork : NetworkBehaviour{
 		con.RegisterHandler(PacketTypes.QUEST_UPDATE, onQuestUpdate);
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
 		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
+        con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
@@ -59,7 +60,7 @@ public class playerNetwork : NetworkBehaviour{
         Destroy(login_world);
     }
 
-	/*public Item itemOnStandby;
+    /*public Item itemOnStandby;
 	void onStandbyPickup(NetworkMessage netMsg){
 		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
 		itemOnStandby = (Item)Tools.byteArrayToObject(itemInfo.item);
@@ -73,7 +74,19 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
-	void onItemPickup(NetworkMessage netMsg){
+    void onEquip(NetworkMessage msg) {
+        ItemInfo info = msg.ReadMessage<ItemInfo>();
+        if (info.netId.Equals(this.player.identity.netId)) {
+        }
+        else {
+            Debug.Log("som,eoneelse equpped");
+            Debug.Log("player scene: " + ClientScene.FindLocalObject(info.netId).name);
+            Player player = ClientScene.FindLocalObject(info.netId).GetComponent<Player>();
+            player.getEquipHandler().setEquipModel((Item)Tools.byteArrayToObject(info.item));
+        }
+    }
+
+    void onItemPickup(NetworkMessage netMsg){
 		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
 		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
 		Debug.Log("PICKING UP ITEM: " + item + " | " + item.isMoney());
@@ -421,6 +434,7 @@ public class playerNetwork : NetworkBehaviour{
     //# INVENTORY
     public void sendItem(short packetType, Item item) {
         ItemInfo info = new ItemInfo();
+        info.netId = this.player.identity.netId;
         info.item = Tools.objectToByteArray(item);
         con.Send(packetType, info);
     }

@@ -11,7 +11,10 @@ public class DisconnectPacket : MessageBase{
 public class NetworkInstanceIdInfo : MessageBase {
 	public NetworkInstanceId netId;
 }
-
+public class playerEquipItem : MessageBase {
+    public NetworkInstanceId netId;
+    public byte[] item;
+}
 public class DropInfo : MessageBase {
 	public NetworkInstanceId netId;
 	public byte[] item;
@@ -27,6 +30,7 @@ public class DamageInfo : MessageBase
 
 public class ItemInfo : MessageBase
 {
+    public NetworkInstanceId netId;
     public byte[] item;
     public byte[] oldItem;
     public byte[] itemVariables;

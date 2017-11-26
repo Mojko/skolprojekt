@@ -150,7 +150,6 @@ public class ItemData{
         return data;
     }
     private ItemDataAll itemDataConverter(int itemID, string file) {
-        Debug.Log("is item equip? " + itemID.isItemType(e_itemTypes.EQUIP));
         if (itemID.isItemType(e_itemTypes.USE)) {
             ItemDataPots data = JsonUtility.FromJson<ItemDataPots>(file);
             data.parentItems = data.items;
@@ -242,17 +241,14 @@ public class ItemDataAll {
         foreach (FieldInfo field in this.GetType().GetFields())
         {
             if (field.FieldType == typeof(int)) {
-                Debug.Log("int found: " + (int)field.GetValue(this));
                 variables.addInt(field.Name,(int)field.GetValue(this));
             }
             if (field.FieldType == typeof(float))
             {
-                Debug.Log("float found: " + (float)field.GetValue(this));
                 variables.addFloat(field.Name, (int)field.GetValue(this));
             }
             if (field.FieldType == typeof(string))
             {
-                Debug.Log("string found: " + (string)field.GetValue(this));
                 variables.addString(field.Name, (string)field.GetValue(this));
             }
             if (field.FieldType == typeof(string[]) && field.Name == "show") {
@@ -309,8 +305,7 @@ public class ItemDataEtc : ItemDataAll
 {
     public int id;
     public string name;
-    public int health;
-    public int mana;
+    public int price;
     public int imageIndex;
     public string description;
     public string[] show;
