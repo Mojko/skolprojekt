@@ -98,10 +98,10 @@ public class Player : NetworkBehaviour
 		this.inventory.init (this);
 
         //equip
-        this.equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
+        equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
         equip.setEquipmentUI(Tools.getChild(UICanvas, "Equipment_UI"));
         equip.setPlayer(this);
-
+        equip.setPlayerSlots(this);
         //camera
         camera = Camera.main;
         camera.GetComponent<MainCamera> ().player = this.gameObject;
@@ -256,7 +256,9 @@ public class Player : NetworkBehaviour
         equip.setEquips(equips);
         equip.updateSlots();
     }
-
+    public void updateStats(PlayerStats stats) {
+        this.stats = stats;
+    }
     public void Update() {
         if (!isLocalPlayer) return;
         if (Input.GetKeyDown(KeyCode.C)) {

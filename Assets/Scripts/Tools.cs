@@ -94,9 +94,14 @@ public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
+<<<<<<< HEAD
 	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
+=======
+    public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
+public static GameObject findInactiveChild(GameObject parent, string name){
+>>>>>>> 3451cb2d07b4fb10dae23b0ab52f31f541dbfe61
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
 		foreach(Transform t in transforms){
 			if(t.name.Equals(name)){
@@ -105,6 +110,7 @@ public static class Tools
 		}
 		return null;
 	}
+<<<<<<< HEAD
 	public static Sprite getSprite(this int itemID) {
 		ItemVariables vars = ItemDataProvider.getInstance().getStats(itemID);
 		return (Sprite)sprites[vars.getInt("imageIndex")];
@@ -116,6 +122,8 @@ public static class Tools
 		generatedTexture.Apply();
 		return generatedTexture;
 	}
+=======
+>>>>>>> 3451cb2d07b4fb10dae23b0ab52f31f541dbfe61
     public static GameObject loadObjectFromResources(e_Objects obj)
     {
         return (GameObject)Resources.Load(ResourceStructure.getPathForObject(obj));
@@ -190,6 +198,43 @@ public static class Tools
         }
         return null;
     }
+    public static GameObject[] getChildren(GameObject parent, params string[] children) {
+        GameObject[] returnObject = new GameObject[children.Length];
+        int foundChildren = 0;
+        for (int i = 0; i < parent.transform.childCount; i++)
+        {
+            if (foundChildren >= returnObject.Length)
+                return returnObject;
+            for (int j = 0; j < children.Length; j++)
+            {
+                if (parent.transform.GetChild(i).name.Equals(children[j]))
+                {
+                    returnObject[j] = parent.transform.GetChild(i).gameObject;
+                    foundChildren++;
+                    continue;
+                }
+                if (parent.transform.GetChild(i).childCount > 0)
+                {
+                    GameObject child = getChild(parent.transform.GetChild(i).gameObject, children[j]);
+                    if (child != null)
+                        if (child.name.Equals(children[j]))
+                        {
+                            returnObject[j] = child.gameObject;
+                            foundChildren++;
+                        }
+                }
+            }
+        }
+        return returnObject;
+    }
+    public static Texture2D spriteToTexture(Sprite sprite)
+    {
+        Texture2D generatedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+        Color[] pixels = sprite.texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, (int)sprite.rect.width, (int)sprite.rect.height);
+        generatedTexture.SetPixels(pixels);
+        generatedTexture.Apply();
+        return generatedTexture;
+    }
     public static Color hexColor(int hex)
     {
         int r = (hex >> 16) & 0xFF;
@@ -227,11 +272,23 @@ public static class Tools
     {
         return Server.playerObjects[msg.conn.connectionId];
     }
+<<<<<<< HEAD
 	public static bool isItemType(this int itemID, e_itemTypes type) {
 		if (type == e_itemTypes.EQUIP) return isItemEquip(itemID);
 		int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
 		return ID == (int)type;
 	}
+=======
+    public static Sprite getSprite(this int itemID) {
+        ItemVariables vars = ItemDataProvider.getInstance().getStats(itemID);
+        return (Sprite)sprites[vars.getInt("imageIndex")];
+    }
+    public static bool isItemType(this int itemID, e_itemTypes type) {
+        if (type == e_itemTypes.EQUIP) return isItemEquip(itemID);
+        int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
+        return ID == (int)type;
+    }
+>>>>>>> 3451cb2d07b4fb10dae23b0ab52f31f541dbfe61
     public static ItemDataAll getChild(this ItemDataAll data, int itemID) {
         return null;
     }

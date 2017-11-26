@@ -8,9 +8,11 @@ using System.Reflection;
 public class ItemDataProvider {
     private static ItemDataProvider provider;
     private ItemData items;
+    private ItemData mobs;
     //säker konstruktor som ser till att ingt annat objekt kan använda konstruktorn.
     protected ItemDataProvider() {
 		items = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.getPath(e_Paths.ITEMS)));
+        //mobs = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.getPath(e_Paths.JSON_MONSTERS)));
         Debug.Log("datapprovider: " + items);
     }
     //returnar nytt objekt om det är null annars returnar den provider variabeln.
@@ -22,10 +24,9 @@ public class ItemDataProvider {
     }
     //hämr stats för ett specifikt item
     public ItemVariables getStats(int itemID) {
-        if (itemID.isItemType(e_itemTypes.USE))
-        {
-            return items.getItemStats(itemID);
-        }
+        return items.getItemStats(itemID);
+    }
+    public ItemVariables getMob(int mobID) {
         return null;
     }
 }
@@ -33,9 +34,11 @@ public class ItemDataProvider {
 public class ItemDataProviderFactory{
     //kollar om directory är en fil och om den är så skapar den en ny Data med det directoryn.
     public static ItemData getItemProvider(ItemDirectory directory) {
+        Debug.Log("is it directory?: " + directory.isItemDirectory());
         if (directory.isItemDirectory())
+        {
             return new ItemData(directory);
-
+        }
         return null;
     }
 }
@@ -71,10 +74,11 @@ public class ItemDirectory {
     //kollar om det finns någon fils namn innehåller itemID.
     public FileInfo getFileContainingString(int itemID) {
         //gör så att itemID avrundar till 500 tal.
-        int normID = (int)Mathf.Ceil((itemID + 1) / 500f) * 500;
+        int normID = (int)Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL;
+        Debug.Log("finding: _" + normID);
         foreach (FileInfo file in files)
         {
-            if (file.Name.Contains(normID + ""))
+            if (file.Name.Contains("_" + normID + ""))
             {
                 return file;
             }
@@ -100,6 +104,7 @@ public class ItemData{
         this.directory = directory;
     }
     public ItemVariables getItemStats(int itemID) {
+        Debug.Log("GETTINGS STATAS!!!!!!!!!!!");
         if (itemValues.ContainsKey(itemID)) {
             return itemValues[itemID];
         }
@@ -117,15 +122,42 @@ public class ItemData{
         Debug.Log("dictionary size: " + itemValues.Count);
         return variables;
     }
+    public ItemVariables getMobStats(int mobID) {
+        Debug.Log("GETTINGS STATAS!!!!!!!!!!!");
+        if (itemValues.ContainsKey(mobID))
+        {
+            return itemValues[mobID];
+        }
+        FileInfo file = this.directory.getFileContainingString(mobID);
+        StreamReader reader = file.OpenText();
+        string fileContents = "";
+        string line = "";
+        while ((line = reader.ReadLine()) != null)
+        {
+            fileContents += line + Environment.NewLine;
+        }
+        reader.Close();
+        ItemDataAll ItemDataAll = mobDataConverter(mobID, fileContents);
+        ItemVariables variables = ItemDataAll.generateVariables();
+        itemValues.Add(mobID, variables);
+        Debug.Log("dictionary size: " + itemValues.Count);
+        return variables;
+    }
+    private ItemDataAll mobDataConverter(int itemID, string file) {
+        ItemDataPots data = JsonUtility.FromJson<ItemDataPots>(file);
+        data.parentItems = data.items;
+        data = (ItemDataPots)getItemFromParent(data, itemID);
+        return data;
+    }
     private ItemDataAll itemDataConverter(int itemID, string file) {
-
+        Debug.Log("is item equip? " + itemID.isItemType(e_itemTypes.EQUIP));
         if (itemID.isItemType(e_itemTypes.USE)) {
             ItemDataPots data = JsonUtility.FromJson<ItemDataPots>(file);
             data.parentItems = data.items;
             data = (ItemDataPots)getItemFromParent(data,itemID);
             return data;
         }
-        if (Tools.isItemEquip(itemID))
+        if (itemID.isItemType(e_itemTypes.EQUIP))
         {
             ItemDataEquips data = JsonUtility.FromJson<ItemDataEquips>(file);
             data.parentItems = data.items;
@@ -254,11 +286,11 @@ public class ItemDataEquips : ItemDataAll
     public ItemDataEquips[] items;
     public int id;
     public string name;
-    public int health;
-    public int mana;
+    public int damage;
+    public int price;
     public int imageIndex;
     public string description;
-    public string[] show;
+    public string pathToModel;
 }
 
 [Serializable]
