@@ -94,8 +94,8 @@ public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
-
-	public static GameObject findInactiveChild(GameObject parent, string name){
+    public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
+public static GameObject findInactiveChild(GameObject parent, string name){
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
 		foreach(Transform t in transforms){
 			if(t.name.Equals(name)){
@@ -207,6 +207,14 @@ public static class Tools
         }
         return returnObject;
     }
+    public static Texture2D spriteToTexture(Sprite sprite)
+    {
+        Texture2D generatedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
+        Color[] pixels = sprite.texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, (int)sprite.rect.width, (int)sprite.rect.height);
+        generatedTexture.SetPixels(pixels);
+        generatedTexture.Apply();
+        return generatedTexture;
+    }
     public static Color hexColor(int hex)
     {
         int r = (hex >> 16) & 0xFF;
@@ -225,7 +233,6 @@ public static class Tools
         return children;
     }
     public static bool isItemEquip(int itemID) {
-        Debug.Log("id from tools: " + itemID);
         return (itemID.isItemType(e_itemTypes.HATS) || itemID.isItemType(e_itemTypes.PANTS) || itemID.isItemType(e_itemTypes.BODY) || itemID.isItemType(e_itemTypes.BOOTS) || itemID.isItemType(e_itemTypes.WEAPON) || itemID.isItemType(e_itemTypes.GLOVE) || itemID.isItemType(e_itemTypes.FACE) || itemID.isItemType(e_itemTypes.ACCESSORY));
     }
     public static GameObject[] transformsToObject(this Transform[] transforms) {
@@ -245,10 +252,13 @@ public static class Tools
     {
         return Server.playerObjects[msg.conn.connectionId];
     }
+    public static Sprite getSprite(this int itemID) {
+        ItemVariables vars = ItemDataProvider.getInstance().getStats(itemID);
+        return (Sprite)sprites[vars.getInt("imageIndex")];
+    }
     public static bool isItemType(this int itemID, e_itemTypes type) {
         if (type == e_itemTypes.EQUIP) return isItemEquip(itemID);
         int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
-        Debug.Log("item id: " + ID);
         return ID == (int)type;
     }
     public static ItemDataAll getChild(this ItemDataAll data, int itemID) {

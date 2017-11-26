@@ -8,9 +8,11 @@ using System.Reflection;
 public class ItemDataProvider {
     private static ItemDataProvider provider;
     private ItemData items;
+    private ItemData mobs;
     //säker konstruktor som ser till att ingt annat objekt kan använda konstruktorn.
     protected ItemDataProvider() {
 		items = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.getPath(e_Paths.ITEMS)));
+        //mobs = ItemDataProviderFactory.getItemProvider(new ItemDirectory(JsonManager.getPath(e_Paths.JSON_MONSTERS)));
         Debug.Log("datapprovider: " + items);
     }
     //returnar nytt objekt om det är null annars returnar den provider variabeln.
@@ -24,14 +26,19 @@ public class ItemDataProvider {
     public ItemVariables getStats(int itemID) {
         return items.getItemStats(itemID);
     }
+    public ItemVariables getMob(int mobID) {
+        return null;
+    }
 }
 
 public class ItemDataProviderFactory{
     //kollar om directory är en fil och om den är så skapar den en ny Data med det directoryn.
     public static ItemData getItemProvider(ItemDirectory directory) {
+        Debug.Log("is it directory?: " + directory.isItemDirectory());
         if (directory.isItemDirectory())
+        {
             return new ItemData(directory);
-
+        }
         return null;
     }
 }
@@ -114,6 +121,33 @@ public class ItemData{
         itemValues.Add(itemID, variables);
         Debug.Log("dictionary size: " + itemValues.Count);
         return variables;
+    }
+    public ItemVariables getMobStats(int mobID) {
+        Debug.Log("GETTINGS STATAS!!!!!!!!!!!");
+        if (itemValues.ContainsKey(mobID))
+        {
+            return itemValues[mobID];
+        }
+        FileInfo file = this.directory.getFileContainingString(mobID);
+        StreamReader reader = file.OpenText();
+        string fileContents = "";
+        string line = "";
+        while ((line = reader.ReadLine()) != null)
+        {
+            fileContents += line + Environment.NewLine;
+        }
+        reader.Close();
+        ItemDataAll ItemDataAll = mobDataConverter(mobID, fileContents);
+        ItemVariables variables = ItemDataAll.generateVariables();
+        itemValues.Add(mobID, variables);
+        Debug.Log("dictionary size: " + itemValues.Count);
+        return variables;
+    }
+    private ItemDataAll mobDataConverter(int itemID, string file) {
+        ItemDataPots data = JsonUtility.FromJson<ItemDataPots>(file);
+        data.parentItems = data.items;
+        data = (ItemDataPots)getItemFromParent(data, itemID);
+        return data;
     }
     private ItemDataAll itemDataConverter(int itemID, string file) {
         Debug.Log("is item equip? " + itemID.isItemType(e_itemTypes.EQUIP));

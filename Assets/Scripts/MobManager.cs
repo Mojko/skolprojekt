@@ -97,7 +97,7 @@ public class MobManager : NetworkBehaviour {
     }
 
 	public Monster lookupMonster(int monsterId){
-		Monster monster = JsonUtility.FromJson<Monster>(File.ReadAllText("C:/Users/Jesper/AppData/LocalLow/Wojon/GameServer/Resources/Visuals/Monster.json"));
+		Monster monster = JsonUtility.FromJson<Monster>(File.ReadAllText(JsonManager.getPath(e_Paths.JSON_MONSTERS)));
 		foreach(Monster m in monster.Monsters){
 			if(m.id == this.getId()){
 				return m;

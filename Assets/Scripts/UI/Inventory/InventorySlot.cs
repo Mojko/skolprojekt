@@ -32,7 +32,7 @@ public class InventorySlot : MonoBehaviour {
     }
 
     public void setImage(Item item) {
-       this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = (Sprite)stringTools.spriteObjects[item.getID() / 500][item.getID() % 500 + 1];
+        this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = item.getID().getSprite();
     }
 
 	public void setID(int ID){

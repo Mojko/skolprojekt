@@ -256,7 +256,9 @@ public class Player : NetworkBehaviour
         equip.setEquips(equips);
         equip.updateSlots();
     }
-
+    public void updateStats(PlayerStats stats) {
+        this.stats = stats;
+    }
     public void Update() {
         if (!isLocalPlayer) return;
         if (Input.GetKeyDown(KeyCode.C)) {

@@ -43,8 +43,6 @@ public class playerNetwork : NetworkBehaviour{
 		con.RegisterHandler(PacketTypes.QUEST_START, onQuestStart);
 		con.RegisterHandler(PacketTypes.QUEST_UPDATE, onQuestUpdate);
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
-        con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnEquip);
-        con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
@@ -106,14 +104,6 @@ public class playerNetwork : NetworkBehaviour{
     void onPotUse(ItemVariables vars) {
         this.player.setHealth(Mathf.Min(this.player.stats.health + vars.getInt("health"), player.stats.maxHealth));
         this.player.setMana(Mathf.Min(this.player.stats.mana + vars.getInt("mana"), player.stats.maxMana));
-    }
-    void onUnEquip(NetworkMessage netMsg)
-    {
-
-    }
-    void onEquip(NetworkMessage netMsg)
-    {
-
     }
     public void damageEnemy(GameObject enemy, int damage)
     {
@@ -365,6 +355,9 @@ public class playerNetwork : NetworkBehaviour{
     void onLoadCharacter(NetworkMessage msg)
     {
         PlayerInfo m = msg.ReadMessage<PlayerInfo>();
+        PlayerStats stats = (PlayerStats)Tools.byteArrayToObject(m.stats);
+        Debug.Log("log in from own packet!!!!!!!!!!");
+        this.player.stats = stats;
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
         Player player;
         if(playerObj != null){
