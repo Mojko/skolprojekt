@@ -30,6 +30,7 @@ public class AI : MobManager {
 	[Space(10)]
 	[Header("Fill in")]
 	public GameObject biteEffectPrefab;
+    public GameObject body;
 
 	private float speed;
 	private float angularSpeed;
@@ -42,6 +43,8 @@ public class AI : MobManager {
 	private NavMeshAgent agent;
 	private bool shouldRotate;
 	private bool hasActivatedEffect = false;
+    private Renderer bodyRenderer;
+    private FaceManager faceManager;
 
 
 	void Start () {
@@ -55,6 +58,9 @@ public class AI : MobManager {
 		this.speed = agent.speed;
 		this.angularSpeed = agent.angularSpeed;
 		this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
+        this.faceManager = GetComponent<FaceManager>();
+        body = this.transform.Find(body.name).gameObject;
+        this.bodyRenderer = body.GetComponent<Renderer>();
 	}
 
 	void Update () {
@@ -106,6 +112,7 @@ public class AI : MobManager {
         startTimerIfNotStarted(4);
 
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+            faceManager.setFace(this.bodyRenderer, e_Faces.DEFAULT);
 			animator.Play("Idle", 0, 0);
 		}
 
@@ -122,6 +129,7 @@ public class AI : MobManager {
     	followTarget(this.target);
 
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+            faceManager.setFace(this.bodyRenderer,e_Faces.ANGRY);
 			animator.Play("Idle", 0, 0);
 		}
 
