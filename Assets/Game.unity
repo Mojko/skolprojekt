@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 1, g: 1, b: 1, a: 1}
   m_AmbientEquatorColor: {r: 0.6397059, g: 0.6397059, b: 0.6397059, a: 1}
   m_AmbientGroundColor: {r: 0.7352941, g: 0.7352941, b: 0.7352941, a: 1}
-  m_AmbientIntensity: 1.9
+  m_AmbientIntensity: 1.28
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 928249598}
-  m_IndirectSpecularColor: {r: 0.17348814, g: 0.21687649, b: 0.29896495, a: 1}
+  m_IndirectSpecularColor: {r: 0.17348784, g: 0.21687618, b: 0.29896426, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -370,12 +370,12 @@ Prefab:
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
@@ -385,7 +385,7 @@ Prefab:
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
@@ -395,7 +395,7 @@ Prefab:
     - target: {fileID: 224835916365531534, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_SizeDelta.y
-      value: 25
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 114225791855588300, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
@@ -454,6 +454,40 @@ Prefab:
     - target: {fileID: 1493493872440502, guid: 4c81d8dff637fe34daf6eb65485c94e0, type: 2}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1390771080787696, guid: 4c81d8dff637fe34daf6eb65485c94e0, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 224943425370987930, guid: 4c81d8dff637fe34daf6eb65485c94e0,
+        type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 224211947255787400, guid: 4c81d8dff637fe34daf6eb65485c94e0,
+        type: 2}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224211947255787400, guid: 4c81d8dff637fe34daf6eb65485c94e0,
+        type: 2}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224211947255787400, guid: 4c81d8dff637fe34daf6eb65485c94e0,
+        type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 224211947255787400, guid: 4c81d8dff637fe34daf6eb65485c94e0,
+        type: 2}
+      propertyPath: m_SizeDelta.y
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 224211947255787400, guid: 4c81d8dff637fe34daf6eb65485c94e0,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: -10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 4c81d8dff637fe34daf6eb65485c94e0, type: 2}
@@ -776,6 +810,7 @@ GameObject:
   - component: {fileID: 1352261050}
   - component: {fileID: 1352261049}
   - component: {fileID: 1352261054}
+  - component: {fileID: 1352261055}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -829,12 +864,12 @@ Camera:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_RenderingPath: 3
+  m_RenderingPath: 1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
-  m_AllowMSAA: 0
+  m_AllowMSAA: 1
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
@@ -871,6 +906,44 @@ MonoBehaviour:
   xrot: 0
   yrot: 0
   zrot: 0
+--- !u!114 &1352261055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1352261048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fceaeb339b971b429c4cc600acabd13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tweakMode: 0
+  screenBlendMode: 1
+  hdr: 0
+  sepBlurSpread: 2.5
+  quality: 1
+  bloomIntensity: 1
+  bloomThreshold: 0.5
+  bloomThresholdColor: {r: 1, g: 1, b: 1, a: 1}
+  bloomBlurIterations: 2
+  hollywoodFlareBlurIterations: 2
+  flareRotation: 0
+  lensflareMode: 1
+  hollyStretchWidth: 2.5
+  lensflareIntensity: 0
+  lensflareThreshold: 0.3
+  lensFlareSaturation: 0.75
+  flareColorA: {r: 0.4, g: 0.4, b: 0.8, a: 0.75}
+  flareColorB: {r: 0.4, g: 0.8, b: 0.8, a: 0.75}
+  flareColorC: {r: 0.8, g: 0.4, b: 0.8, a: 0.75}
+  flareColorD: {r: 0.8, g: 0.4, b: 0, a: 0.75}
+  lensFlareVignetteMask: {fileID: 2800000, guid: 95ef4804fe0be4c999ddaa383536cde8,
+    type: 3}
+  lensFlareShader: {fileID: 4800000, guid: 459fe69d2f6d74ddb92f04dbf45a866b, type: 3}
+  screenBlendShader: {fileID: 4800000, guid: 7856cbff0a0ca45c787d5431eb805bb0, type: 3}
+  blurAndFlaresShader: {fileID: 4800000, guid: be6e39cf196f146d5be72fbefb18ed75, type: 3}
+  brightPassFilterShader: {fileID: 4800000, guid: 0aeaa4cb29f5d4e9c8455f04c8575c8c,
+    type: 3}
 --- !u!1001 &1365778696
 Prefab:
   m_ObjectHideFlags: 0
@@ -1071,7 +1144,7 @@ MeshCollider:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1756607517}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 74ec1f5ad4b8c8745bd6a5d642be1ff5, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
