@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 public class EquipmentHandler : UIHandler {
     List<Equip> equips = new List<Equip>();
@@ -53,7 +54,15 @@ public class EquipmentHandler : UIHandler {
         itemEquip.transform.localScale = Vector3.one;
         itemEquip.transform.localPosition = Vector3.zero;
         player.getNetwork().equipItem(equip);
+        player.identity.RebuildObservers(false);
         updateSlots();
+    }
+    public void setEquipModel(Item item) {
+        int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
+        GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
+        itemEquip.transform.SetParent(playerEquipSlots[index].transform);
+        itemEquip.transform.localScale = Vector3.one;
+        itemEquip.transform.localPosition = Vector3.zero;
     }
     public void setEquipmentUI(GameObject equipment) {
         equip = equipment;

@@ -168,6 +168,11 @@ public class PlayerMovement : NetworkBehaviour {
 
 		AnimatorStateInfo stateInfo0 = animator.GetCurrentAnimatorStateInfo (0);
 
+        RaycastHit rayHit;
+		if(Physics.Raycast(this.transform.position, Vector3.down, out rayHit, 0.1f)) {
+            isTouchingFloor = true;
+        }
+
 		if (Input.GetKey (KeyCode.LeftControl) && !stateInfo0.IsName ("Slash")) {
 			animator.SetBool ("slash", true);
 			state = (int)e_PlayerStates.ATTACK;
@@ -233,9 +238,9 @@ public class PlayerMovement : NetworkBehaviour {
 	}
 
 	void OnCollisionEnter (Collision col) {
-		if (col.gameObject.CompareTag ("Ground")) {
+        /*if (col.gameObject.CompareTag ("Ground")) {
 			isTouchingFloor = true;
-		}
+		}*/
 		if (col.gameObject.CompareTag ("Wall")) {
 			//.velocity = -transform.forward * 2f;
 		}

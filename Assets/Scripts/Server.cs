@@ -741,6 +741,7 @@ public class Server : NetworkManager
         mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + -((equip.getID() / Tools.ITEM_INTERVAL) - 3) + "' WHERE id = '" + equip.getKeyID() + "'");
         con.Close();
         NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_EQUIP, info);
+        NetworkServer.SendToAll(PacketTypes.ITEM_EQUIP, info);
     }
 
     void onSaveInventory(NetworkMessage netMsg)

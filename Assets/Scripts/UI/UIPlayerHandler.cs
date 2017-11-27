@@ -24,6 +24,11 @@ public class UIPlayerHandler : MonoBehaviour {
 	void Update () {
 		
 	}
+    public void updateInfo() {
+        Debug.Log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! loaded");
+        onHealthChange();
+        onManaChange();
+    }
     public void onHealthChange() {
         healthBar.offsetMax = new Vector2(-150 * (((float)player.stats.maxHealth - (float)player.stats.health) / (float)player.stats.maxHealth), 0);
         healthBarText[0].text = player.stats.health + "/" + player.stats.maxHealth;
