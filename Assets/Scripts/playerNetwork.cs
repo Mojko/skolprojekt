@@ -46,6 +46,7 @@ public class playerNetwork : NetworkBehaviour{
 		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
+        con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -74,15 +75,25 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
+    void onUnequipItem(NetworkMessage msg) {
+        ItemInfo info = msg.ReadMessage<ItemInfo>();
+        if (info.netId.Equals(this.player.identity.netId))
+        {
+        }
+        else
+        {
+            Player player = ClientScene.FindLocalObject(info.netId).GetComponent<Player>();
+            player.setEquipModel((Item)Tools.byteArrayToObject(info.item));
+            player.removeEquipModel((Item)Tools.byteArrayToObject(info.item));
+        }
+    }
     void onEquip(NetworkMessage msg) {
         ItemInfo info = msg.ReadMessage<ItemInfo>();
         if (info.netId.Equals(this.player.identity.netId)) {
         }
         else {
-            Debug.Log("som,eoneelse equpped");
-            Debug.Log("player scene: " + ClientScene.FindLocalObject(info.netId).name);
             Player player = ClientScene.FindLocalObject(info.netId).GetComponent<Player>();
-            player.getEquipHandler().setEquipModel((Item)Tools.byteArrayToObject(info.item));
+            player.setEquipModel((Item)Tools.byteArrayToObject(info.item));
         }
     }
 
@@ -376,7 +387,7 @@ public class playerNetwork : NetworkBehaviour{
         PlayerInfo m = msg.ReadMessage<PlayerInfo>();
         PlayerStats stats = (PlayerStats)Tools.byteArrayToObject(m.stats);
         Debug.Log("log in from own packet!!!!!!!!!!");
-        this.player.stats = stats;
+        this.player.updateStats(stats);
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
         Player player;
         if(playerObj != null){

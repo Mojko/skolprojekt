@@ -220,7 +220,6 @@ public static class Tools
         int r = (hex >> 16) & 0xFF;
         int g = (hex >> 8) & 0xFF;
         int b = hex & 0xFF;
-        Debug.Log(r + " + " + g + " + " + b);
         return new Color(r / 255f, g / 255f, b / 255f, 1);
     }
     public static Transform[] getAllChildren(this Transform parent)

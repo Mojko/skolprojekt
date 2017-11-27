@@ -19,12 +19,10 @@ public class ItemInfoButton : MonoBehaviour {
         switch (method)
         {
             case 0:
-                Debug.Log("EQUIP METHOD!");
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => onEquip());
                 break;
             case 1:
-                Debug.Log("USE METHOD!");
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => onUse());
                 break;

@@ -26,6 +26,7 @@ public class AI : MobManager {
 	[Header("Fill in")]
 	public GameObject biteEffectPrefab;
     public GameObject body;
+	public GameObject angerLight;
 
 	private float speed;
 	private float angularSpeed;
@@ -37,13 +38,10 @@ public class AI : MobManager {
 	private NavMeshAgent agent;
 	private bool shouldRotate;
 	private bool hasActivatedEffect = false;
-<<<<<<< HEAD
 	private Renderer renderer;
 	private Renderer[] childRenderers;
-=======
     private Renderer bodyRenderer;
     private FaceManager faceManager;
->>>>>>> 7ab505ae16544af416438c5211d31594804af921
 
 
 	void Start () {
@@ -57,14 +55,11 @@ public class AI : MobManager {
 		this.speed = agent.speed;
 		this.angularSpeed = agent.angularSpeed;
 		this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
-<<<<<<< HEAD
 		this.renderer = GetComponent<Renderer>();
 		this.childRenderers = GetComponentsInChildren<Renderer>(true);
-=======
         this.faceManager = GetComponent<FaceManager>();
         body = this.transform.Find(body.name).gameObject;
         this.bodyRenderer = body.GetComponent<Renderer>();
->>>>>>> 7ab505ae16544af416438c5211d31594804af921
 	}
 
 	void Update () {
@@ -119,11 +114,13 @@ public class AI : MobManager {
         startTimerIfNotStarted(4);
 
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+			toggleAngry(false);
             faceManager.setFace(this.bodyRenderer, e_Faces.DEFAULT);
 			animator.Play("Idle", 0, 0);
 		}
 
 		if(this.target != null){
+			animator.Play("Idle");
 			setState(e_States.CHASE);
 		}
 
@@ -131,13 +128,20 @@ public class AI : MobManager {
             setNewDestination(chooseDestination());
         }
     }
+
+	void toggleAngry(bool toggle){
+		if(angerLight != null){
+			angerLight.SetActive(toggle);
+		}
+	}
+
     void chaseState()
     {
     	followTarget(this.target);
 
-		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
-            faceManager.setFace(this.bodyRenderer,e_Faces.ANGRY);
-			animator.Play("Idle", 0, 0);
+		if(faceManager.getFace() != e_Faces.ANGRY){
+			faceManager.setFace(this.bodyRenderer,e_Faces.ANGRY);
+			toggleAngry(true);
 		}
 
         if(isTargetOutOfRange(this.target, 25)) {
@@ -188,6 +192,7 @@ public class AI : MobManager {
 		}
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
 			animator.Play("Bite", 0, 0);
+			faceManager.setFace(this.bodyRenderer, e_Faces.ATTACK);
 			shouldRotate = true;
 		} else {
 			freeze();
@@ -203,6 +208,7 @@ public class AI : MobManager {
 
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.7f && !hasActivatedEffect){
 				Instantiate(biteEffectPrefab).transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z) + (transform.forward*1.2f);
+				faceManager.setFace(this.bodyRenderer, e_Faces.ANGRY);
 				hasActivatedEffect = true;
 			}
 

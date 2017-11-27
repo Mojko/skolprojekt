@@ -501,11 +501,11 @@ public class Server : NetworkManager
         }
         */
     }
-    void loadCharacterInfoFromDatabase(PlayerServer player) {
+    PlayerServer loadCharacterInfoFromDatabase(PlayerServer player) {
         MySqlConnection conn;
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM characters WHERE characterName = '" + player.playerName + "'");
-
+        Debug.Log("player name: !!!" + player.playerName);
         while (reader.Read()) {
             player.getPlayerStats().health = reader.GetInt16("health");
             player.getPlayerStats().maxHealth = reader.GetInt16("maxHealth");
@@ -522,6 +522,7 @@ public class Server : NetworkManager
             player.getPlayerStats().eyeColor = reader.GetString("eyeColor");
             player.getPlayerStats().skinColor = reader.GetString("skinColor");
         }
+        return player;
     }
     void onLoadCharacter(NetworkMessage msg)
     {
@@ -538,7 +539,7 @@ public class Server : NetworkManager
         charactersOnline.Add(packet.characterName, getCharacterID(packet.characterName));
         characterConnections.Add(msg.conn.connectionId, packet.characterName);
         playerReal.playerName = packet.characterName;
-        loadCharacterInfoFromDatabase(playerReal);
+        player = loadCharacterInfoFromDatabase(playerReal);
         playerObjects.Add(msg.conn.connectionId, playerReal);
         packet.stats = Tools.objectToByteArray(player.getPlayerStats());
         MySqlConnection conn;
@@ -728,19 +729,20 @@ public class Server : NetworkManager
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Equip equip = (Equip)Tools.byteArrayToObject(info.item);
         //-((equip.getID() / Tools.ITEM_INTERVAL) - 3) räknar ut position som den ska ha i inventoryt.
+        Debug.Log("INVENTORY EQUIP!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + equip.getPosition() + "' WHERE id = '" + equip.getKeyID() + "'");
         con.Close();
-        NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_UNEQUIP, info);
+        NetworkServer.SendToAll(PacketTypes.ITEM_UNEQUIP, info);
     }
     void onEquipItem(NetworkMessage netMsg)
     {
         MySqlConnection con;
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Equip equip = (Equip)Tools.byteArrayToObject(info.item);
+        Debug.Log("INVENTORY EQUIP!!!!!!!!!!!!!!!!!!!!!!!!!!! " + equip.getKeyID() + " | " + ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1));
         //-((equip.getID() / Tools.ITEM_INTERVAL) - 3) räknar ut position som den ska ha i inventoryt.
-        mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + -((equip.getID() / Tools.ITEM_INTERVAL) - 3) + "' WHERE id = '" + equip.getKeyID() + "'");
+        mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1) + "' WHERE id = '" + equip.getKeyID() + "'");
         con.Close();
-        NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_EQUIP, info);
         NetworkServer.SendToAll(PacketTypes.ITEM_EQUIP, info);
     }
 
