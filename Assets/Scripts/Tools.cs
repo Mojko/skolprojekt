@@ -13,7 +13,7 @@ public enum ErrorID
 };
 public enum e_itemTypes
 {
-   EQUIP=-1, USE = 500, ETC = 1000, HATS = 1500, ACCESSORY = 2000, FACE = 2500, WEAPON = 3000, SHIELD = 3500, BODY = 4000, GLOVE = 4500, PANTS = 5000, BOOTS = 5500, NPC = 6000, QUESTS = 6500, MOBS
+   EQUIP=-1, USE = 500, ETC = 1000, HATS = 1500, ACCESSORY = 2000, FACE = 2500, WEAPON = 3000, SHIELD = 3500, BODY = 4000, GLOVE = 4500, PANTS = 5000, BOOTS = 5500, NPC = 6000, QUESTS = 6500, MOBS, COIN = 9500
 };
 public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
@@ -94,14 +94,9 @@ public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
-<<<<<<< HEAD
 	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
-=======
-    public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
-public static GameObject findInactiveChild(GameObject parent, string name){
->>>>>>> 3451cb2d07b4fb10dae23b0ab52f31f541dbfe61
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
 		foreach(Transform t in transforms){
 			if(t.name.Equals(name)){
@@ -110,11 +105,6 @@ public static GameObject findInactiveChild(GameObject parent, string name){
 		}
 		return null;
 	}
-<<<<<<< HEAD
-	public static Sprite getSprite(this int itemID) {
-		ItemVariables vars = ItemDataProvider.getInstance().getStats(itemID);
-		return (Sprite)sprites[vars.getInt("imageIndex")];
-	}
 	public static Texture2D spriteToTexture(Sprite sprite){
 		Texture2D generatedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
 		Color[] pixels = sprite.texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, (int)sprite.rect.width, (int)sprite.rect.height);
@@ -122,8 +112,6 @@ public static GameObject findInactiveChild(GameObject parent, string name){
 		generatedTexture.Apply();
 		return generatedTexture;
 	}
-=======
->>>>>>> 3451cb2d07b4fb10dae23b0ab52f31f541dbfe61
     public static GameObject loadObjectFromResources(e_Objects obj)
     {
         return (GameObject)Resources.Load(ResourceStructure.getPathForObject(obj));
@@ -227,14 +215,6 @@ public static GameObject findInactiveChild(GameObject parent, string name){
         }
         return returnObject;
     }
-    public static Texture2D spriteToTexture(Sprite sprite)
-    {
-        Texture2D generatedTexture = new Texture2D((int)sprite.rect.width, (int)sprite.rect.height);
-        Color[] pixels = sprite.texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, (int)sprite.rect.width, (int)sprite.rect.height);
-        generatedTexture.SetPixels(pixels);
-        generatedTexture.Apply();
-        return generatedTexture;
-    }
     public static Color hexColor(int hex)
     {
         int r = (hex >> 16) & 0xFF;
@@ -272,23 +252,15 @@ public static GameObject findInactiveChild(GameObject parent, string name){
     {
         return Server.playerObjects[msg.conn.connectionId];
     }
-<<<<<<< HEAD
 	public static bool isItemType(this int itemID, e_itemTypes type) {
 		if (type == e_itemTypes.EQUIP) return isItemEquip(itemID);
 		int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
 		return ID == (int)type;
 	}
-=======
     public static Sprite getSprite(this int itemID) {
         ItemVariables vars = ItemDataProvider.getInstance().getStats(itemID);
         return (Sprite)sprites[vars.getInt("imageIndex")];
     }
-    public static bool isItemType(this int itemID, e_itemTypes type) {
-        if (type == e_itemTypes.EQUIP) return isItemEquip(itemID);
-        int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
-        return ID == (int)type;
-    }
->>>>>>> 3451cb2d07b4fb10dae23b0ab52f31f541dbfe61
     public static ItemDataAll getChild(this ItemDataAll data, int itemID) {
         return null;
     }

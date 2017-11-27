@@ -67,7 +67,7 @@ public class ItemDirectory {
         }
 		for (int i = 0; i < dirs.Length; i++)
 		{
-			//subDirectories.Add(new ItemDirectory(dirs[i]));
+			subDirectories.Add(new ItemDirectory(dirs[i]));
 		}
         this.path = path;
     }
@@ -98,7 +98,7 @@ public class ItemDirectory {
 }
 
 public class ItemData{
-    ItemDirectory directory;
+	ItemDirectory directory;
     private Dictionary<int, ItemVariables> itemValues = new Dictionary<int, ItemVariables>();
     public ItemData(ItemDirectory directory) {
         this.directory = directory;
@@ -164,6 +164,13 @@ public class ItemData{
             data = (ItemDataEquips)getItemFromParent(data, itemID);
             return data;
         }
+		if (itemID.isItemType(e_itemTypes.COIN))
+		{
+			ItemDataEtc data = JsonUtility.FromJson<ItemDataEtc>(file);
+			data.parentItems = data.parentItems;
+			data = (ItemDataEtc)getItemFromParent(data, itemID);
+			return data;
+		}
         return null;
     }
     private ItemDataAll getItemFromParent(ItemDataAll data, int itemID) {
@@ -307,6 +314,7 @@ public class ItemDataScrolls : ItemDataAll
 [Serializable]
 public class ItemDataEtc : ItemDataAll
 {
+	public ItemDataEquips[] items;
     public int id;
     public string name;
     public int health;

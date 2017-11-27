@@ -32,7 +32,6 @@ public class InventorySlot : MonoBehaviour {
     }
 
     public void setImage(Item item) {
-<<<<<<< HEAD
         //om itemet är tomt så ska det vara en tom bild. annars ska en hämta en bild beroende på vilket item det är.
         if (this.item.stats[0] == -1)
         {
@@ -41,9 +40,7 @@ public class InventorySlot : MonoBehaviour {
         else {
 			this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = item.getID().getSprite();
         }
-=======
         this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = item.getID().getSprite();
->>>>>>> 3451cb2d07b4fb10dae23b0ab52f31f541dbfe61
     }
 
 	public void setID(int ID){
