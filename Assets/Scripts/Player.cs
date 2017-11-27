@@ -31,7 +31,7 @@ public class Player : NetworkBehaviour
     public PlayerStats stats;
     public string playerName;
     public int money = 0;
-
+    private GameObject[] playerEquipSlots;
 
     [Space(20)]
     [Header("Quests")]
@@ -58,7 +58,28 @@ public class Player : NetworkBehaviour
     [Space(20)]
     [Header("Leave these alone")]
     public NPCMain npcMain;
-
+    public void Start()
+    {
+        playerEquipSlots = Tools.getChildren(this.gameObject, "hatStand", "armorStand");
+    }
+    public void setEquipModel(Item item)
+    {
+        int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
+        GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
+        itemEquip.transform.SetParent(getEquipSlot(index).transform);
+        itemEquip.transform.localScale = Vector3.one;
+        itemEquip.transform.localPosition = Vector3.zero;
+    }
+    public void removeEquipModel(Item item) {
+        int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
+        foreach (Transform child in getEquipSlot(index).transform.getAllChildren())
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    public GameObject getEquipSlot(int index) {
+        return playerEquipSlots[index];
+    }
     public override void OnStartLocalPlayer ()
 	{
         if(!isLocalPlayer) return;
@@ -102,7 +123,6 @@ public class Player : NetworkBehaviour
         equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
         equip.setEquipmentUI(Tools.getChild(UICanvas, "Equipment_UI"));
         equip.setPlayer(this);
-        equip.setPlayerSlots(this);
         //camera
         camera = Camera.main;
         camera.GetComponent<MainCamera> ().player = this.gameObject;
@@ -133,7 +153,7 @@ public class Player : NetworkBehaviour
 		npcManager.GetComponent<NPCController>().initilize(this);
 
         identity = this.GetComponent<NetworkIdentity>();
-
+        Debug.Log("INFO1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 	public bool hasCompletedQuest(Quest quest){
 		foreach(Quest q in quests.ToArray()){
@@ -255,12 +275,12 @@ public class Player : NetworkBehaviour
         Debug.Log("reloaded scene.");
     }
     public void setEquips(List<Equip> equips) {
-        Debug.Log("equips set!!!!!!!!!!!!!!!!");
         equip.setEquips(equips);
         equip.updateSlots();
     }
     public void updateStats(PlayerStats stats) {
         this.stats = stats;
+        Debug.Log(stats.health + " : " + stats.maxHealth + " || " + stats.health + " : " + stats.maxHealth + " - INFO2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         this.UIPlayer.updateInfo();
     }
     public void Update() {

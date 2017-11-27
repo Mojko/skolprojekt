@@ -104,7 +104,6 @@ public class ItemData{
         this.directory = directory;
     }
     public ItemVariables getItemStats(int itemID) {
-        Debug.Log("GETTINGS STATAS!!!!!!!!!!!");
         if (itemValues.ContainsKey(itemID)) {
             return itemValues[itemID];
         }

@@ -9,11 +9,7 @@ public class EquipmentHandler : UIHandler {
     GameObject[] slots;
     MouseOverUI[] slotsMouse;
     Player player;
-    GameObject[] playerEquipSlots;
     bool hasLoaded = false;
-    public void setPlayerSlots(Player player) {
-        playerEquipSlots = Tools.getChildren(player.gameObject, "hatStand","armorStand");
-    }
     new void Update() {
         base.Update();
         if (!hasLoaded) return;
@@ -40,9 +36,12 @@ public class EquipmentHandler : UIHandler {
         return null;
     }
     public void setEquip(int type, Equip equip) {
-        Debug.Log("EQUIPS: " + equips.Count);
         int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
         Equip item;
+        foreach (Transform child in player.getEquipSlot(index).transform.getAllChildren())
+        {
+            Destroy(child.gameObject);
+        }
         if ((item = equips[index]) != null) {
             item.setPosition(equip.getPosition());
             player.getInventory().addItem(item);
@@ -50,19 +49,11 @@ public class EquipmentHandler : UIHandler {
 
         equips[index] = equip;
         GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(equip.getID()).getString("pathToModel")));
-        itemEquip.transform.SetParent(playerEquipSlots[index].transform);
+        itemEquip.transform.SetParent(player.getEquipSlot(index).transform);
         itemEquip.transform.localScale = Vector3.one;
         itemEquip.transform.localPosition = Vector3.zero;
         player.getNetwork().equipItem(equip);
-        player.identity.RebuildObservers(false);
         updateSlots();
-    }
-    public void setEquipModel(Item item) {
-        int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
-        GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
-        itemEquip.transform.SetParent(playerEquipSlots[index].transform);
-        itemEquip.transform.localScale = Vector3.one;
-        itemEquip.transform.localPosition = Vector3.zero;
     }
     public void setEquipmentUI(GameObject equipment) {
         equip = equipment;
@@ -100,7 +91,6 @@ public class EquipmentHandler : UIHandler {
             equip = equips[i];
             Debug.Log("equip id position: " + ((equip.getID() / 500) - 2));
             Image image = slots[(equip.getID() / Tools.ITEM_INTERVAL) - 2].transform.GetChild(0).GetComponent<Image>();
-            Debug.Log("sprite: " + equip.getID() / Tools.ITEM_INTERVAL + " : " + equip.getID() % Tools.ITEM_INTERVAL + 1);
             image.sprite = (Sprite)equip.getID().getSprite();
             image.color = Color.white;
         }

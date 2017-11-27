@@ -215,7 +215,6 @@ public class Inventory : MonoBehaviour
 
         for (int i = 0; i < itemsOwned.Count; i++)
         {
-            Debug.Log("error i: " + i);
             if (itemsOwned[i].isMouseOver() && !information.gameObject.activeSelf)
             {
                 information.setItem(itemsOwned[i].getItem());
@@ -249,20 +248,13 @@ public class Inventory : MonoBehaviour
                     break;
                 }
             }
-            //Debug.Log(activeCanvas);
-            if(Input.GetMouseButtonDown(0) && !mouse.isEmpty())
-            {
-                Debug.Log("is over?: " + canvas[activeCanvas]);
-            }
             if (!mouse.isEmpty() && Input.GetMouseButtonDown(0) && canvas[activeCanvas].GetComponent<MouseOverUI>().isMouseOver())
             {
                 Item temp;
                 int newPos = Vec2ToSlots(canvas[activeCanvas].GetComponent<MouseOverUI>().getRelativePosition());
                 int pos;
-                Debug.Log("clicked");
                 if ((pos = getSlot(newPos)) != EMPTY)
                 {
-                    Debug.Log("spot not empty");
                     temp = itemsOwned[pos].getItem();
                     itemsOwned[pos].getItem().setPosition(itemsOwned[mouse.holdingID].getItem().getPosition());
                     recalcPos(pos, itemsOwned[mouse.holdingID].getItem().getPosition());
@@ -289,7 +281,6 @@ public class Inventory : MonoBehaviour
                 itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, 0f);
                 itemSettingTransform.position = Input.mousePosition;
                 itemSettingTransform.gameObject.SetActive(true);
-                Debug.Log("right click! " + hasRightClicked);
                 information.hide();
                 slotClicked = itemsOwned[i];
                 if (itemsOwned[i].getItem().getInventoryType() == (int)inventoryTabs.EQUIP)
@@ -316,7 +307,7 @@ public class Inventory : MonoBehaviour
             */
         }
         if (hasRightClicked && !isDoneLoading) {
-            Debug.Log("lerping!!");
+
             itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, Mathf.Lerp(itemSettingTransform.sizeDelta.y,90f,Time.deltaTime * itemRightClickSpeed));
             if (itemSettingTransform.sizeDelta.y >= 89f) {
                 itemSettingTransform.sizeDelta = new Vector2(itemSettingTransform.sizeDelta.x, 90F);
