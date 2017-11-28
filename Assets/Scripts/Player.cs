@@ -33,30 +33,34 @@ public class Player : NetworkBehaviour
     public int money = 0;
     private GameObject[] playerEquipSlots;
 
-    [Space(20)]
     [Header("Quests")]
+    [Space(20)]
     public List<Quest> quests = new List<Quest>();
     public GameObject quest_UI;
 
-    [Space(20)]
     [Header("Skills")]
+    [Space(20)]
     public GameObject skillPrefab;
     public GameObject skillEffectPrefab;
     public GameObject skillTreeUi;
     public List<Skill> skills = new List<Skill>();
     public List<Skill> skillsToVerifyWithFromServer = new List<Skill>();
 
-    [Space(20)]
     [Header("System")]
-
+    [Space(20)]
     public Camera camera;
 	public playerNetwork network;
 	public GameObject npcTalkingTo;
     public Chat chat;
     public GameObject[] prefabsToRegister;
 
+    [Header("Special Effects")]
     [Space(20)]
+    public GameObject impactHitPrefab;
+
+
     [Header("Leave these alone")]
+    [Space(20)]
     public NPCMain npcMain;
     public void Start()
     {
@@ -366,6 +370,37 @@ public class Player : NetworkBehaviour
 		Debug.Log("destroying");
 		NetworkServer.Destroy(NetworkServer.FindLocalObject(identity.netId));
 	}
+    [Command]
+    public void CmdSpawnGameObject(string path)
+    {
+        GameObject o = Instantiate((GameObject)Resources.Load(path));
+        NetworkServer.Spawn(o);
+    }
+    [Command]
+    public void CmdSyncGameObject(NetworkInstanceId netId, Vector3 position, Quaternion rot)
+    {
+        GameObject o = NetworkServer.FindLocalObject(netId);
+        o.transform.position = position;
+        o.transform.rotation = rot;
+        RpcSyncGameObject(netId, position, rot);
+    }
+    [ClientRpc]
+    public void RpcSyncGameObject(NetworkInstanceId netId, Vector3 position, Quaternion rot)
+    {
+        GameObject o = ClientScene.FindLocalObject(netId);
+        o.transform.position = position;
+        o.transform.rotation = rot;
+    }
+    [Command]
+    public void CmdSpawnGameObjectLocally(string path, Vector3 position)
+    {
+        RpcSpawnGameObjectLocallyOnAllClients(path, position);
+    }
+    [ClientRpc]
+    public void RpcSpawnGameObjectLocallyOnAllClients(string path, Vector3 position)
+    {
+        Instantiate((GameObject)Resources.Load(path)).transform.position = position;
+    }
 }
 
 public class PlayerData {

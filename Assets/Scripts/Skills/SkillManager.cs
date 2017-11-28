@@ -3,12 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 
 public enum e_AnimationLayers {
 	MAIN,
 	MAGIC_SKILLS,
 	WARRIOR_SKILLS,
 	HUNTER_SKILLS
+}
+public enum e_SkillType {
+	PROJECTILE,
+	AOE,
+	TARGET
 }
 
 public class SkillManager : NetworkBehaviour {
@@ -32,37 +41,29 @@ public class SkillManager : NetworkBehaviour {
 		hasInit = true;
     }
 
+	public e_SkillType stringToSkillType(string name){
+		if(name.Equals("projectile")) return e_SkillType.PROJECTILE;
+		if(name.Equals("aoe")) return e_SkillType.AOE;
+		if(name.Equals("target")) return e_SkillType.TARGET;
+		return e_SkillType.AOE;
+	}
+
 	private bool isAnimationFinished(string name){
 		return !animator.GetCurrentAnimatorStateInfo((int)e_AnimationLayers.MAGIC_SKILLS).IsName(name) && cooldownStarted;
 	}
 
-    
-
-    //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-	/*[Command]
-	void CmdSendSkillServerToServer(string pathToSkillEffect, float[] posInFloat, float[] rotInFloat){ //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-        Vector3 pos = new Vector3(posInFloat[0], posInFloat[1], posInFloat[2]);
-        Quaternion rot = Quaternion.Euler(new Vector3(rotInFloat[0], rotInFloat[1], rotInFloat[2]));
-
-		GameObject skillEffect = Instantiate((GameObject)Resources.Load(pathToSkillEffect));
-
-        skillEffect.transform.position = pos;
-        skillEffect.transform.rotation = rot;
-		
-        NetworkServer.Spawn(skillEffect);
-    }*/
-    //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-
+	public e_SkillType getSkillType(){
+		return stringToSkillType(skill.type);
+	}
 
     private void Update () 
     {
 		if(!hasInit || animator == null) return;
 
 		if(isAnimationFinished(this.currentAnimationPlayingName)) {
-            //float[] pos = { player.transform.position.x, player.transform.position.y + 1f, player.transform.position.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-            //float[] rot = { player.getPlayerMovement().rot.eulerAngles.x, player.getPlayerMovement().rot.eulerAngles.y, player.getPlayerMovement().rot.eulerAngles.z }; //BYT UT FLOAT[] ARRAY MOT VECTOR3 OCH QUATERNION
-			player.getNetwork().sendProjectile(this.skill.pathToSkillModel, player.transform.position, player.getPlayerMovement().rot.eulerAngles);
-			//CmdSendSkillServerToServer(this.skill.pathToSkillModel, pos, rot);
+			Debug.Log("sending skillscast..");
+			player.getNetwork().sendSkillCast(this.skill.pathToSkillModel, player.transform.position, player.getPlayerMovement().rot.eulerAngles, this.skill.type);
+
             stopCooldown();
 			player.getPlayerMovement().unfreeze();
         }

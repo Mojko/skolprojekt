@@ -65,6 +65,7 @@ public class QuestInformationData : MonoBehaviour {
 			questPanels[quest.getId()].GetComponent<QuestContainer>().delete();
 			Destroy(questPanels[quest.getId()]);
 			questPanels.Remove(quest.getId());
+			toggleActive(false);
 		}
 	}
 }

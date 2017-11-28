@@ -39,26 +39,6 @@ public class CommandManager {
             obj[i] = splitMessage[i + 1];
         }
         methodInfo.Invoke(this, obj);
-        /*
-        switch (splitMessage.Length) {
-            case 1:
-            methodInfo.Invoke(this, null);
-            break;
-            case 2:
-            methodInfo.Invoke(this, new object[] { splitMessage[1] });
-            break;
-            case 3:
-            methodInfo.Invoke(this, new object[] { splitMessage[1], splitMessage[2] });
-            break;
-            case 4:
-            methodInfo.Invoke(this, new object[] { splitMessage[1], splitMessage[2], splitMessage[3] });
-            break;
-            case 5:
-            methodInfo.Invoke(this, new object[] { splitMessage[1], splitMessage[2], splitMessage[3], splitMessage[4] });
-            break;
-
-        }
-        */
 
     }
     public void help()

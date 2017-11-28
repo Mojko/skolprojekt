@@ -179,9 +179,12 @@ public class PlayerMovement : NetworkBehaviour {
 		}
 
 		//SKILL
-
-		Skill skillThatWillBeLaunched = player.getSkillManager().isPlayerTryingToActivateSkill();
+		Skill skillThatWillBeLaunched = null;
+		if(Input.anyKeyDown){
+			skillThatWillBeLaunched = player.getSkillManager().isPlayerTryingToActivateSkill();
+		}
         if(skillThatWillBeLaunched != null) {
+			Debug.Log("Player is trying to activate skill...");
 			this.player.getSkillManager().castSkill(skillThatWillBeLaunched, skillThatWillBeLaunched.name);
         }
 		if(this.player.getSkillManager().isCasting()){
@@ -194,7 +197,7 @@ public class PlayerMovement : NetworkBehaviour {
 		Collider[] colliders = Physics.OverlapSphere (transform.position, attackRange);
 		for (int i = 0; i < colliders.Length; i++) {
             if(colliders[i].CompareTag("Enemy")){
-                player.getNetwork().damageEnemy(colliders[i].gameObject, 5);
+                player.getNetwork().damageEnemy(colliders[i].gameObject, 5, e_Objects.VFX_IMPACT_MELEE_1);
                 //player.getNetwork().damageEnemy(this.gameObject, colliders[i].gameObject, 5);
                 //CmdDamageEnemy(colliders[i].gameObject, this.gameObject, 10, player.connectionToServer.connectionId);
             }

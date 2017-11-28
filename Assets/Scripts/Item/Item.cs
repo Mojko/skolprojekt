@@ -14,7 +14,7 @@ public enum e_ItemTypes
 [System.Serializable]
 public class Item {
 	public int[] stats = new int[Tools.ITEM_PROPERTY_SIZE];
-	public static readonly int ID_MONEY = 9999;
+	public static readonly int ID_MONEY = 9500;
     private ItemVariables dataDisplay;
     private int position;
 	private int id;

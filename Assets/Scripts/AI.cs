@@ -5,11 +5,7 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
-enum e_States {
-	IDLE,
-	CHASE,
-	ATTACK
-}
+
 
 
 /*
@@ -19,7 +15,6 @@ enum e_States {
 
 
 public class AI : MobManager {
-	e_States state = e_States.IDLE;
 	int range = 4;		
 	
 	//Oldpos behövs för att veta vart enemyn spawnade, så den kan patrullera runt där
@@ -31,10 +26,10 @@ public class AI : MobManager {
 	[Header("Fill in")]
 	public GameObject biteEffectPrefab;
     public GameObject body;
+	public GameObject angerLight;
 
 	private float speed;
 	private float angularSpeed;
-	private Animator animator;
     private float attackRange = 1.5f;
 	private bool coroutineStarted = false;
     private Timer timer;
@@ -43,6 +38,8 @@ public class AI : MobManager {
 	private NavMeshAgent agent;
 	private bool shouldRotate;
 	private bool hasActivatedEffect = false;
+	private Renderer renderer;
+	private Renderer[] childRenderers;
     private Renderer bodyRenderer;
     private FaceManager faceManager;
 
@@ -58,6 +55,8 @@ public class AI : MobManager {
 		this.speed = agent.speed;
 		this.angularSpeed = agent.angularSpeed;
 		this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
+		this.renderer = GetComponent<Renderer>();
+		this.childRenderers = GetComponentsInChildren<Renderer>(true);
         this.faceManager = GetComponent<FaceManager>();
         body = this.transform.Find(body.name).gameObject;
         this.bodyRenderer = body.GetComponent<Renderer>();
@@ -83,9 +82,12 @@ public class AI : MobManager {
 		case e_States.ATTACK:
 			attackState();
 			break;
+		case e_States.DIE:
+			dieState();
+			break;
 		}
 
-        if(newPos != null) {
+		if(newPos != null && state != e_States.DIE) {
             this.GetComponent<NavMeshAgent>().destination = newPos;
         }
 	}
@@ -112,11 +114,13 @@ public class AI : MobManager {
         startTimerIfNotStarted(4);
 
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+			toggleAngry(false);
             faceManager.setFace(this.bodyRenderer, e_Faces.DEFAULT);
 			animator.Play("Idle", 0, 0);
 		}
 
 		if(this.target != null){
+			animator.Play("Idle");
 			setState(e_States.CHASE);
 		}
 
@@ -124,13 +128,20 @@ public class AI : MobManager {
             setNewDestination(chooseDestination());
         }
     }
+
+	void toggleAngry(bool toggle){
+		if(angerLight != null){
+			angerLight.SetActive(toggle);
+		}
+	}
+
     void chaseState()
     {
     	followTarget(this.target);
 
-		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
-            faceManager.setFace(this.bodyRenderer,e_Faces.ANGRY);
-			animator.Play("Idle", 0, 0);
+		if(faceManager.getFace() != e_Faces.ANGRY){
+			faceManager.setFace(this.bodyRenderer,e_Faces.ANGRY);
+			toggleAngry(true);
 		}
 
         if(isTargetOutOfRange(this.target, 25)) {
@@ -138,7 +149,7 @@ public class AI : MobManager {
 			return;
         }
         RaycastHit rayHit;
-        if (canAttack(out rayHit)) {
+        if (canAttack(out rayHit, "Player")) {
             //Then attack lol
 			setState(e_States.ATTACK);
 			return;
@@ -148,6 +159,22 @@ public class AI : MobManager {
 	Quaternion rotateTowards(Transform transform, Transform target, float speed) {
 		Quaternion r = Quaternion.LookRotation((target.position - transform.position));
 		return Quaternion.Slerp(transform.rotation, r, speed * Time.deltaTime);
+	}
+
+	void dieState(){
+		freeze();
+		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Die")){
+			animator.Play("Die");
+		} else {
+			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
+				kill();
+			}
+		}
+		foreach(Renderer renderer in childRenderers){
+			float a = renderer.material.color.a;
+			a -= 1f * Time.deltaTime;
+			renderer.material.color = new Color(renderer.material.color.r, renderer.material.color.g, renderer.material.color.b, a);
+		}
 	}
 
     void attackState()
@@ -165,6 +192,7 @@ public class AI : MobManager {
 		}
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
 			animator.Play("Bite", 0, 0);
+			faceManager.setFace(this.bodyRenderer, e_Faces.ATTACK);
 			shouldRotate = true;
 		} else {
 			freeze();
@@ -172,23 +200,22 @@ public class AI : MobManager {
 				hasDamaged = true;
 
                 RaycastHit rayHit;
-                if(canAttack(out rayHit)) {
-				    if(rayHit.transform.CompareTag("Player")){
-                       	this.target.GetComponent<Player>().damage(5, this.gameObject);
-				    }
+                if(canAttack(out rayHit, "Player")) {
+                   	this.target.GetComponent<Player>().damage(5, this.gameObject);
                 }
 
 			}
 
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.7f && !hasActivatedEffect){
 				Instantiate(biteEffectPrefab).transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z) + (transform.forward*1.2f);
+				faceManager.setFace(this.bodyRenderer, e_Faces.ANGRY);
 				hasActivatedEffect = true;
 			}
 
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f){
 				RaycastHit rayHit;
 				hasActivatedEffect = false;
-                if(canAttack(out rayHit)){
+                if(canAttack(out rayHit, "Player")){
 					animator.Play("Bite", 0, 0);
 				} else {
 					setState(e_States.IDLE);
@@ -249,10 +276,12 @@ public class AI : MobManager {
         return this.state;
     }
 
-    bool canAttack(out RaycastHit rayHit)
+	bool canAttack(out RaycastHit rayHit, string tag)
     {
         if(Physics.Raycast(this.transform.position, this.transform.forward, out rayHit, this.attackRange)) {
-            return true;
+			if(rayHit.collider.gameObject.CompareTag("Player")){
+            	return true;
+			}
         }
 		/*bool isDistanceCloseEnough = Vector3.Distance (transform.position, target.transform.position) < attackRange;
 		if (isDistanceCloseEnough) {

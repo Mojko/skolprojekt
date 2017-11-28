@@ -28,6 +28,7 @@ public class Spawner : NetworkBehaviour {
             Server.spawnMonster(monsterId, randomVector3InRadius());
             totalEnemiesInArea++;
         }
+		totalEnemiesInArea = Mathf.Clamp(totalEnemiesInArea, 0, maxEnemies);
     }
     private Vector3 randomVector3InRadius()
     {
@@ -39,5 +40,4 @@ public class Spawner : NetworkBehaviour {
         Gizmos.color = new Color(0,1,0,0.3f);
         Gizmos.DrawCube(this.transform.position, vector3Radius);
     }
-
 }

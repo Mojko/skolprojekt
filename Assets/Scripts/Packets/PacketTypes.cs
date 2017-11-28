@@ -27,6 +27,7 @@ public class PacketTypes{
 	public static readonly short SAVE_SKILLS = 1201;
 	public static readonly short LOAD_SKILLS = 1202;
 	public static readonly short ERROR_SKILL = 1203;
+	public static readonly short CREATE_SKILL = 1024;
 
 	//#ENEMIES
 	public static readonly short MONSTER_SPAWN = 1301;
@@ -46,15 +47,15 @@ public class PacketTypes{
     public static readonly short QUEST_END = 1702;
 	public static readonly short QUEST_UPDATE = 1703;
 	public static readonly short QUEST_COMPLETE = 1704;
-    
-    public static readonly short DEAL_DAMAGE = 1024;
 
 	//MISC
 	public static readonly short DROP_INIT = 1800;
 	public static readonly short DESTROY = 1801;
+	public static readonly short DEAL_DAMAGE = 1802;
 
     //ERROR
     public static readonly short ERROR = 9999;
+	public static readonly short TEST = 9998;
 
 }
 public enum MessageTypes
