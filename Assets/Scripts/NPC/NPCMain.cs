@@ -54,7 +54,6 @@ public class NPCMain : NetworkBehaviour {
     {
         //this.text = GameObject.FindWithTag("DialogueText").GetComponent<Text>();
 		Sprite[] sprites = Resources.LoadAll<Sprite>("spritesheet_NpcIcons");
-		Debug.Log("defaultids: " + DefaultIds.getNpcDefault());
 		faceImage = sprites[(npcId/DefaultIds.getNpcDefault())-1];
         this.questMark = transform.GetChild(0).gameObject;
 		if(faceImage == null)

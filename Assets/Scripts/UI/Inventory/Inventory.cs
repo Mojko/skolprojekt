@@ -166,7 +166,6 @@ public class Inventory : MonoBehaviour
         information.gameObject.transform.SetParent(canvas[0].transform.parent.parent.parent);
         information.gameObject.transform.SetAsLastSibling();
         handler = parentCanvas.GetComponent<UIHandler>();
-        this.player.getNetwork().loadInventory();
         //addItem(new Item().getEmptyItem(0));
     }
     public int getClosestSlot(int storeType) {

@@ -32,9 +32,7 @@ public class playerNetwork : NetworkBehaviour{
         GameObject login_world = GameObject.Find("login_Word");
         this.player.playerName = login.getCharacterName();
 
-        Debug.Log("name here m8 sk8 l8sdf sdf sdf sd fsdf sdf sdf sdf: " + this.player.playerName);
 		con.RegisterHandler(PacketTypes.LOAD_PLAYER, onLoadCharacter);
-		con.RegisterHandler (PacketTypes.LOAD_INVENTORY, onLoadInventory);
         con.RegisterHandler(PacketTypes.SEND_MESSAGE, onReciveMessage);
         con.RegisterHandler(PacketTypes.NPC_INTERACT, onReciveNPCText);
         con.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkill);
@@ -47,6 +45,7 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
+        con.RegisterHandler(PacketTypes.LOAD_OTHER_PLAYER, onClientConnect);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -75,6 +74,18 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
+    void onClientConnect(NetworkMessage msg) {
+        OtherPlayerInfo info = msg.ReadMessage<OtherPlayerInfo>();
+        if (!info.id.Equals(this.player.identity.netId)) {
+            Player player = ClientScene.FindLocalObject(info.id).GetComponent<Player>();
+            List<Equip> equips = (List<Equip>)Tools.byteArrayToObject(info.equipment);
+            foreach(Equip equip in equips)
+            {
+                if (equip == null) continue;
+                player.setEquipModel(equip);
+            }
+        }
+    }
     void onUnequipItem(NetworkMessage msg) {
         ItemInfo info = msg.ReadMessage<ItemInfo>();
         if (info.netId.Equals(this.player.identity.netId))
@@ -362,7 +373,6 @@ public class playerNetwork : NetworkBehaviour{
             characterName = characterName,
             id = this.gameObject.GetComponent<NetworkIdentity>().netId
         };
-        Debug.Log("players name: " + PacketTypes.LOAD_PLAYER + " : " + con);
 		con.Send(PacketTypes.LOAD_PLAYER, msg);
 	}
     private void OnDisconnect()
@@ -380,8 +390,15 @@ public class playerNetwork : NetworkBehaviour{
     {
         PlayerInfo m = msg.ReadMessage<PlayerInfo>();
         PlayerStats stats = (PlayerStats)Tools.byteArrayToObject(m.stats);
-        Debug.Log("log in from own packet!!!!!!!!!!");
         this.player.updateStats(stats);
+        List<Equip> equipments = (List<Equip>)(Tools.byteArrayToObject(m.equipment));
+        List<Item> inventory = (List<Item>)(Tools.byteArrayToObject(m.items));
+        this.player.setInventory(inventory);
+        this.player.setEquips(equipments);
+        for (int i = 0; i < equipments.Count; i++) {
+            if (equipments[i] == null) continue;
+            this.player.setEquipModel(equipments[i]);
+        }
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
         Player player;
         if(playerObj != null){
@@ -458,15 +475,6 @@ public class playerNetwork : NetworkBehaviour{
     public void onItemUse(Item item) {
         sendItem(PacketTypes.ITEM_USE, item);
     }
-    public void sendInventory(Inventory invetory){
-		con = connectionToServer;
-		//con.RegisterHandler (PacketTypes.SAVE_INVENTORY, OnSaveInventory);
-		InventoryInfo msg = new InventoryInfo ();
-		msg.id = this.gameObject.GetComponent<NetworkIdentity> ().netId;
-		//Item[] items = invetory.getItems();
-		msg.name = player.playerName;
-		con.Send (PacketTypes.SAVE_INVENTORY, msg);
-	}
     public void sendItem(Item item)
     {
         ItemInfo itemInfo = new ItemInfo();
@@ -481,11 +489,6 @@ public class playerNetwork : NetworkBehaviour{
         //item.position = new float[] { player.transform.position.x, player.transform.position.y, player.transform.position.z};
         con.Send(packetType, item);
     }
-	public void loadInventory(){
-		InventoryInfo msg = new InventoryInfo ();
-		msg.name = player.playerName;
-        con.Send (PacketTypes.LOAD_INVENTORY, msg);
-	}
     public void sendMessage(string message, MessageTypes type, string reciver = "") {
         PacketMessage msg = new PacketMessage();
         msg.sender = this.player.playerName;
@@ -499,15 +502,4 @@ public class playerNetwork : NetworkBehaviour{
         }
     }
 
-    //körs när spelaren har fått tillbaka sitt inventory från servern. 
-	void onLoadInventory(NetworkMessage msg){
-        InventoryInfo info = msg.ReadMessage<InventoryInfo>();
-        List<Equip> equipments = (List<Equip>)(Tools.byteArrayToObject(info.equipment));
-        List<Item> inventory = (List<Item>)(Tools.byteArrayToObject(info.items));
-        Debug.Log("equipment: " + equipments.Count);
-        player.setInventory (inventory);
-        player.setEquips(equipments);
-        Debug.Log ("inventory loaded");
-        Debug.Log(info.items.Length);
-	}
 }

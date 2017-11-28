@@ -153,7 +153,6 @@ public class Player : NetworkBehaviour
 		npcManager.GetComponent<NPCController>().initilize(this);
 
         identity = this.GetComponent<NetworkIdentity>();
-        Debug.Log("INFO1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 	public bool hasCompletedQuest(Quest quest){
 		foreach(Quest q in quests.ToArray()){
