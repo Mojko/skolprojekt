@@ -158,7 +158,6 @@ public class Player : NetworkBehaviour
 		npcController.initilize(this);
 
         identity = this.GetComponent<NetworkIdentity>();
-        Debug.Log("INFO1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 	public bool hasCompletedQuest(Quest quest){
 		return quest.getStatus() == e_QuestStatus.COMPLETED;

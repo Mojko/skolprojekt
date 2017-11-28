@@ -12,7 +12,7 @@ public class PacketTypes{
     public static readonly short PICK_CHAR = 1005;
     //# INVENTORY
 	public static readonly short SAVE_INVENTORY = 1006;
-	public static readonly short LOAD_INVENTORY = 1007;
+	public static readonly short LOAD_OTHER_PLAYER = 1007;
     public static readonly short INVENTORY_MOVE_ITEM = 1008;
     public static readonly short INVENTORY_DROP_ITEM = 1009;
     public static readonly short INVENTORY_PICKUP_ITEM = 1010;

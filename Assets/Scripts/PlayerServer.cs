@@ -113,8 +113,8 @@ public class PlayerServer {
         if (equips[equipSlot] == null) return false;
         return true;
     }
-    public int[] getEquips() {
-        return null;
+    public List<Equip> getEquips() {
+        return equips;
     }
     public byte[] GetEquipBytes()
     {

@@ -81,13 +81,17 @@ public class EquipmentHandler : UIHandler {
         Image image = slots[slot].transform.GetChild(0).GetComponent<Image>();
         image.sprite = null;
         image.color = new Color(0, 0, 0, 0);
+        GameObject equipSlot = player.getEquipSlot(slot);
+        foreach (Transform child in equipSlot.transform.getAllChildren()) {
+            Destroy(child.gameObject);
+        }
     }
     public void updateSlots() {
         int countSize = 0;
         GameObject slot;
         Equip equip;
         for (int i = 0; i < equips.Count; i++) {
-            if (equips[i] == null) continue;
+            if (equips[i] == null) { Debug.Log("null item!!!");  continue; }
             equip = equips[i];
             Debug.Log("equip id position: " + ((equip.getID() / 500) - 2));
             Image image = slots[(equip.getID() / Tools.ITEM_INTERVAL) - 2].transform.GetChild(0).GetComponent<Image>();
