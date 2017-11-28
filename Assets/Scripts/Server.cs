@@ -340,6 +340,7 @@ public class Server : NetworkManager
     {
         NetworkServer.Spawn(Instantiate(Tools.loadObjectFromResources(obj)));
     }
+
     public static void spawnObject(e_Objects obj, Vector3 position)
     {
         GameObject o = Instantiate(Tools.loadObjectFromResources(obj));

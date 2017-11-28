@@ -129,16 +129,18 @@ public class playerNetwork : NetworkBehaviour{
         this.player.setHealth(Mathf.Min(this.player.stats.health + vars.getInt("health"), player.stats.maxHealth));
         this.player.setMana(Mathf.Min(this.player.stats.mana + vars.getInt("mana"), player.stats.maxMana));
     }
-    public void damageEnemy(GameObject enemy, int damage)
+    public void damageEnemy(GameObject enemy, int damage, e_Objects impactEffect)
     {
         DamageInfo damageInfo = new DamageInfo();
         damageInfo.clientNetworkInstanceId = this.GetComponent<NetworkIdentity>().netId;
         damageInfo.enemyNetworkInstanceId = enemy.GetComponent<NetworkIdentity>().netId;
-
-        //damageInfo.enemyUniqueId = enemy.GetComponent<MobManager>().getUniqueId();
         damageInfo.damage = damage;
         damageInfo.damageType = e_DamageType.MOB;
-		Debug.Log("damaging enemy...");
+
+        Vector3 pos = new Vector3(enemy.transform.position.x, enemy.transform.position.y+0.5f, enemy.transform.position.z);
+        Instantiate(ResourceStructure.getGameObjectFromObject(impactEffect)).transform.position = pos;
+        player.CmdSpawnGameObjectLocally(ResourceStructure.getPathForObject(impactEffect), pos);
+
         con.Send(PacketTypes.DEAL_DAMAGE, damageInfo);
     }
 

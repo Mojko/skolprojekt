@@ -40,6 +40,7 @@ public class MobManager : NetworkBehaviour {
 	[Space(10)]
 	[Tooltip("Prefab name: Drop")] public GameObject drop;
 	[Tooltip("Prefab name: Part")] public GameObject part;
+    public GameObject impactHitPrefab;
 
 
     public void setId(int id)
@@ -76,10 +77,14 @@ public class MobManager : NetworkBehaviour {
     }
 
 	public void damage (int damage, GameObject damager, PlayerServer playerServer) {
-		Debug.Log("wew reached here without error");
+        if(!isServer) return;
 		targetNetwork = playerServer;
         StartCoroutine(flash());
 		health -= damage;
+        //Server.spawnObject(e_Objects.VFX_IMPACT_MELEE_1, new Vector3(this.transform.position.x, this.transform.position.y+0.5f, this.transform.position.z));
+        //GameObject o = Instantiate((GameObject)Resources.Load("Special Effects/Skills/"+this.impactHitPrefab.name));
+        //o.transform.position = new Vector3(this.transform.position.x, this.transform.position.y+0.5f, this.transform.position.z);
+        //NetworkServer.Spawn(o);
         if(damager != null){
             target = damager;
         }
@@ -88,19 +93,11 @@ public class MobManager : NetworkBehaviour {
 			this.state = e_States.DIE;
 		}
 	}
-	public void damage (int damage, GameObject damager, PlayerServer playerServer, SkillCastManager skillCastManager) {
-		targetNetwork = playerServer;
-		this.skillCastManager = skillCastManager;
-		StartCoroutine(flash());
-		health -= damage;
-		if(damager != null){
-			target = damager;
-		}
-		if (health <= 0) {
-			//kill();
-			this.state = e_States.DIE;
-		}
-	}
+
+    public void setSkillCastManager(SkillCastManager skillCastManager)
+    {
+        this.skillCastManager = skillCastManager;
+    }
 
     [Command]
     void CmdSpawnDrop(string nameOfDrop, Vector3 position)
@@ -166,7 +163,7 @@ public class MobManager : NetworkBehaviour {
         Vector3 pos = new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward;
         Server.spawnObject(e_Objects.PARTICLE_DEATH, pos);
         for(int i=0;i<4;i++){
-            spawnDrop("Coin_gold", pos);
+            //spawnDrop("Coin_gold", pos);
         }
 
 		List<Quest> questsToSend = new List<Quest>();

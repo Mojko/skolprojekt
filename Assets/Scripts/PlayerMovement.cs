@@ -197,7 +197,7 @@ public class PlayerMovement : NetworkBehaviour {
 		Collider[] colliders = Physics.OverlapSphere (transform.position, attackRange);
 		for (int i = 0; i < colliders.Length; i++) {
             if(colliders[i].CompareTag("Enemy")){
-                player.getNetwork().damageEnemy(colliders[i].gameObject, 5);
+                player.getNetwork().damageEnemy(colliders[i].gameObject, 5, e_Objects.VFX_IMPACT_MELEE_1);
                 //player.getNetwork().damageEnemy(this.gameObject, colliders[i].gameObject, 5);
                 //CmdDamageEnemy(colliders[i].gameObject, this.gameObject, 10, player.connectionToServer.connectionId);
             }

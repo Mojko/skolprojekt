@@ -12,7 +12,6 @@ public class Drop : NetworkBehaviour {
     private Vector3 randomDir;
 	private PlayerServer playerServer;
 	private NetworkIdentity netIdentity;
-	private ConnectGameObject connectGameObject;
 	private Player player;
 	private bool isPickedUp = false;
 
@@ -47,7 +46,6 @@ public class Drop : NetworkBehaviour {
         move = true;
         dirX = Random.Range(0.5f,2);
         randomDir = chooseRandomDirection();
-		if(isServer) this.connectGameObject = new ConnectGameObject();
 	}
 
     void Update()

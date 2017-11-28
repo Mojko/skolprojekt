@@ -30,15 +30,15 @@ public class SkillCastManager : NetworkBehaviour {
 
 		this.methodInfo = this.GetType().GetMethod(type);
 		this.updateMethod = this.GetType().GetMethod("update_"+type);
-		methodInfo.Invoke(this, null);
-		updateMethod.Invoke(this, null);
+        if(methodInfo != null) methodInfo.Invoke(this, null);
+		if(updateMethod != null) updateMethod.Invoke(this, null);
 	}
 		
 	public void aoe(){
 	}
-	public void projectile(){
+    public void update_projectile(){
 
-		float speed = 4f;
+        float speed = 4f;
 		this.transform.position += transform.forward * speed * Time.deltaTime;
 	}
 	public void buff(){
@@ -48,7 +48,8 @@ public class SkillCastManager : NetworkBehaviour {
 		if(targetObject != null){
 			ai = targetObject.GetComponent<AI>();
 			if(ai != null){
-				ai.damage(1, this.caster, this.playerServer, this);
+				ai.damage(1, this.caster, this.playerServer);
+                ai.setSkillCastManager(this);
 			}
 		}
 		timer = new Timer(2, false);

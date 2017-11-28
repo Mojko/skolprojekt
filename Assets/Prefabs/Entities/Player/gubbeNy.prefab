@@ -1078,6 +1078,8 @@ MonoBehaviour:
   - {fileID: 1830622779039518, guid: 33db9a5d66fe92c44acd005547adc7cb, type: 2}
   - {fileID: 1042986856325850, guid: c7116ceb0cd83b4469d2e7fe355a8e63, type: 2}
   - {fileID: 1909951923887278, guid: ed4b4b59595e5684780483c6c30c1f67, type: 2}
+  impactHitPrefab: {fileID: 1937750126230048, guid: 66171f45dd003e0449dfa2c09607fbf6,
+    type: 2}
   npcMain: {fileID: 0}
 --- !u!114 &114676889078383612
 MonoBehaviour:
