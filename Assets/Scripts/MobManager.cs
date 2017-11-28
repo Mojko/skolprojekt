@@ -182,16 +182,18 @@ public class MobManager : NetworkBehaviour {
 						QuestInfo qInfo = new QuestInfo();
 						qInfo.questClassInBytes = Tools.objectToByteArray(q);
 						NetworkServer.SendToClient(targetNetwork.connectionID, PacketTypes.QUEST_COMPLETE, qInfo);
-						shouldUpdate = false;
+						shouldUpdate = true;
 						Debug.Log("completing quest..");
 					}
 			    }
 			}
 		}
-		if(questsToSend != null && questsToSend.Count > 0 && shouldUpdate){
+		if(questsToSend != null && questsToSend.Count > 0 && shouldUpdate && isServer){
             QuestInfo qInfo = new QuestInfo();
             qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
-            NetworkServer.SendToClient(targetId, PacketTypes.QUEST_UPDATE, qInfo);
+			if(qInfo.questClassInBytes.Length > 0){
+				NetworkServer.SendToClient(targetId, PacketTypes.QUEST_UPDATE, qInfo);
+			}
         }
 
 		//Server.spawnObject(drop, this.transform.position);

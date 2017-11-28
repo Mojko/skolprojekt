@@ -157,7 +157,7 @@ public class playerNetwork : NetworkBehaviour{
 	public void startQuest(Quest quest){
 		this.player.startNewQuest(quest);
 		Debug.Log("STATUS_CLIENT: " + quest.getStatus());
-		if(quest.getStatus() == e_QuestStatus.STARTED){
+		if(quest.getStatus() == e_QuestStatus.STARTED || quest.getStatus() == e_QuestStatus.COMPLETED){
 			this.player.getQuestInformationData().addNewQuestPanel(quest);
 		}
 		Debug.Log("QUEST STARTED");
@@ -409,12 +409,18 @@ public class playerNetwork : NetworkBehaviour{
         GameObject[] objects = GameObject.FindGameObjectsWithTag("NPC");
         foreach(GameObject o in objects) {
             NPCMain main = o.GetComponent<NPCMain>();
-            main.questMark.SetActive(false);
-            int questCompletedCount = 0;
+            //main.questMark.SetActive(false);
+			main.setQuestMarker(this.player);
             for(int i=0;i<main.questIds.Length;i++){
-                if (this.player.canTakeQuest(this.player.lookupQuest(main.questIds[i]))) {
-                    main.questMark.SetActive(true);
-                }
+				Quest questFound = this.player.lookupQuest(main.questIds[i]);
+				/*if (this.player.canTakeQuest(questFound)) {
+					if(main.hasQuest(questFound) && !player.hasCompletedQuest(questFound)){
+						main.setExclamationMarkHasQuest();
+					} else if(main.hasQuest(questFound) && player.hasCompletedQuest(questFound)){
+						main.setQuestionMarkCompleted();
+					}
+					main.setQuestionMarkPending();
+                }*/
             }
         }
 

@@ -70,7 +70,7 @@ public class QuestContainer : MonoBehaviour {
 			this.questObjectiveTexts.Add(t);
 		}
 		this.npcController = GameObject.FindWithTag("NPCManager").GetComponent<NPCController>();
-		this.questGiver = npcController.getNpc(this);
+		this.questGiver = npcController.getNpcWithQuest(this.getQuest());
 		Destroy(this.questObjective);
 	}
 

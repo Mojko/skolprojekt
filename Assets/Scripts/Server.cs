@@ -159,14 +159,21 @@ public class Server : NetworkManager
 		questManager.checkValidQuest(quest, netMsg.conn.connectionId, playerObjects[netMsg.conn.connectionId]);
     }
 
-	public void completeQuest(Quest quest){
+	/*public void completeQuest(Quest quest){
 		MySqlConnection conn;
 		MySqlDataReader reader;
 		int characterId = getCharacterIDFromDir(quest.getCharacterName());
 		mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = '" + quest.getCompleted() + "' WHERE questID = '" + quest.getId() + "' AND characterID = '"+characterId+"'");
+	}
+		
+	public void turnInQuest(Quest quest){
+		MySqlConnection conn;
+		MySqlDataReader reader;
+		int characterId = getCharacterIDFromDir(quest.getCharacterName());
 		mysqlReader(out conn, out reader, "SELECT id FROM queststatus WHERE characterID = '"+characterId+"'");
 		mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+reader.GetInt32("id")+"'");
-	}
+
+	}*/
 
 	public bool addOrUpdateQuestStatusToDatabase(Quest quest, PlayerServer pServer, bool sendOutToClient){
 		MySqlConnection conn;
@@ -191,7 +198,7 @@ public class Server : NetworkManager
 		}
 		Debug.Log("TRYING TO ADD / UPDATE: " + characterId + " | " + quest.getCharacterName() + " | " + queststatusId);
 
-		if(quest.getStatus() == e_QuestStatus.COMPLETED){
+		if(quest.getStatus() == e_QuestStatus.TURNED_IN){
 			mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+queststatusId+"'");
 			Debug.Log("DELETED QUEST");
 			return true;

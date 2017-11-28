@@ -62,6 +62,7 @@ public class Player : NetworkBehaviour
     [Header("Leave these alone")]
     [Space(20)]
     public NPCMain npcMain;
+	public NPCController npcController;
     public void Start()
     {
         playerEquipSlots = Tools.getChildren(this.gameObject, "hatStand", "armorStand");
@@ -153,19 +154,17 @@ public class Player : NetworkBehaviour
         this.UIPlayer.gameObject.SetActive(true);
 
 		//QuestManager
-		this.npcManager = GameObject.FindWithTag("NPCManager");
-		npcManager.GetComponent<NPCController>().initilize(this);
+		this.npcController = GameObject.FindWithTag("NPCManager").GetComponent<NPCController>();
+		npcController.initilize(this);
 
         identity = this.GetComponent<NetworkIdentity>();
         Debug.Log("INFO1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 	public bool hasCompletedQuest(Quest quest){
-		foreach(Quest q in quests.ToArray()){
-			if(q.getStatus() == e_QuestStatus.COMPLETED){
-				return true;
-			}
-		}
-		return false;
+		return quest.getStatus() == e_QuestStatus.COMPLETED;
+	}
+	public bool hasTurnedInQuest(Quest quest){
+		return quest.getStatus() == e_QuestStatus.TURNED_IN;
 	}
     public bool hasStartedQuest(Quest quest)
     {
@@ -195,10 +194,24 @@ public class Player : NetworkBehaviour
 		}
 		return false;
 	}
+	public bool hasQuest(int questId){
+		foreach(Quest q in quests.ToArray()){
+			if(questId.Equals(q.getId())){
+				return true;
+			}
+		}
+		return false;
+	}
 	public void completeQuest(Quest quest){
-		this.quests.Remove(quest);
-		this.getQuestInformationData().removeQuestPanel(quest);
-		Debug.Log("Quest removed AND completed");
+		foreach(Quest q in this.quests.ToArray()){
+			if(q.getId().Equals(quest.getId())){
+				q.setStatus(e_QuestStatus.COMPLETED);
+			}
+		}
+		npcController.getNpcWithQuest(quest).setQuestMarker(this);
+		/*Quest q = lookupQuest(quest.getId());
+		q.setStatus(quest.getStatus());*/
+		Debug.Log("Quest completed, not removed yet.");
 	}
 	public GameObject getNpcManager(){
 		return this.npcManager;
@@ -306,15 +319,6 @@ public class Player : NetworkBehaviour
             //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
         }
 		if(Input.GetKeyDown(KeyCode.B)){
-			//Send pickup packet to server
-
-			/*
-			 	(C Press B) --> (S checks if player standing on coin)
-			 								if(true)
-											(S attempts to pickup)
-											if(true)
-											(mySql) <-- (S) --> (C) 
-			 */
 		}
     }
 
@@ -345,11 +349,6 @@ public class Player : NetworkBehaviour
         this.stats.health -= dmg;
 		StartCoroutine(flash());
     }
-	public void canPickup(GameObject drop){
-		if(Input.GetKey(KeyCode.B)){
-
-		}
-	}
 
 	[ClientRpc]
 	void RpcToggleFlash(int state)
