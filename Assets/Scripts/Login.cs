@@ -34,12 +34,12 @@ public class Login : NetworkBehaviour {
     }
     public void OnConnected(NetworkMessage msg)
     {
-        
+        Debug.Log("Connected to server");
         client.RegisterHandler(PacketTypes.LOGIN, loginPlayer);
         LoginPacket packet = new LoginPacket();
         packet.name = usernameT.text;
         packet.password = passwordT.text;
-        
+        Debug.Log("on login: " + packet.name);
         client.Send(PacketTypes.LOGIN, packet);
     }
 
@@ -96,7 +96,7 @@ public class Login : NetworkBehaviour {
 		createCharacters (packet);
 		camera.panTo (new Vector3(0,0,1),Quaternion.Euler(0,90,0),3f,3f);
         this.skillProperties = packet.skillProperties;
-        
+        Debug.Log("successfull: " + packet.name);
         this.name = packet.name;
         
 		//camera.panTo (new Vector3(-1,3,-1),Quaternion.Euler(0,55,0),0.2f,0.2f);

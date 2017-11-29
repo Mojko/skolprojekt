@@ -25,12 +25,13 @@ public class Spawner : NetworkBehaviour {
         if(!isServer) return;
         timer.update();
         if (timer.isFinished() && totalEnemiesInArea < maxEnemies) {
-            Server.spawnMonster(monsterId, randomVector3InRadius());
+            MobManager m = Server.spawnMonster(monsterId, randomVector3InRadius());
+			m.spawner = this;
             totalEnemiesInArea++;
         }
 		totalEnemiesInArea = Mathf.Clamp(totalEnemiesInArea, 0, maxEnemies);
     }
-    private Vector3 randomVector3InRadius()
+	public Vector3 randomVector3InRadius()
     {
         Vector3 pos = this.transform.position;
         return new Vector3(pos.x + Random.Range(-radius, radius), pos.y, pos.z + Random.Range(-radius, radius));

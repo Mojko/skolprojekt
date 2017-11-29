@@ -34,8 +34,12 @@ public static class DefaultIds {
 		5001 - 5500 = Boots
 		5501 - 6000 = NPC
 		6001 - 6500 = quests
+		6501 - 7000 = skills
+		> 9000 < 10000 = coin
 		> 10000 = mobs
 	*/
+	public static int skillDefaultId = 6501;
+
 	public static int getNpcDefault(){
 		return 5501;
 	}

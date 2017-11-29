@@ -32,7 +32,9 @@ public class playerNetwork : NetworkBehaviour{
         GameObject login_world = GameObject.Find("login_Word");
         this.player.playerName = login.getCharacterName();
 
+        Debug.Log("name here m8 sk8 l8sdf sdf sdf sd fsdf sdf sdf sdf: " + this.player.playerName);
 		con.RegisterHandler(PacketTypes.LOAD_PLAYER, onLoadCharacter);
+		con.RegisterHandler(PacketTypes.LOAD_OTHER_PLAYER, onClientConnect);
         con.RegisterHandler(PacketTypes.SEND_MESSAGE, onReciveMessage);
         con.RegisterHandler(PacketTypes.NPC_INTERACT, onReciveNPCText);
         con.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkill);
@@ -45,7 +47,6 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
-        con.RegisterHandler(PacketTypes.LOAD_OTHER_PLAYER, onClientConnect);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -74,18 +75,6 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
-    void onClientConnect(NetworkMessage msg) {
-        OtherPlayerInfo info = msg.ReadMessage<OtherPlayerInfo>();
-        if (!info.id.Equals(this.player.identity.netId)) {
-            Player player = ClientScene.FindLocalObject(info.id).GetComponent<Player>();
-            List<Equip> equips = (List<Equip>)Tools.byteArrayToObject(info.equipment);
-            foreach(Equip equip in equips)
-            {
-                if (equip == null) continue;
-                player.setEquipModel(equip);
-            }
-        }
-    }
     void onUnequipItem(NetworkMessage msg) {
         ItemInfo info = msg.ReadMessage<ItemInfo>();
         if (info.netId.Equals(this.player.identity.netId))
@@ -380,6 +369,7 @@ public class playerNetwork : NetworkBehaviour{
             characterName = characterName,
             id = this.gameObject.GetComponent<NetworkIdentity>().netId
         };
+        Debug.Log("players name: " + PacketTypes.LOAD_PLAYER + " : " + con);
 		con.Send(PacketTypes.LOAD_PLAYER, msg);
 	}
     private void OnDisconnect()
@@ -393,20 +383,36 @@ public class playerNetwork : NetworkBehaviour{
         }
         con.Send(PacketTypes.DISCONNECT, packet);
     }
+	void onClientConnect(NetworkMessage msg) {
+		OtherPlayerInfo info = msg.ReadMessage<OtherPlayerInfo>();
+		if (!info.id.Equals(this.player.identity.netId)) {
+			Player player = ClientScene.FindLocalObject(info.id).GetComponent<Player>();
+			List<Equip> equips = (List<Equip>)Tools.byteArrayToObject(info.equipment);
+			foreach(Equip equip in equips)
+			{
+				if (equip == null) continue;
+				player.setEquipModel(equip);
+			}
+		}
+	}
     void onLoadCharacter(NetworkMessage msg)
     {
 		Debug.Log("Character pre- loaded");
         PlayerInfo m = msg.ReadMessage<PlayerInfo>();
-        PlayerStats stats = (PlayerStats)Tools.byteArrayToObject(m.stats);
+
+		PlayerStats stats = (PlayerStats)Tools.byteArrayToObject(m.stats);
+		this.player.updateStats(stats);
+		List<Equip> equipments = (List<Equip>)(Tools.byteArrayToObject(m.equipment));
+		List<Item> inventory = (List<Item>)(Tools.byteArrayToObject(m.items));
+		this.player.setInventory(inventory);
+		this.player.setEquips(equipments);
+		for (int i = 0; i < equipments.Count; i++) {
+			if (equipments[i] == null) continue;
+			this.player.setEquipModel(equipments[i]);
+		}
+
+        Debug.Log("log in from own packet!!!!!!!!!!");
         this.player.updateStats(stats);
-        List<Equip> equipments = (List<Equip>)(Tools.byteArrayToObject(m.equipment));
-        List<Item> inventory = (List<Item>)(Tools.byteArrayToObject(m.items));
-        this.player.setInventory(inventory);
-        this.player.setEquips(equipments);
-        for (int i = 0; i < equipments.Count; i++) {
-            if (equipments[i] == null) continue;
-            this.player.setEquipModel(equipments[i]);
-        }
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
         Player player;
         if(playerObj != null){
@@ -414,6 +420,8 @@ public class playerNetwork : NetworkBehaviour{
         } else {
             player = this.GetComponent<Player>();
         }
+
+
 
 
 		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
@@ -426,19 +434,7 @@ public class playerNetwork : NetworkBehaviour{
         GameObject[] objects = GameObject.FindGameObjectsWithTag("NPC");
         foreach(GameObject o in objects) {
             NPCMain main = o.GetComponent<NPCMain>();
-            //main.questMark.SetActive(false);
 			main.setQuestMarker(this.player);
-            for(int i=0;i<main.questIds.Length;i++){
-				Quest questFound = this.player.lookupQuest(main.questIds[i]);
-				/*if (this.player.canTakeQuest(questFound)) {
-					if(main.hasQuest(questFound) && !player.hasCompletedQuest(questFound)){
-						main.setExclamationMarkHasQuest();
-					} else if(main.hasQuest(questFound) && player.hasCompletedQuest(questFound)){
-						main.setQuestionMarkCompleted();
-					}
-					main.setQuestionMarkPending();
-                }*/
-            }
         }
 
 		//Initilize skill tree
@@ -517,5 +513,4 @@ public class playerNetwork : NetworkBehaviour{
             this.player.getCommandManager().listenForCommand(message);
         }
     }
-
 }

@@ -31,38 +31,59 @@ public class Player : NetworkBehaviour
     public PlayerStats stats;
     public string playerName;
     public int money = 0;
+    private GameObject[] playerEquipSlots;
 
-
-    [Space(20)]
     [Header("Quests")]
+    [Space(20)]
     public List<Quest> quests = new List<Quest>();
     public GameObject quest_UI;
 
-    [Space(20)]
     [Header("Skills")]
+    [Space(20)]
     public GameObject skillPrefab;
     public GameObject skillEffectPrefab;
     public GameObject skillTreeUi;
     public List<Skill> skills = new List<Skill>();
     public List<Skill> skillsToVerifyWithFromServer = new List<Skill>();
 
-    [Space(20)]
     [Header("System")]
-
+    [Space(20)]
     public Camera camera;
 	public playerNetwork network;
 	public GameObject npcTalkingTo;
     public Chat chat;
     public GameObject[] prefabsToRegister;
 
+    [Header("Special Effects")]
     [Space(20)]
+    public GameObject impactHitPrefab;
+
+
     [Header("Leave these alone")]
+    [Space(20)]
     public NPCMain npcMain;
-    public void Start() {
-        if (!isLocalPlayer) {
-            equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
-            equip.setPlayer(this);
+	public NPCController npcController;
+    public void Start()
+    {
+        playerEquipSlots = Tools.getChildren(this.gameObject, "hatStand", "armorStand");
+    }
+    public void setEquipModel(Item item)
+    {
+        int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
+        GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
+        itemEquip.transform.SetParent(getEquipSlot(index).transform);
+        itemEquip.transform.localScale = Vector3.one;
+        itemEquip.transform.localPosition = Vector3.zero;
+    }
+    public void removeEquipModel(Item item) {
+        int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
+        foreach (Transform child in getEquipSlot(index).transform.getAllChildren())
+        {
+            Destroy(child.gameObject);
         }
+    }
+    public GameObject getEquipSlot(int index) {
+        return playerEquipSlots[index];
     }
     public override void OnStartLocalPlayer ()
 	{
@@ -107,7 +128,6 @@ public class Player : NetworkBehaviour
         equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
         equip.setEquipmentUI(Tools.getChild(UICanvas, "Equipment_UI"));
         equip.setPlayer(this);
-        equip.setPlayerSlots(this);
         //camera
         camera = Camera.main;
         camera.GetComponent<MainCamera> ().player = this.gameObject;
@@ -134,19 +154,17 @@ public class Player : NetworkBehaviour
         this.UIPlayer.gameObject.SetActive(true);
 
 		//QuestManager
-		this.npcManager = GameObject.FindWithTag("NPCManager");
-		npcManager.GetComponent<NPCController>().initilize(this);
+		this.npcController = GameObject.FindWithTag("NPCManager").GetComponent<NPCController>();
+		npcController.initilize(this);
 
         identity = this.GetComponent<NetworkIdentity>();
-
+        Debug.Log("INFO1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
 	public bool hasCompletedQuest(Quest quest){
-		foreach(Quest q in quests.ToArray()){
-			if(q.getStatus() == e_QuestStatus.COMPLETED){
-				return true;
-			}
-		}
-		return false;
+		return quest.getStatus() == e_QuestStatus.COMPLETED;
+	}
+	public bool hasTurnedInQuest(Quest quest){
+		return quest.getStatus() == e_QuestStatus.TURNED_IN;
 	}
     public bool hasStartedQuest(Quest quest)
     {
@@ -176,10 +194,24 @@ public class Player : NetworkBehaviour
 		}
 		return false;
 	}
+	public bool hasQuest(int questId){
+		foreach(Quest q in quests.ToArray()){
+			if(questId.Equals(q.getId())){
+				return true;
+			}
+		}
+		return false;
+	}
 	public void completeQuest(Quest quest){
-		this.quests.Remove(quest);
-		this.getQuestInformationData().removeQuestPanel(quest);
-		Debug.Log("Quest removed AND completed");
+		foreach(Quest q in this.quests.ToArray()){
+			if(q.getId().Equals(quest.getId())){
+				q.setStatus(e_QuestStatus.COMPLETED);
+			}
+		}
+		npcController.getNpcWithQuest(quest).setQuestMarker(this);
+		/*Quest q = lookupQuest(quest.getId());
+		q.setStatus(quest.getStatus());*/
+		Debug.Log("Quest completed, not removed yet.");
 	}
 	public GameObject getNpcManager(){
 		return this.npcManager;
@@ -260,12 +292,12 @@ public class Player : NetworkBehaviour
         Debug.Log("reloaded scene.");
     }
     public void setEquips(List<Equip> equips) {
-        Debug.Log("equips set!!!!!!!!!!!!!!!!");
         equip.setEquips(equips);
         equip.updateSlots();
     }
     public void updateStats(PlayerStats stats) {
         this.stats = stats;
+        Debug.Log(stats.health + " : " + stats.maxHealth + " || " + stats.health + " : " + stats.maxHealth + " - INFO2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         this.UIPlayer.updateInfo();
     }
     public void Update() {
@@ -287,15 +319,6 @@ public class Player : NetworkBehaviour
             //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
         }
 		if(Input.GetKeyDown(KeyCode.B)){
-			//Send pickup packet to server
-
-			/*
-			 	(C Press B) --> (S checks if player standing on coin)
-			 								if(true)
-											(S attempts to pickup)
-											if(true)
-											(mySql) <-- (S) --> (C) 
-			 */
 		}
     }
 
@@ -326,11 +349,6 @@ public class Player : NetworkBehaviour
         this.stats.health -= dmg;
 		StartCoroutine(flash());
     }
-	public void canPickup(GameObject drop){
-		if(Input.GetKey(KeyCode.B)){
-
-		}
-	}
 
 	[ClientRpc]
 	void RpcToggleFlash(int state)
@@ -352,6 +370,37 @@ public class Player : NetworkBehaviour
 		Debug.Log("destroying");
 		NetworkServer.Destroy(NetworkServer.FindLocalObject(identity.netId));
 	}
+    [Command]
+    public void CmdSpawnGameObject(string path)
+    {
+        GameObject o = Instantiate((GameObject)Resources.Load(path));
+        NetworkServer.Spawn(o);
+    }
+    [Command]
+    public void CmdSyncGameObject(NetworkInstanceId netId, Vector3 position, Quaternion rot)
+    {
+        GameObject o = NetworkServer.FindLocalObject(netId);
+        o.transform.position = position;
+        o.transform.rotation = rot;
+        RpcSyncGameObject(netId, position, rot);
+    }
+    [ClientRpc]
+    public void RpcSyncGameObject(NetworkInstanceId netId, Vector3 position, Quaternion rot)
+    {
+        GameObject o = ClientScene.FindLocalObject(netId);
+        o.transform.position = position;
+        o.transform.rotation = rot;
+    }
+    [Command]
+    public void CmdSpawnGameObjectLocally(string path, Vector3 position)
+    {
+        RpcSpawnGameObjectLocallyOnAllClients(path, position);
+    }
+    [ClientRpc]
+    public void RpcSpawnGameObjectLocallyOnAllClients(string path, Vector3 position)
+    {
+        Instantiate((GameObject)Resources.Load(path)).transform.position = position;
+    }
 }
 
 public class PlayerData {
