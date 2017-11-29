@@ -30,22 +30,38 @@ public class NPCMain : NetworkBehaviour {
     private int selection = 0;
     private bool isTalking;
 	private bool canTalk = true;
-
-	public int npcId;
-    public string[] dialogues;
-	public string[,] keywords;
-	public int[] questIds;
 	private List<Quest> questsCompleted = new List<Quest>();
-    public e_NpcTypes type;
     private e_DialogueLayouts layout;
 	private bool shouldInitilize = true;
 	private Sprite faceImage;
+
+	[Header("NPC")]
+	[Space(10)]
+	public int npcId;
+	public e_NpcTypes type;
+	public string[] dialogues;
+	public string[,] keywords;
+	public int[] questIds;
+	public string[] secretDialogues;
+	public string[] returnDialogues;
+
+	[Header("System")]
+	[Space(10)]
 	public Text dialogue;
 	public GameObject dialogueUI;
 
-    [Space(10)]
+	[Header("Special Effects")]
+	[Space(10)]
+	public Color goldColor;
+	public Color silverColor;
+
     [Header("Leave these alone")]
-    public GameObject questMark;
+	[Space(10)]
+    public GameObject exclamationMark;
+	private Renderer[] exclamationMarkRenderers;
+	public GameObject questionMark;
+	private Renderer[] questionMarkRenderers;
+
 
 
 
@@ -54,12 +70,29 @@ public class NPCMain : NetworkBehaviour {
     {
         //this.text = GameObject.FindWithTag("DialogueText").GetComponent<Text>();
 		Sprite[] sprites = Resources.LoadAll<Sprite>("spritesheet_NpcIcons");
-		Debug.Log("defaultids: " + DefaultIds.getNpcDefault());
 		faceImage = sprites[(npcId/DefaultIds.getNpcDefault())-1];
-        this.questMark = transform.GetChild(0).gameObject;
+
+		this.exclamationMark = transform.GetChild(0).gameObject;
+		this.questionMark = transform.GetChild(1).gameObject;
+
+		this.exclamationMarkRenderers = exclamationMark.GetComponentsInChildren<Renderer>();
+		this.questionMarkRenderers = questionMark.GetComponentsInChildren<Renderer>();
+
 		if(faceImage == null)
 			faceImage = sprites[0];
     }
+
+	public int getAcessabilityForDialogues(){
+		int levelToAcess = 0;
+		for(int i=0;i<secretDialogues.Length;i++){
+			foreach(Quest q in questsCompleted){
+				if(q.getId().Equals(secretDialogues[i])){
+					levelToAcess = i;
+				}
+			}
+		}
+		return levelToAcess;
+	}
 
 	public Sprite getSprite(){
 		return this.faceImage;
@@ -72,6 +105,61 @@ public class NPCMain : NetworkBehaviour {
 		this.player = null;
         this.state = 0;
 	}
+
+	public bool hasQuest(Quest quest){
+		for(int i=0;i<questIds.Length;i++){
+			return quest.getId() == questIds[i];
+		}
+		return false;
+	}
+
+	public void setQuestMarker(Player player){
+		foreach(Quest q in player.getQuests()){
+			if(q.getStatus() == e_QuestStatus.COMPLETED){
+				setQuestionMarkCompleted();
+			} else if(q.getStatus() == e_QuestStatus.STARTED){
+				setQuestionMarkPending();
+			}
+		}
+		int j = 0;
+		for(int i=0;i<this.questIds.Length;i++){
+			if(player.hasQuest(questIds[i])){
+				j++;
+			}
+		}
+		if(j <= 0){
+			setExclamationMarkHasQuest();
+		}
+	}
+
+	void setQuestionMarkCompleted(){
+		this.questionMark.SetActive(true);
+		foreach(Renderer r in this.questionMarkRenderers){
+			r.material.color = this.goldColor;
+		}
+		setExclamationMarkDisabled();
+	}
+	void setQuestionMarkPending(){
+		this.questionMark.SetActive(true);
+		foreach(Renderer r in this.questionMarkRenderers){
+			r.material.color = this.silverColor;
+		}
+	}
+	void setQuestionMarkDisabled(){
+		this.questionMark.SetActive(false);
+	}
+	void setExclamationMarkHasQuest(){
+		this.exclamationMark.SetActive(true);
+		foreach(Renderer r in this.exclamationMarkRenderers){
+			r.material.color = this.goldColor;
+		}
+		setQuestionMarkDisabled();
+	}
+	void setExclamationMarkDisabled(){
+		this.exclamationMark.SetActive(false);
+	}
+
+
 
     private void Update()
     {
@@ -87,7 +175,7 @@ public class NPCMain : NetworkBehaviour {
 					if(this.player.canTakeQuest(q)){
                         Debug.Log("status of quest: " + q.getStatus());
 						giveQuestToPlayer(q);
-                        this.questMark.SetActive(false);
+						this.exclamationMark.SetActive(false);
 					}
 					dispose();
 					//No more quests to give out
@@ -117,8 +205,24 @@ public class NPCMain : NetworkBehaviour {
 		}*/
     }
 
+	public string getDialogueAfterQuestId(string[] dialogue, int questId){
+		for(int i=0;i<dialogue.Length;i++){
+			if(dialogue[i].Equals(questId)){
+				return dialogue[i];
+			}
+		}
+		return "";
+	}
+
     public void execute()
     {
+		for(int i=0;i<this.questIds.Length;i++){
+			if(player.hasQuest(questIds[i]) && !player.hasTurnedInQuest(player.lookupQuest(questIds[i]))){
+				dialogue.text = getDialogueAfterQuestId(returnDialogues, questIds[i]);
+				return;
+			}
+		}
+
 		if(state < dialogues.Length){
 			dialogue.text = this.dialogues[state];
 	        Debug.Log(this.dialogues[state]);

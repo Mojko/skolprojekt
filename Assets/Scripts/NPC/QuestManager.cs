@@ -34,7 +34,8 @@ public enum e_CompletionTypesJson
 public enum e_QuestStatus {
 	COMPLETED,
 	NOT_STARTED,
-	STARTED
+	STARTED,
+	TURNED_IN
 }
 
 
@@ -296,7 +297,9 @@ public class Quest
 	}*/
 
 	public int getCompleted(){
-		if(this.status == e_QuestStatus.COMPLETED) return 1; else return 0;
+		if(this.status == e_QuestStatus.COMPLETED) return 1;
+		if(this.status == e_QuestStatus.TURNED_IN) return 2;
+		return 0;
 	}
 }
 	

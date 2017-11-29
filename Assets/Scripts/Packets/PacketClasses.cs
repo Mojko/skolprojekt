@@ -50,6 +50,17 @@ public class SkillInfo : MessageBase
 	public int maxPoints;
 }
 
+public class SkillCastInfo : MessageBase 
+{
+	public NetworkInstanceId netId;
+	public string pathToObject;
+	public string pathToEffect;
+	public Vector3 spawnPosition;
+	public Vector3 rotationInEuler;
+	public string skillType;
+	public float range;
+}
+
 public class StatInfo : MessageBase 
 {
 	public string playerName;
@@ -87,8 +98,14 @@ public class PlayerInfo : MessageBase
     public int[] skillProperties;
 	public byte[] questClasses;
     public byte[] stats;
+    public byte[] items;
+    public byte[] equipment;
 }
-
+public class OtherPlayerInfo : MessageBase {
+    public byte[] equipment;
+    public NetworkInstanceId id;
+    public string characterName;
+}
 public class LoginPacket : MessageBase
 {
     public bool successfull = false;

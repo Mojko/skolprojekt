@@ -168,15 +168,23 @@ public class PlayerMovement : NetworkBehaviour {
 
 		AnimatorStateInfo stateInfo0 = animator.GetCurrentAnimatorStateInfo (0);
 
+        RaycastHit rayHit;
+		if(Physics.Raycast(this.transform.position, Vector3.down, out rayHit, 0.1f)) {
+            isTouchingFloor = true;
+        }
+
 		if (Input.GetKey (KeyCode.LeftControl) && !stateInfo0.IsName ("Slash")) {
 			animator.SetBool ("slash", true);
 			state = (int)e_PlayerStates.ATTACK;
 		}
 
 		//SKILL
-
-		Skill skillThatWillBeLaunched = player.getSkillManager().isPlayerTryingToActivateSkill();
+		Skill skillThatWillBeLaunched = null;
+		if(Input.anyKeyDown){
+			skillThatWillBeLaunched = player.getSkillManager().isPlayerTryingToActivateSkill();
+		}
         if(skillThatWillBeLaunched != null) {
+			Debug.Log("Player is trying to activate skill...");
 			this.player.getSkillManager().castSkill(skillThatWillBeLaunched, skillThatWillBeLaunched.name);
         }
 		if(this.player.getSkillManager().isCasting()){
@@ -189,7 +197,7 @@ public class PlayerMovement : NetworkBehaviour {
 		Collider[] colliders = Physics.OverlapSphere (transform.position, attackRange);
 		for (int i = 0; i < colliders.Length; i++) {
             if(colliders[i].CompareTag("Enemy")){
-                player.getNetwork().damageEnemy(colliders[i].gameObject, 5);
+                player.getNetwork().damageEnemy(colliders[i].gameObject, 5, e_Objects.VFX_IMPACT_MELEE_1);
                 //player.getNetwork().damageEnemy(this.gameObject, colliders[i].gameObject, 5);
                 //CmdDamageEnemy(colliders[i].gameObject, this.gameObject, 10, player.connectionToServer.connectionId);
             }
@@ -230,9 +238,9 @@ public class PlayerMovement : NetworkBehaviour {
 	}
 
 	void OnCollisionEnter (Collision col) {
-		if (col.gameObject.CompareTag ("Ground")) {
+        /*if (col.gameObject.CompareTag ("Ground")) {
 			isTouchingFloor = true;
-		}
+		}*/
 		if (col.gameObject.CompareTag ("Wall")) {
 			//.velocity = -transform.forward * 2f;
 		}

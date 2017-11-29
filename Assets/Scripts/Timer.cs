@@ -22,7 +22,6 @@ public class Timer {
     public void stop()
     {
         started = false;
-        this.time = this.startTime;
     }
     public void update()
     {

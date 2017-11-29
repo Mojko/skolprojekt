@@ -9,6 +9,7 @@ public enum e_Objects
     PARTICLE_DEATH,
     PARTICLE_GROUNDDUST,
     SKILL_PREFAB,
+    VFX_IMPACT_MELEE_1
 }
 
 public class ResourceStructure {
@@ -21,6 +22,7 @@ public class ResourceStructure {
         paths.Add(e_Objects.PARTICLE_GROUNDDUST, "Particles/ImpactOnGround");
         paths.Add(e_Objects.SYSTEM_RESPAWNER, "System/Respawner");
         paths.Add(e_Objects.SKILL_PREFAB, "Particles/Skills/Skill");
+        paths.Add(e_Objects.VFX_IMPACT_MELEE_1, "Special Effects/Skills/Impact");
     }
 
     public static string getPathForObject(e_Objects id)

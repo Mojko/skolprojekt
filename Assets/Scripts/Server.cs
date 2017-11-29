@@ -98,14 +98,12 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.SAVE_INVENTORY, onSaveInventory);
         NetworkServer.RegisterHandler(PacketTypes.INVENTORY_MOVE_ITEM, onChangeItem);
         NetworkServer.RegisterHandler(PacketTypes.INVENTORY_DROP_ITEM, onDropItem);
-        NetworkServer.RegisterHandler(PacketTypes.LOAD_INVENTORY, onLoadInventory);
         NetworkServer.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onPickupItem);
         NetworkServer.RegisterHandler(PacketTypes.SEND_MESSAGE, onReciveMessage);
         NetworkServer.RegisterHandler(PacketTypes.NPC_INTERACT, onNPCInteract);
         NetworkServer.RegisterHandler(PacketTypes.PICK_CHAR, onCharPicked);
         NetworkServer.RegisterHandler(PacketTypes.VERIFY_SKILL, onVerifySkills);
 		NetworkServer.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
-        NetworkServer.RegisterHandler(PacketTypes.PROJECTILE_CREATE, onProjectTileCreate);
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
 		NetworkServer.RegisterHandler(PacketTypes.QUEST_START, OnQuestRecieveFromClient);
@@ -114,6 +112,8 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
 		NetworkServer.RegisterHandler(PacketTypes.DESTROY, onObjectDestroy);
+		NetworkServer.RegisterHandler(PacketTypes.TEST, onTest);
+		NetworkServer.RegisterHandler(PacketTypes.CREATE_SKILL, onSkillCreate);
         resourceStructure = new ResourceStructure();
 
         
@@ -126,6 +126,9 @@ public class Server : NetworkManager
 		NetworkInstanceIdInfo info = new NetworkInstanceIdInfo();
 		NetworkServer.Destroy(NetworkServer.FindLocalObject(info.netId));
 	}
+	public void onTest(NetworkMessage netMsg){
+		Debug.Log("WEW U HAVE REACHED THE SERVER DSFDSFSDFSD");
+	}
 
     public void onDealDamage(NetworkMessage netMsg)
     {
@@ -135,6 +138,8 @@ public class Server : NetworkManager
         GameObject enemy = NetworkServer.FindLocalObject(damageInfo.enemyNetworkInstanceId);
 
         PlayerServer pServer = playerObjects[netMsg.conn.connectionId];
+
+		Debug.Log("wew reached here without error");
 
         if(damageInfo.damageType == e_DamageType.MOB) {
             MobManager enemyMobManager = enemy.GetComponent<MobManager>();
@@ -153,14 +158,21 @@ public class Server : NetworkManager
 		questManager.checkValidQuest(quest, netMsg.conn.connectionId, playerObjects[netMsg.conn.connectionId]);
     }
 
-	public void completeQuest(Quest quest){
+	/*public void completeQuest(Quest quest){
 		MySqlConnection conn;
 		MySqlDataReader reader;
 		int characterId = getCharacterIDFromDir(quest.getCharacterName());
 		mysqlNonQuerySelector(out conn, "UPDATE queststatus SET status = '" + quest.getCompleted() + "' WHERE questID = '" + quest.getId() + "' AND characterID = '"+characterId+"'");
+	}
+		
+	public void turnInQuest(Quest quest){
+		MySqlConnection conn;
+		MySqlDataReader reader;
+		int characterId = getCharacterIDFromDir(quest.getCharacterName());
 		mysqlReader(out conn, out reader, "SELECT id FROM queststatus WHERE characterID = '"+characterId+"'");
 		mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+reader.GetInt32("id")+"'");
-	}
+
+	}*/
 
 	public bool addOrUpdateQuestStatusToDatabase(Quest quest, PlayerServer pServer, bool sendOutToClient){
 		MySqlConnection conn;
@@ -185,7 +197,7 @@ public class Server : NetworkManager
 		}
 		Debug.Log("TRYING TO ADD / UPDATE: " + characterId + " | " + quest.getCharacterName() + " | " + queststatusId);
 
-		if(quest.getStatus() == e_QuestStatus.COMPLETED){
+		if(quest.getStatus() == e_QuestStatus.TURNED_IN){
 			mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+queststatusId+"'");
 			Debug.Log("DELETED QUEST");
 			return true;
@@ -265,19 +277,36 @@ public class Server : NetworkManager
         return this.resourceStructure;
     }
 
-    public void onProjectTileCreate(NetworkMessage netMsg)
-    {
-        ProjectTileInfo pInfo = netMsg.ReadMessage<ProjectTileInfo>();
-        GameObject skillEffectPrefab = (GameObject)Resources.Load(pInfo.pathToEffect);
-
-        GameObject skillEffect = Instantiate(skillEffectPrefab);
-		skillEffect.transform.position = new Vector3(pInfo.spawnPosition.x, pInfo.spawnPosition.y+1f, pInfo.spawnPosition.z);
-		skillEffect.transform.rotation = Quaternion.Euler(pInfo.rotationInEuler);
-		//Player player = ClientScene.FindLocalObject(netMsg.conn.connectionId).GetComponent<Player>();
-		GameObject caster = (GameObject)ClientScene.FindLocalObject(pInfo.netId);
-		PlayerServer pServer = this.getPlayerObject(netMsg.conn.connectionId);
-		skillEffect.GetComponent<SkillMovement>().cast(caster,this, pServer);
+	private void createSkill(SkillCastInfo skillInfo, GameObject caster, PlayerServer pServer, GameObject target){
+		GameObject skillEffect = Instantiate((GameObject)Resources.Load(skillInfo.pathToEffect));
+		skillEffect.transform.position = new Vector3(skillInfo.spawnPosition.x, skillInfo.spawnPosition.y+1f, skillInfo.spawnPosition.z);
+		skillEffect.transform.rotation = Quaternion.Euler(skillInfo.rotationInEuler);
+		skillEffect.GetComponent<SkillCastManager>().cast(caster, this, pServer, skillInfo.skillType, target);
 		NetworkServer.Spawn(skillEffect);
+	}
+
+    public void onSkillCreate(NetworkMessage netMsg)
+    {
+		Debug.Log("are u actually here??");
+		SkillCastInfo skillInfo = netMsg.ReadMessage<SkillCastInfo>();
+		PlayerServer pServer = this.getPlayerObject(netMsg.conn.connectionId);
+		//GameObject skillEffectPrefab = (GameObject)Resources.Load(skillInfo.pathToEffect);
+		GameObject caster = (GameObject)NetworkServer.FindLocalObject(skillInfo.netId);
+
+		GameObject target = null;
+		if(skillInfo.skillType.Equals("target")){
+			Collider[] targetColliders = Physics.OverlapSphere(caster.transform.position, skillInfo.range);
+			foreach(Collider c in targetColliders){
+				if(c.CompareTag("Enemy")){
+					target = c.gameObject;
+					MobManager m = target.GetComponent<MobManager>();
+					if(!m.targeted) createSkill(skillInfo, caster, pServer, target);
+					m.targeted = true;
+				}
+			}
+			return;
+		}
+		createSkill(skillInfo, caster, pServer, null);
     }
 
 	public void onPlayerBuff(NetworkMessage netMsg){
@@ -317,6 +346,7 @@ public class Server : NetworkManager
     {
         NetworkServer.Spawn(Instantiate(Tools.loadObjectFromResources(obj)));
     }
+
     public static void spawnObject(e_Objects obj, Vector3 position)
     {
         GameObject o = Instantiate(Tools.loadObjectFromResources(obj));
@@ -478,11 +508,11 @@ public class Server : NetworkManager
         }
         */
     }
-    void loadCharacterInfoFromDatabase(PlayerServer player) {
+    PlayerServer loadCharacterInfoFromDatabase(PlayerServer player) {
         MySqlConnection conn;
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM characters WHERE characterName = '" + player.playerName + "'");
-
+        Debug.Log("player name: !!!" + player.playerName);
         while (reader.Read()) {
             player.getPlayerStats().health = reader.GetInt16("health");
             player.getPlayerStats().maxHealth = reader.GetInt16("maxHealth");
@@ -499,6 +529,10 @@ public class Server : NetworkManager
             player.getPlayerStats().eyeColor = reader.GetString("eyeColor");
             player.getPlayerStats().skinColor = reader.GetString("skinColor");
         }
+        PlayerServer playerDatabase = getInventoryFromDatabase(player);
+        player.items = playerDatabase.getItems();
+        player.equips = playerDatabase.getEquips();
+        return player;
     }
     void onLoadCharacter(NetworkMessage msg)
     {
@@ -515,9 +549,11 @@ public class Server : NetworkManager
         charactersOnline.Add(packet.characterName, getCharacterID(packet.characterName));
         characterConnections.Add(msg.conn.connectionId, packet.characterName);
         playerReal.playerName = packet.characterName;
-        loadCharacterInfoFromDatabase(playerReal);
+        player = loadCharacterInfoFromDatabase(playerReal);
         playerObjects.Add(msg.conn.connectionId, playerReal);
         packet.stats = Tools.objectToByteArray(player.getPlayerStats());
+        packet.items = Tools.objectToByteArray(player.getItems());
+        packet.equipment = Tools.objectToByteArray(player.getEquips());
         MySqlConnection conn;
         MySqlDataReader reader;
 		mysqlReader(out conn, out reader, "SELECT money FROM characters WHERE id = '" + id + "'");
@@ -525,7 +561,6 @@ public class Server : NetworkManager
 		while(reader.Read()){
 			int money = reader.GetInt32("money");
 			playerReal.setMoney(money);
-			Debug.Log("reading money: " + money);
 		}
 
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");
@@ -557,42 +592,18 @@ public class Server : NetworkManager
                     q.initilizeMobQuest(reader.GetInt32("mob"), reader.GetInt32("count"));
                 }
             }
-
-			/*foreach(Quest q in playerReal.questList.ToArray()) {
-				for(int i=0;i<queststatuses.Count;i++){
-					Debug.Log("THE FUCKNG STATIS IS: " + queststatuses[i]);
-					if(queststatuses[i] == 1){
-						playerReal.questList.Remove(q);
-						q.setStatus(e_QuestStatus.COMPLETED);
-					}
-				}
-			}*/
         }
-
-        //QuestStatusMobData questStatusMob = new QuestStatusMobData();
-
-        /*List<QuestStatusMobData> mobData = new List<QuestStatusMobData>();
-        mysqlReader(out conn, out reader, "SELECT * FROM queststatusmobs");
-        while (reader.Read()) {
-            foreach(Quest q in playerReal.questList){
-                mobData.Add(new QuestStatusMobData(, reader.GetInt32("mob"), reader.GetInt32("count")))
-            }
-        }
-
-        foreach(Quest q in playerReal.questList.ToArray()){
-            foreach(QuestStatusMobData data in mobData){
-                
-                //q.initilizeMobQuest(data.mobID, data.count);
-            }
-        }*/
 
         packet.questClasses = Tools.objectArrayToByteArray(playerReal.questList.ToArray());
 
-        //playerObjects[msg.conn.connectionId].quests = (Quest[])Tools.byteArrayToObjectArray(packet.questClasses);
+        OtherPlayerInfo oInfo = new OtherPlayerInfo();
+        oInfo.equipment = packet.equipment;
+        oInfo.id = packet.id;
 
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_PLAYER, packet);
+        NetworkServer.SendToAll(PacketTypes.LOAD_OTHER_PLAYER, oInfo);
         conn.Close();
-
+		reader.Close();
 
     }
     void onReciveMessage(NetworkMessage msg)
@@ -617,29 +628,21 @@ public class Server : NetworkManager
     }
     //# INVENTORY
 
-    //körs när en spelare laddar in sitt inventory.
-    void onLoadInventory(NetworkMessage msg)
+    private PlayerServer getInventoryFromDatabase() {
+        return getInventoryFromDatabase(getPlayerObject(-1));
+    }
+    private PlayerServer getInventoryFromDatabase(int connectionID) 
     {
-        InventoryInfo inf = msg.ReadMessage<InventoryInfo>();
-        inf.items = Tools.objectToByteArray(getInventoryFromDatabase(inf.name, msg.conn.connectionId));
-        inf.equipment = playerObjects[msg.conn.connectionId].GetEquipBytes();
-        Debug.Log(inf.items.Length);
-        NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_INVENTORY, inf);
+        return getInventoryFromDatabase(getPlayerObject(connectionID));
     }
-
-    private List<Item> getInventoryFromDatabase(string character) {
-        return getInventoryFromDatabase(character, -1);
-    }
-
-    private List<Item> getInventoryFromDatabase(string character, int connectionID)
+    private PlayerServer getInventoryFromDatabase(PlayerServer player)
     {
 
-        int characterID = getCharacterIDFromDir(character);
+        int characterID = getCharacterIDFromDir(player.playerName);
         //string connectionString = "Server=" + host + ";Database=" + database + ";Uid=Gerry;Pwd=pass;";
         MySqlConnection conn;
         MySqlCommand cmd;
         MySqlDataReader reader;
-        PlayerServer player = getPlayerObject(connectionID);
         mysqlReader(out conn, out reader, "SELECT * FROM inventory LEFT JOIN inventoryEquipment ON inventory.id = inventoryEquipment.inventoryID WHERE characterID = '" + characterID + "'");
         while (reader.Read())
         {
@@ -647,7 +650,6 @@ public class Server : NetworkManager
             if (invType == (int)inventoryTabs.EQUIP)
             {
                 int position = reader.GetInt32("position");
-                Debug.Log("item psotions: " + position);
                     int[] item = new int[] {
                         reader.GetInt32("itemID"),
                         reader.GetInt32("Watt"),
@@ -665,10 +667,16 @@ public class Server : NetworkManager
                         -1,
                         -1,
                     };
-                    if (position >= (int)inventoryTabs.EQUIPPED)
-                        player.addItem(new Equip(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
-                    else
-                        player.addEquip(new Equip(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
+                Debug.Log("SERVER: position: " + position + " : " + (position > (int)inventoryTabs.EQUIPPED));
+                if (position > (int)inventoryTabs.EQUIPPED)
+                {
+                    player.addItem(new Equip(reader.GetInt32("id"), position, invType, item));
+                }
+                else
+                {
+                    Debug.Log("SERRVER: equipp added: ");
+                    player.addEquip(new Equip(reader.GetInt32("id"), position, invType, item));
+                }
             }
             else
             {
@@ -694,7 +702,7 @@ public class Server : NetworkManager
         }
         conn.Close();
 		reader.Close();
-        return player.getItems();
+        return player;
     }
 
     void onUseItem(NetworkMessage netMsg) {
@@ -734,19 +742,20 @@ public class Server : NetworkManager
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Equip equip = (Equip)Tools.byteArrayToObject(info.item);
         //-((equip.getID() / Tools.ITEM_INTERVAL) - 3) räknar ut position som den ska ha i inventoryt.
+        Debug.Log("INVENTORY EQUIP!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + equip.getPosition() + "' WHERE id = '" + equip.getKeyID() + "'");
         con.Close();
-        NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_UNEQUIP, info);
+        NetworkServer.SendToAll(PacketTypes.ITEM_UNEQUIP, info);
     }
     void onEquipItem(NetworkMessage netMsg)
     {
         MySqlConnection con;
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Equip equip = (Equip)Tools.byteArrayToObject(info.item);
+        Debug.Log("INVENTORY EQUIP!!!!!!!!!!!!!!!!!!!!!!!!!!! " + equip.getKeyID() + " | " + ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1));
         //-((equip.getID() / Tools.ITEM_INTERVAL) - 3) räknar ut position som den ska ha i inventoryt.
-        mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + -((equip.getID() / Tools.ITEM_INTERVAL) - 3) + "' WHERE id = '" + equip.getKeyID() + "'");
+        mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1) + "' WHERE id = '" + equip.getKeyID() + "'");
         con.Close();
-        NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.ITEM_EQUIP, info);
         NetworkServer.SendToAll(PacketTypes.ITEM_EQUIP, info);
     }
 
@@ -840,7 +849,7 @@ public class Server : NetworkManager
     void onLogin(NetworkMessage msg)
     {
 
-        Debug.Log("message ID: " + msg.conn.connectionId);
+       
 
         //string connectionString = "Server=" + host + ";Database=" + database + ";Uid=Gerry;Pwd=pass;";
         MySqlConnection mysqlConn;
@@ -883,7 +892,7 @@ public class Server : NetworkManager
                 color.Add(reader.GetString("skinColor"));
                 color.Add(reader.GetString("eyebrowColor"));
             }
-            Debug.Log("wew: " + pack.successfull);
+            
             pack.colorScheme = color.ToArray();
             pack.stats = stats.ToArray();
             pack.itemsEquip = itemsEquip.ToArray();
@@ -1003,7 +1012,6 @@ public class Server : NetworkManager
     {
         //string connectionString = "Server=" + host + ";Database=" + database + ";Uid=Gerry;Pwd=pass;";
         MySqlConnection conn = new MySqlConnection(connectionString);
-        Debug.Log("name: " + name);
         MySqlCommand cmd = new MySqlCommand("SELECT id FROM characters WHERE characterName = '" + name + "'", conn);
         conn.Open();
         MySqlDataReader reader = cmd.ExecuteReader();

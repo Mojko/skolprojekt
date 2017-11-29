@@ -943,7 +943,7 @@ BoxCollider:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1784219483156812}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 08b6e4531c457a949a9f2fba72550cae, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -1042,6 +1042,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d57943ed243bd204da1d786587e2b913, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  identity: {fileID: 0}
   stats:
     level: 0
     health: 0
@@ -1077,6 +1078,8 @@ MonoBehaviour:
   - {fileID: 1830622779039518, guid: 33db9a5d66fe92c44acd005547adc7cb, type: 2}
   - {fileID: 1042986856325850, guid: c7116ceb0cd83b4469d2e7fe355a8e63, type: 2}
   - {fileID: 1909951923887278, guid: ed4b4b59595e5684780483c6c30c1f67, type: 2}
+  impactHitPrefab: {fileID: 1937750126230048, guid: 66171f45dd003e0449dfa2c09607fbf6,
+    type: 2}
   npcMain: {fileID: 0}
 --- !u!114 &114676889078383612
 MonoBehaviour:

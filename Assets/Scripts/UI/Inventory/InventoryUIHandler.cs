@@ -25,8 +25,6 @@ public class InventoryUIHandler : UIHandler
             tabs[i].GetComponent<Image>().color = Tools.hexColor(0x6CB95D);
         }
         tabs[tab.gameObject.transform.GetSiblingIndex()].GetComponent<Image>().color = Tools.hexColor(0x53A543);
-        Debug.Log("index: " + tab.gameObject.transform.GetSiblingIndex());
         Inventory.activeCanvas = tab.gameObject.transform.GetSiblingIndex();
-        Debug.Log("active Canvas: " + Inventory.activeCanvas);
     }
 }

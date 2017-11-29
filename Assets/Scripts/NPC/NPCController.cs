@@ -26,11 +26,11 @@ public class NPCController : NetworkBehaviour {
 			npcMain.Add(o.GetComponent<NPCMain>());
 		}
 	}
-
-	public NPCMain getNpc(QuestContainer container){
+		
+	public NPCMain getNpcWithQuest(Quest quest){
 		foreach(NPCMain main in npcMain){
 			for(int i=0;i<main.questIds.Length;i++){
-				if(container.getQuest().getId().Equals(main.questIds[i])){
+				if(quest.getId().Equals(main.questIds[i])){
 					return main;
 				}
 			}

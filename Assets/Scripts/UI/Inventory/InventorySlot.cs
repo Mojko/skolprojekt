@@ -32,6 +32,14 @@ public class InventorySlot : MonoBehaviour {
     }
 
     public void setImage(Item item) {
+        //om itemet är tomt så ska det vara en tom bild. annars ska en hämta en bild beroende på vilket item det är.
+        if (this.item.stats[0] == -1)
+        {
+            this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = null;
+        }
+        else {
+			this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = item.getID().getSprite();
+        }
         this.gameObject.transform.GetChild(0).gameObject.GetComponent<Image>().sprite = item.getID().getSprite();
     }
 
