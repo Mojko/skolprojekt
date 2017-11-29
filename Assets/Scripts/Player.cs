@@ -58,7 +58,12 @@ public class Player : NetworkBehaviour
     [Space(20)]
     [Header("Leave these alone")]
     public NPCMain npcMain;
-
+    public void Start() {
+        if (!isLocalPlayer) {
+            equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
+            equip.setPlayer(this);
+        }
+    }
     public override void OnStartLocalPlayer ()
 	{
         if(!isLocalPlayer) return;

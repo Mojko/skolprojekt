@@ -5,7 +5,7 @@ using System.Xml;
 using System.IO;
 using UnityEngine.UI;
 
-public class SkillTree : UIHandler {
+public class SkillTree : MonoBehaviour {
 
 	public GameObject skillTreeSlotPrefab;
 	public playerNetwork playerNetwork;
@@ -41,7 +41,7 @@ public class SkillTree : UIHandler {
 
 		GameObject UI = GameObject.Find("UI");
 
-		transform.SetParent(UI.transform.Find("SkillTree_UI").Find("Panel").Find("SkillTreeContainer"));
+		transform.SetParent(Tools.findInactiveChild(UI,"SkillTree_UI").transform.Find("Panel").Find("SkillTreeContainer"));
         UI.GetComponent<UIReferences>().skillTreeReference = this.gameObject;
 
 		Skill skills = JsonManager.readJson<Skill>(e_Paths.JSON_SKILLTREE);
@@ -145,10 +145,6 @@ public class SkillTree : UIHandler {
 				parseChildren(skill.children, skill, inst);
 			}
 		}
-	}
-
-	public bool isEnabled() {
-		return isActive;
 	}
 
 	void Update(){
