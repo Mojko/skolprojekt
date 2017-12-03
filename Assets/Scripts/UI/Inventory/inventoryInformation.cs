@@ -44,7 +44,6 @@ public class inventoryInformation : UI {
         }
         else
         {
-            Debug.Log("itemid: " + itemID);
             data.addInformation(info);
         }
         return data;

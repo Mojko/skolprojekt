@@ -135,7 +135,7 @@ public class loadCharacters : MessageBase{
     public string notSuccessfullReason = "";
     public string name = "";
     public string password = "";
-    public int[] itemsEquip;
+    public byte[] itemsEquip;
 	public string[] colorScheme;
 	public string[] names;
 	public int[] stats;

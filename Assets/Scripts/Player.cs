@@ -67,13 +67,17 @@ public class Player : NetworkBehaviour
     {
         playerEquipSlots = Tools.getChildren(this.gameObject, "hatStand", "armorStand");
     }
-    public void setEquipModel(Item item)
+    public static void setEquipModel(Item item, GameObject[] origins)
     {
         int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
+        Debug.Log("item index: ");
         GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
-        itemEquip.transform.SetParent(getEquipSlot(index).transform);
+        itemEquip.transform.SetParent(origins[index].transform);
         itemEquip.transform.localScale = Vector3.one;
         itemEquip.transform.localPosition = Vector3.zero;
+    }
+    public void setEquipModel(Item item) {
+        setEquipModel(item, playerEquipSlots);
     }
     public void removeEquipModel(Item item) {
         int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
@@ -103,7 +107,7 @@ public class Player : NetworkBehaviour
         login = Tools.findInactiveChild(UICanvas,"Login_UI").GetComponent<Login>();
         this.movement = GetComponent<PlayerMovement>();
         //skills
-        this.skillUi = GameObject.Find("Actionbar_UI").GetComponent<SkillUIManager>();
+        this.skillUi = Tools.findInactiveChild(UICanvas,"Actionbar_UI").GetComponent<SkillUIManager>();
         this.skillUi.init(this);
         this.skillManager = GetComponent<SkillManager>();
 		this.skillManager.init(this, getSkillUiManager());

@@ -249,6 +249,33 @@ public static class Tools
     public static ItemDataAll getChild(this ItemDataAll data, int itemID) {
         return null;
     }
+
+    public static GameObject mouse3D(Camera camera)
+    {
+        RaycastHit hit;
+        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit))
+        {
+            return hit.transform.gameObject;
+        }
+        return null;
+    }
+    public static T[] getComponent<T>(this Transform[] transforms){
+        T[] objects = new T[transforms.Length];
+        for (int i = 0; i < transforms.Length; i++) {
+            objects[i] = transforms[i].gameObject.GetComponent<T>();
+        }
+        return objects;
+    }
+    public static T[] getComponent<T>(this GameObject[] gameobjects)
+    {
+        T[] objects = new T[gameobjects.Length];
+        for (int i = 0; i < gameobjects.Length; i++)
+        {
+            objects[i] = gameobjects[i].GetComponent<T>();
+        }
+        return objects;
+    }
 }
 
 namespace GlobalTools
