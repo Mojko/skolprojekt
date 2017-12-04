@@ -136,9 +136,9 @@ public class loadCharacters : MessageBase{
     public string name = "";
     public string password = "";
     public byte[] itemsEquip;
-	public string[] colorScheme;
+	public byte[] colorScheme;
 	public string[] names;
-	public int[] stats;
+	public byte[] stats;
     public int[] skillProperties;
     public int money;
     //public byte[] skillClassInBytes;

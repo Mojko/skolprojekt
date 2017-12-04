@@ -85,7 +85,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4712713809836602}
   m_Layer: 0
-  m_Name: Login_World
+  m_Name: login_World
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

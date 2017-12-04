@@ -69,6 +69,8 @@ public class Login : NetworkBehaviour {
     }
 	public void createCharacters(loadCharacters characters){
 		int length = characters.names.Length;
+        List<List<Equip>> equips = (List<List<Equip>>)Tools.byteArrayToObject(characters.itemsEquip);
+        Debug.Log("Equips size:" + equips.Count);
         for (int i = 0; i < length; i++) {
 			GameObject child = (GameObject)Instantiate (playerModel, Vector3.zero,Quaternion.identity);
 			child.transform.SetParent (this.charSelect.transform.GetChild(i));
@@ -77,7 +79,7 @@ public class Login : NetworkBehaviour {
             PickCharacter pickChar = this.charSelect.transform.GetChild(i).GetChild(0).gameObject.AddComponent<PickCharacter>();
             pickChar.name = characters.names[i];
             pickChar.setLogin(this);
-            equipItems((List<Equip>)Tools.byteArrayToObject(characters.itemsEquip),pickChar);
+            equipItems(equips[i],pickChar);
             this.gameObject.transform.parent.GetComponent<RectTransform>().localPosition = new Vector3(1200, 0, 0);
             this.charSelect.transform.GetChild(i).GetChild(0).GetChild(0).gameObject.GetComponent<TextMesh>().text = characters.names[i];
             pickChar.camera = camera.gameObject.GetComponent<Camera>();
