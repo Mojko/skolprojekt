@@ -77,10 +77,12 @@ public static class Tools
     public static readonly int ITEM_INTERVAL = 500;
 	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
 
-    public static int getWew(this int id)
-    {
-        return 1;
-    }
+	public static bool classExists<T>(T obj){
+		if(obj != null){
+			return true;
+		}
+		return false;
+	}
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);

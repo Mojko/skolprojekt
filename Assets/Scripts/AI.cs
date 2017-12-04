@@ -49,7 +49,7 @@ public class AI : MobManager {
 		animator = GetComponent<Animator>();
         oldPos = this.transform.position;
         setNewDestination(chooseDestination());
-        //this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
+        this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
         //this.respawner = GameObject.FindWithTag("Respawner").GetComponent<Respawner>();
 		this.agent = this.GetComponent<NavMeshAgent>();
 		this.speed = agent.speed;
@@ -94,7 +94,10 @@ public class AI : MobManager {
 
 	//Ta en random destination runt en range
 	public Vector3 chooseDestination(){
-		return this.spawner.randomVector3InRadius();
+		if(spawner != null){
+			return this.spawner.randomVector3InRadius();
+		}
+		return Vector3.zero;
 		//return new Vector3(oldPos.x + Random.Range(-range, range), oldPos.y, oldPos.z + Random.Range(-range, range));
 	}
 
@@ -112,7 +115,7 @@ public class AI : MobManager {
 
     void idleState()
     {
-        startTimerIfNotStarted(4);
+		startTimerIfNotStarted(Random.Range(4,8));
 
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
 			toggleAngry(false);
@@ -166,6 +169,7 @@ public class AI : MobManager {
 		freeze();
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Die")){
 			animator.Play("Die");
+			if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Die")) kill();
 		} else {
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
 				kill();

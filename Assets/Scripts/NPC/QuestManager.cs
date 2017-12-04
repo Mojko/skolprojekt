@@ -141,6 +141,10 @@ public class Quest
         return this.questJson.description;
     }
 
+	public void turnIn(){
+
+	}
+
 
 	public string getTooltip(int indexOfCompletionId){
 		if(isCompletionIdMobId(indexOfCompletionId)) return "Mobs killed: " + getMobKills(getMobIds()[indexOfCompletionId]) + "/" + questJson.completionData.completionValue[indexOfCompletionId]; 
@@ -323,7 +327,7 @@ public class QuestManager {
 
 		if(qJson != null){
 			quest.start(qJson);
-			server.addOrUpdateQuestStatusToDatabase(quest, playerServer, true);
+			server.addOrUpdateQuestStatusToDatabase(quest, playerServer, true, PacketTypes.QUEST_TURN_IN);
 			playerServer.questList.Add(quest);
 		}
 	}
@@ -333,6 +337,21 @@ public class QuestManager {
 		if(qJson != null){
 			quest.start(qJson);
 		}
+	}
+
+	public void turnInQuest(Quest quest, PlayerServer pServer){
+		bool isSame = false;
+		foreach(Quest q in pServer.questList.ToArray()){
+			if(quest.getId().Equals(q.getId())){
+				isSame = true;
+			}
+		}
+		if(!isSame){
+			Debug.LogError("Error cannot complete quest - Quest Invalid");
+			return;
+		}
+		quest.setStatus(e_QuestStatus.TURNED_IN);
+		server.addOrUpdateQuestStatusToDatabase(quest, pServer, true, PacketTypes.QUEST_TURN_IN);
 	}
 
 	public QuestJson lookUpQuest(Quest quest){

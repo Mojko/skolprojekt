@@ -309,7 +309,7 @@ public class ItemDataScrolls : ItemDataAll
 [Serializable]
 public class ItemDataEtc : ItemDataAll
 {
-	public ItemDataEquips[] items;
+	public ItemDataEtc[] items;
     public int id;
     public string name;
     public int price;

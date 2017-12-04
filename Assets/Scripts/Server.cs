@@ -67,7 +67,7 @@ public class Server : NetworkManager
             }*/
 
             foreach(Quest q in pServer.questList.ToArray()){
-				addOrUpdateQuestStatusToDatabase(q, pServer, false);
+				addOrUpdateQuestStatusToDatabase(q, pServer, false, PacketTypes.QUEST_START);
 				Debug.Log("Updating quest... " + q.getId());
             }
 			MySqlConnection mysqlConn;
@@ -107,6 +107,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.MONSTER_SPAWN, onMonsterSpawn);
         NetworkServer.RegisterHandler(PacketTypes.SPAWN_ITEM, onSpawnItem);
 		NetworkServer.RegisterHandler(PacketTypes.QUEST_START, OnQuestRecieveFromClient);
+		NetworkServer.RegisterHandler(PacketTypes.QUEST_TURN_IN, onQuestTurnInFromClient);
         NetworkServer.RegisterHandler(PacketTypes.DEAL_DAMAGE, onDealDamage);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_USE, onUseItem);
         NetworkServer.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
@@ -139,9 +140,8 @@ public class Server : NetworkManager
 
         PlayerServer pServer = playerObjects[netMsg.conn.connectionId];
 
-		Debug.Log("wew reached here without error");
-
         if(damageInfo.damageType == e_DamageType.MOB) {
+			Debug.Log("wew reached here without error");
             MobManager enemyMobManager = enemy.GetComponent<MobManager>();
             enemyMobManager.damage(5, player, pServer);
 			enemyMobManager.setTarget(netMsg.conn.connectionId, player.gameObject);
@@ -149,7 +149,7 @@ public class Server : NetworkManager
             player.GetComponent<Player>().damage(5, enemy);
         }
     }
-
+		
     public void OnQuestRecieveFromClient(NetworkMessage netMsg)
     {
 
@@ -157,6 +157,12 @@ public class Server : NetworkManager
 		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
 		questManager.checkValidQuest(quest, netMsg.conn.connectionId, playerObjects[netMsg.conn.connectionId]);
     }
+
+	public void onQuestTurnInFromClient(NetworkMessage netMsg){
+		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
+		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
+		questManager.turnInQuest(quest, this.getPlayerObject(netMsg.conn.connectionId));
+	}
 
 	/*public void completeQuest(Quest quest){
 		MySqlConnection conn;
@@ -174,7 +180,7 @@ public class Server : NetworkManager
 
 	}*/
 
-	public bool addOrUpdateQuestStatusToDatabase(Quest quest, PlayerServer pServer, bool sendOutToClient){
+	public bool addOrUpdateQuestStatusToDatabase(Quest quest, PlayerServer pServer, bool sendOutToClient, short type){
 		MySqlConnection conn;
 		MySqlDataReader reader;
 
@@ -199,6 +205,11 @@ public class Server : NetworkManager
 
 		if(quest.getStatus() == e_QuestStatus.TURNED_IN){
 			mysqlNonQuerySelector(out conn, "DELETE FROM queststatusmobs WHERE queststatusID = '"+queststatusId+"'");
+			conn.Close();
+			QuestInfo questInfo = new QuestInfo();
+			questInfo.questClassInBytes = Tools.objectToByteArray(quest);
+			NetworkServer.SendToClient(connectionId, type, questInfo);
+
 			Debug.Log("DELETED QUEST");
 			return true;
 		}
@@ -227,7 +238,7 @@ public class Server : NetworkManager
 		if(sendOutToClient){
 			QuestInfo questInfo = new QuestInfo();
 			questInfo.questClassInBytes = Tools.objectToByteArray(quest);
-			NetworkServer.SendToClient(connectionId, PacketTypes.QUEST_START, questInfo);
+			NetworkServer.SendToClient(connectionId, type, questInfo);
 		}
 		return true;
 		conn.Close();

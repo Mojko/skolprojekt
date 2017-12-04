@@ -15,7 +15,6 @@ public class UIPlayerHandler : MonoBehaviour {
 	}
     public void setPlayer(Player player) {
         this.player = player;
-        this.nameUI.text = player.playerName;
         this.levelUI.text = "Level " + player.stats.level;
         onHealthChange();
         onManaChange();

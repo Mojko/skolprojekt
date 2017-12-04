@@ -1,0 +1,251 @@
+fileFormatVersion: 2
+guid: eac6fe0f6909fbe44890e3efe3fd2aec
+timeCreated: 1512245080
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Arm_L
+    100002: Arm_R
+    100004: Armature
+    100006: Body
+    100008: Body_end
+    100010: Cube
+    100012: Cube.001
+    100014: Cube.002
+    100016: Cylinder
+    100018: Cylinder.001
+    100020: Eye_L
+    100022: Eye_L_end
+    100024: Eye_R
+    100026: Eye_R_end
+    100028: Foot_L
+    100030: Foot_L_end
+    100032: Foot_R
+    100034: Foot_R_end
+    100036: //RootNode
+    100038: Hand_L
+    100040: Hand_L_end
+    100042: Hand_R
+    100044: Hand_R_end
+    100046: Head
+    100048: Leg_L
+    100050: Leg_R
+    100052: Male_MainMesh
+    100054: Male_MainMesh.001
+    100056: Male_MainMesh.002
+    100058: Male_MainMesh.003
+    100060: Male_MainMesh.004
+    100062: Shirt
+    100064: Shirt.001
+    100066: Shoulder_L
+    100068: Shoulder_R
+    100070: Sphere.004
+    100072: Sphere.005
+    100074: UpperLeg_L
+    100076: UpperLeg_R
+    400000: Arm_L
+    400002: Arm_R
+    400004: Armature
+    400006: Body
+    400008: Body_end
+    400010: Cube
+    400012: Cube.001
+    400014: Cube.002
+    400016: Cylinder
+    400018: Cylinder.001
+    400020: Eye_L
+    400022: Eye_L_end
+    400024: Eye_R
+    400026: Eye_R_end
+    400028: Foot_L
+    400030: Foot_L_end
+    400032: Foot_R
+    400034: Foot_R_end
+    400036: //RootNode
+    400038: Hand_L
+    400040: Hand_L_end
+    400042: Hand_R
+    400044: Hand_R_end
+    400046: Head
+    400048: Leg_L
+    400050: Leg_R
+    400052: Male_MainMesh
+    400054: Male_MainMesh.001
+    400056: Male_MainMesh.002
+    400058: Male_MainMesh.003
+    400060: Male_MainMesh.004
+    400062: Shirt
+    400064: Shirt.001
+    400066: Shoulder_L
+    400068: Shoulder_R
+    400070: Sphere.004
+    400072: Sphere.005
+    400074: UpperLeg_L
+    400076: UpperLeg_R
+    2300000: Cube
+    2300002: Cube.001
+    2300004: Cylinder
+    2300006: Cylinder.001
+    2300008: Shirt
+    2300010: Shirt.001
+    3300000: Cube
+    3300002: Cube.001
+    3300004: Cylinder
+    3300006: Cylinder.001
+    3300008: Shirt
+    3300010: Shirt.001
+    4300000: Cube
+    4300002: Cylinder.001
+    4300004: Cylinder
+    4300006: Shirt
+    4300008: Male_MainMesh.004
+    4300010: Male_MainMesh.003
+    4300012: Male_MainMesh.002
+    4300014: Male_MainMesh.001
+    4300016: Male_MainMesh
+    4300018: Cube.002
+    4300020: Sphere.005
+    4300022: Sphere.004
+    4300024: Cube.001
+    4300026: Shirt.001
+    7400000: Armature|Idle
+    7400002: Armature|Idle.001
+    7400004: Armature|MagicSpell_Basic
+    7400006: Armature|nothing
+    7400008: Armature|nothing.001
+    7400010: Armature|nothing.002
+    7400012: Armature|Walk
+    7400014: Shirt|Idle
+    7400016: Shirt|Idle.001
+    7400018: Shirt|nothing
+    7400020: Shirt.001|Idle
+    7400022: Shirt.001|Idle.001
+    7400024: Shirt.001|nothing.001
+    9500000: //RootNode
+    13700000: Cube.002
+    13700002: Male_MainMesh
+    13700004: Male_MainMesh.001
+    13700006: Male_MainMesh.002
+    13700008: Male_MainMesh.003
+    13700010: Male_MainMesh.004
+    13700012: Sphere.004
+    13700014: Sphere.005
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Body
+    second: {fileID: 2100000, guid: 1194717ce489bc54ba92be3070de7c77, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Jeans
+    second: {fileID: 2100000, guid: e788e73ea9c9a2148a1effa37892c1b8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: 8f2a1477ae852e846b8111a5a940ffb9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.001
+    second: {fileID: 2100000, guid: 95f46aa306e73fc47b3b58516036a93b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material.002
+    second: {fileID: 2100000, guid: 23271ef493a90d04fb4f162b3b940492, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: No Name
+    second: {fileID: 2100000, guid: 6e5c854a651e51a43a79e0a22f3c5ee6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Shoes
+    second: {fileID: 2100000, guid: 311fdba501f70ea42aa87e93a6aa445f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: White
+    second: {fileID: 2100000, guid: 7f96d038f737db841993274a7217cb86, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
