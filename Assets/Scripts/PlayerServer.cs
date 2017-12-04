@@ -113,9 +113,9 @@ public class PlayerServer {
         if (equips[equipSlot] == null) return false;
         return true;
     }
-    public List<Equip> getEquips() {
-        return equips;
-    }
+	public List<Equip> getEquips() {
+		return equips;
+	}
     public byte[] GetEquipBytes()
     {
         return Tools.objectToByteArray(equips);

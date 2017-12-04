@@ -19,12 +19,12 @@ public class PickCharacter : MonoBehaviour {
 
 	void Update () {
         if (Input.GetMouseButtonDown(0)) {
-            GameObject hitObj = mouse3D();
+            GameObject hitObj = Tools.mouse3D(camera);
 			if(hitObj != null && login != null)
 	            if (hitObj.Equals(this.gameObject)) {
-	                Debug.Log("clicked on: " + this.name);
 	                login.characterName = this.name;
-	                login.client.Disconnect();
+	                login.client.Disconnect();      
+                    login.loadWorld();
 	                login.manager.StartClient();
 	            }
         }
@@ -47,16 +47,8 @@ public class PickCharacter : MonoBehaviour {
         login.manager.StartClient();
     }
     private bool isMouseOver() {
-        GameObject obj = mouse3D();
+        GameObject obj = Tools.mouse3D(camera);
         if (obj == null) return false;
         return (obj.Equals(this.gameObject));
-    }
-    private GameObject mouse3D() {
-        RaycastHit hit;
-        Ray ray = camera.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hit)) {
-            return hit.transform.gameObject;
-        }
-        return null;
     }
 }

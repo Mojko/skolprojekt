@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 public class UIPlayerHandler : MonoBehaviour {
-    public Text nameUI;
     public Text levelUI;
     public RectTransform healthBar;
     public RectTransform manaBar;
@@ -15,7 +14,6 @@ public class UIPlayerHandler : MonoBehaviour {
 	}
     public void setPlayer(Player player) {
         this.player = player;
-        this.nameUI.text = player.playerName;
         this.levelUI.text = "Level " + player.stats.level;
         onHealthChange();
         onManaChange();

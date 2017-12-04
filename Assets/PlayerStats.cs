@@ -5,6 +5,7 @@ using System;
 [Serializable]
 public class PlayerStats {
     public int level = 0;
+    public int exp = 0;
     public int health = 0;
     public int mana = 0;
     public int maxHealth = 100;

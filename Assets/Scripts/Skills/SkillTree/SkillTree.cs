@@ -5,13 +5,14 @@ using System.Xml;
 using System.IO;
 using UnityEngine.UI;
 
-public class SkillTree : MonoBehaviour {
+public class SkillTree : UIHandler {
 
 	public GameObject skillTreeSlotPrefab;
 	public playerNetwork playerNetwork;
 	public Player player;
 	public SkillUIManager skillUi;
 	public GameObject linePrefab;
+	public Sprite[] spritesheet;
 
     public GameObject pointsTextPrefab;
 
@@ -40,12 +41,21 @@ public class SkillTree : MonoBehaviour {
 		this.player = player;
 
 		GameObject UI = GameObject.Find("UI");
+        GameObject skillTreeUI = Tools.findInactiveChild(UI, "SkillTree_UI");
+        GameObject panel = Tools.findInactiveChild(skillTreeUI, "Panel");
+        GameObject skillTreeContainer = Tools.findInactiveChild(UI, "SkillTreeContainer");
 
-		transform.SetParent(Tools.findInactiveChild(UI,"SkillTree_UI").transform.Find("Panel").Find("SkillTreeContainer"));
+		this.spritesheet = Resources.LoadAll<Sprite>("Sprites/SkillIcons/spritesheet");
+
+        transform.SetParent(skillTreeUI.transform);
+		//transform.SetParent(UI.transform.Find("SkillTree_UI").Find("Panel").Find("SkillTreeContainer"));
+        Debug.Log("INTIILIZEDIDDDDDDD!!!!");
         UI.GetComponent<UIReferences>().skillTreeReference = this.gameObject;
 
 		Skill skills = JsonManager.readJson<Skill>(e_Paths.JSON_SKILLTREE);
 
+		Debug.Log("e_paths.jsonskilltree: " + JsonManager.getPath(e_Paths.JSON_SKILLTREE));
+		Debug.Log("skills: " + skills);
 
 		potrait = Instantiate(skillTreeSlotPrefab);
 		Debug.Log("Is  this running? " + potrait);
@@ -53,6 +63,8 @@ public class SkillTree : MonoBehaviour {
 		potrait.transform.SetParent(this.transform);
 		potrait.transform.position = new Vector3(xRoot, yRoot, zRoot);
         potrait.transform.localScale += new Vector3(1,1,0);
+		potrait.GetComponent<RectTransform>().sizeDelta = new Vector3(30,35,0);
+		potrait.GetComponent<Image>().sprite = spritesheet[0];
 		onSkillUpgrade(potrait, potrait.GetComponent<SkillId>(), this.gameObject, null);
 
 		foreach(Skill skill in skills.Potrait){
@@ -145,6 +157,10 @@ public class SkillTree : MonoBehaviour {
 				parseChildren(skill.children, skill, inst);
 			}
 		}
+	}
+
+	public bool isEnabled() {
+		return isActive;
 	}
 
 	void Update(){
@@ -310,20 +326,14 @@ public class SkillTree : MonoBehaviour {
             }
         }*/
         skillId.image = inst.GetComponent<Image>();
-        skillId.image.sprite = chooseRandomImage();
+		skillId.image.sprite = this.spritesheet[skillId.id/DefaultIds.skillDefaultId];
+		//skillId.image.sprite = chooseRandomImage();
 		this.player.skills.Add(skill);
 	}
 
 	GameObject getParent(GameObject child){
 		return child.transform.parent.gameObject;
 	}
-
-    Sprite chooseRandomImage()
-    {
-        int rand = Random.Range(0,4);
-        return images[rand];
-    }
-    public Sprite[] images = new Sprite[5];
 }
 
 [System.Serializable]

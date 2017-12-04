@@ -49,8 +49,8 @@ public class AI : MobManager {
 		animator = GetComponent<Animator>();
         oldPos = this.transform.position;
         setNewDestination(chooseDestination());
-        this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
-        this.respawner = GameObject.FindWithTag("Respawner").GetComponent<Respawner>();
+        //this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
+        //this.respawner = GameObject.FindWithTag("Respawner").GetComponent<Respawner>();
 		this.agent = this.GetComponent<NavMeshAgent>();
 		this.speed = agent.speed;
 		this.angularSpeed = agent.angularSpeed;
@@ -94,7 +94,8 @@ public class AI : MobManager {
 
 	//Ta en random destination runt en range
 	public Vector3 chooseDestination(){
-		return new Vector3(oldPos.x + Random.Range(-range, range), oldPos.y, oldPos.z + Random.Range(-range, range));
+		return this.spawner.randomVector3InRadius();
+		//return new Vector3(oldPos.x + Random.Range(-range, range), oldPos.y, oldPos.z + Random.Range(-range, range));
 	}
 
 	bool hasReachedDestination () {

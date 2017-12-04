@@ -20,6 +20,12 @@ public class DropInfo : MessageBase {
 	public byte[] item;
 }
 
+public class OtherPlayerInfo : MessageBase {
+	public byte[] equipment;
+	public NetworkInstanceId id;
+	public string characterName;
+}
+
 public class DamageInfo : MessageBase
 {
     public NetworkInstanceId clientNetworkInstanceId;
@@ -98,14 +104,10 @@ public class PlayerInfo : MessageBase
     public int[] skillProperties;
 	public byte[] questClasses;
     public byte[] stats;
-    public byte[] items;
-    public byte[] equipment;
+	public byte[] items;
+	public byte[] equipment;
 }
-public class OtherPlayerInfo : MessageBase {
-    public byte[] equipment;
-    public NetworkInstanceId id;
-    public string characterName;
-}
+
 public class LoginPacket : MessageBase
 {
     public bool successfull = false;
@@ -133,7 +135,7 @@ public class loadCharacters : MessageBase{
     public string notSuccessfullReason = "";
     public string name = "";
     public string password = "";
-    public int[] itemsEquip;
+    public byte[] itemsEquip;
 	public string[] colorScheme;
 	public string[] names;
 	public int[] stats;
