@@ -118,6 +118,11 @@ public class Login : NetworkBehaviour {
         Destroy(this.loginWorld);
         Instantiate(world);
     }
+
+    public void onCharacterCreated(CreateCharacterButton[] values, string name) {
+        client.Send(PacketTypes.CHARACTER_CREATE,null);
+    }
+
     public void loginPlayer(NetworkMessage msg) {
 		loadCharacters packet = msg.ReadMessage<loadCharacters>();
         if (!packet.successfull) {

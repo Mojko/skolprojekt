@@ -296,7 +296,7 @@ GameObject:
   - component: {fileID: 4952137951182354}
   - component: {fileID: 137987157763235042}
   m_Layer: 0
-  m_Name: Sphere.004
+  m_Name: Eye_L_Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -373,7 +373,7 @@ GameObject:
   - component: {fileID: 4803154658803626}
   - component: {fileID: 137224142583624156}
   m_Layer: 0
-  m_Name: Sphere.005
+  m_Name: Eye_R_Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1163,7 +1163,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1428049981547838}
-  m_Text: Name
+  m_Text: 
   m_OffsetZ: 0
   m_CharacterSize: 0.03
   m_LineSpacing: 1

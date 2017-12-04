@@ -12,10 +12,11 @@ public class CreateCharacterUI : MonoBehaviour {
     private GameObject[] equips;
     private GameObject[] shoes;
     private string[] strings = new string[] { "Shirt", "Pants", "Shoes", "Weapon" };
-    private string[] stringsColor = new string[] { "HairColor", "SkinColor", "EyeColor"};
-
+    public List<CreateCharacterButton> buttons = new List<CreateCharacterButton>();
     private GameObject[] skin;
+    private GameObject[] eyes;
     private GameObject headTransform;
+    public Login login;
 	// Use this for initialization
 	void Start () {
         this.rectTransform = this.transform.GetChild(0).gameObject.GetComponent<RectTransform>();
@@ -27,9 +28,12 @@ public class CreateCharacterUI : MonoBehaviour {
         Debug.Log("child name " + this.character.name);
         equips = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "Shirt", "Pants", "Weapon");
         skin = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "BodyModel", "HeadModel");
-        Debug.Log("equips length: " + equips.Length);
         shoes = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "Shoe_L", "Shoe_R");
+        eyes = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "Eye_L_Model", "Eye_R_Model");
         this.headTransform = Tools.getChild(this.character.transform.GetChild(1).gameObject, "Head");
+    }
+    public void addButton(CreateCharacterButton btn) {
+        buttons.Add(btn);
     }
 	// Update is called once per frame
 	void Update () {
@@ -48,9 +52,9 @@ public class CreateCharacterUI : MonoBehaviour {
             }
         }
 	}
-    private int getIndex(string type, string[] array) {
-        for (int i = 0; i < array.Length; i++) {
-            if (array[i] == type) return i;
+    private int getIndex(string type) {
+        for (int i = 0; i < strings.Length; i++) {
+            if (strings[i] == type) return i;
         }
         return -1;
     }
@@ -65,7 +69,8 @@ public class CreateCharacterUI : MonoBehaviour {
             }
             return;
         }
-        int index = getIndex(type, strings);
+        Debug.Log("EQUIPS LENGTH: " + type);
+        int index = getIndex(type);
         Transform trans = equips[index].GetComponent<Transform>();
         GameObject tempItem = Instantiate(ResourceStructure.getGameObjectFromPath(ItemDataProvider.getInstance().getStats(itemID).getString("pathToModel")));
         equips[index].GetComponent<SkinnedMeshRenderer>().sharedMesh = tempItem.GetComponent<SkinnedMeshRenderer>().sharedMesh;
@@ -78,6 +83,35 @@ public class CreateCharacterUI : MonoBehaviour {
                 skin[i].GetComponent<SkinnedMeshRenderer>().material.SetColor("_Color",color);
             }
         }
+        else if (type == "Eye")
+        {
+            for (int i = 0; i < eyes.Length; i++)
+            {
+                eyes[i].GetComponent<SkinnedMeshRenderer>().material.SetColor("_Color", color);
+            }
+        }
+    }
+    public void onFinishCreating() {
+
+    }
+    public Text getName() {
+        return name;
+    }
+    public Login getLogin()
+    {
+        return login;
+    }
+    public CreateCharacterButton[] getCheckedButtons() {
+        List<CreateCharacterButton> btns = new List<CreateCharacterButton>();
+        for (int i = 0; i < buttons.Count; i++) {
+            if (buttons[i].isChecked) {
+                btns.Add(buttons[i]);
+            }
+        }
+        return btns.ToArray();
+    }
+    public List<CreateCharacterButton> getButtons() {
+        return buttons;
     }
     public void slideIn() {
         this.shouldSlide = true;

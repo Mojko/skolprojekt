@@ -18,6 +18,8 @@ public class CreateCharacterButton : MonoBehaviour
     public string colorType;
     public Color color;
     public Image btn;
+
+    public bool isChecked = false;
     // Use this for initialization
     void Start()
     {
@@ -32,6 +34,7 @@ public class CreateCharacterButton : MonoBehaviour
         {
             this.btn.color = color;
         }
+        this.characterUI.addButton(this);
     }
 
     // Update is called once per frame
@@ -46,17 +49,22 @@ public class CreateCharacterButton : MonoBehaviour
             buttons[i].btn.color = new Color(buttons[i].color.r / 2, buttons[i].color.g / 2, buttons[i].color.b / 2);
             if (isItem)
             {
+                buttons[i].isChecked = false;
                 buttons[i].btn.color = new Color(1, 1, 1, 0.5f);
             }
         }
         this.btn.color = color;
+        this.isChecked = true;
         if (isItem)
         {
             this.btn.color = new Color(1, 1, 1, 1);
-            characterUI.equipItem(itemID, colorType);
+            characterUI.equipItem(itemID, itemType);
         }
         else {
             characterUI.changeColor(this.btn.color, colorType);
         }
+    }
+    public void onDoneCreating() {
+        characterUI.onFinishCreating();
     }
 }
