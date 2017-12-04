@@ -113,6 +113,56 @@ GameObject:
   m_PrefabParentObject: {fileID: 1000011496317188, guid: a190b6f6a38cc264eb38a9dcd83efa4f,
     type: 2}
   m_PrefabInternal: {fileID: 1976969375}
+--- !u!1001 &59778629
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4155161399581118, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_RootOrder
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 1925407447502630, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_Name
+      value: BodyModel
+      objectReference: {fileID: 0}
+    - target: {fileID: 1812227704833278, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+      propertyPath: m_Name
+      value: HeadModel
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: 227071bcec131ce408cc60c6bd860901, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &101350831 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1117214894869282, guid: 4c81d8dff637fe34daf6eb65485c94e0,
@@ -135,36 +185,9 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 1
+  colorType: 
   color: {r: 0.281952, g: 0.528, b: 0.38480005, a: 1}
   btn: {fileID: 757861239}
---- !u!1 &124946717
-GameObject:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 5
-  m_Component:
-  - component: {fileID: 124946718}
-  m_Layer: 0
-  m_Name: Weapon
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &124946718
-Transform:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 124946717}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 1605261252}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &241802270
 Prefab:
   m_ObjectHideFlags: 0
@@ -235,6 +258,7 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 1
+  colorType: 
   color: {r: 0.281952, g: 0.528, b: 0.38480005, a: 1}
   btn: {fileID: 757861239}
 --- !u!1 &600363441 stripped
@@ -258,7 +282,8 @@ MonoBehaviour:
   isItem: 0
   itemType: 
   itemID: 0
-  isColor: 0
+  isColor: 1
+  colorType: Skin
   color: {r: 0.697, g: 0.6009618, b: 0.207009, a: 1}
   btn: {fileID: 757861239}
 --- !u!1001 &614269825
@@ -334,7 +359,8 @@ MonoBehaviour:
   itemType: Shirt
   itemID: 3500
   isColor: 0
-  color: {r: 0.281952, g: 0.528, b: 0.38480005, a: 1}
+  colorType: 
+  color: {r: 1, g: 1, b: 1, a: 1}
   btn: {fileID: 757861239}
 --- !u!114 &757861239 stripped
 MonoBehaviour:
@@ -370,6 +396,7 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 1
+  colorType: 
   color: {r: 0.281952, g: 0.528, b: 0.38480005, a: 1}
   btn: {fileID: 757861239}
 --- !u!1001 &770589701
@@ -409,7 +436,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4500034193822196, guid: 035007d873f2e8649837f9a44712db82, type: 2}
       propertyPath: m_RootOrder
-      value: 13
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 1024249856638916, guid: 035007d873f2e8649837f9a44712db82, type: 2}
       propertyPath: m_IsActive
@@ -440,6 +467,7 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 1
+  colorType: 
   color: {r: 0.934, g: 0.067248024, b: 0.80051994, a: 1}
   btn: {fileID: 757861239}
 --- !u!114 &842721431 stripped
@@ -1436,7 +1464,8 @@ MonoBehaviour:
   itemType: Shirt
   itemID: 3501
   isColor: 0
-  color: {r: 0.281952, g: 0.528, b: 0.38480005, a: 1}
+  colorType: 
+  color: {r: 1, g: 1, b: 1, a: 1}
   btn: {fileID: 757861239}
 --- !u!1 &1425056724 stripped
 GameObject:
@@ -1460,6 +1489,7 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 1
+  colorType: 
   color: {r: 0.528, g: 0.281952, b: 0.49896634, a: 1}
   btn: {fileID: 757861239}
 --- !u!1 &1432426917 stripped
@@ -1481,9 +1511,10 @@ MonoBehaviour:
   buttons: []
   characterUI: {fileID: 757861241}
   isItem: 1
-  itemType: 
-  itemID: 4001
+  itemType: Pants
+  itemID: 4501
   isColor: 0
+  colorType: 
   color: {r: 0, g: 0, b: 0, a: 0}
   btn: {fileID: 757861239}
 --- !u!1 &1548216558 stripped
@@ -1508,6 +1539,7 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 0
+  colorType: 
   color: {r: 0.934, g: 0.13729802, b: 0.5388356, a: 1}
   btn: {fileID: 757861239}
 --- !u!1 &1572572942 stripped
@@ -1529,9 +1561,10 @@ MonoBehaviour:
   buttons: []
   characterUI: {fileID: 757861241}
   isItem: 1
-  itemType: 
-  itemID: 1001
+  itemType: Pants
+  itemID: 4500
   isColor: 0
+  colorType: 
   color: {r: 0, g: 0, b: 0, a: 0}
   btn: {fileID: 757861239}
 --- !u!1 &1592089482 stripped
@@ -1539,61 +1572,6 @@ GameObject:
   m_PrefabParentObject: {fileID: 1391069351192770, guid: a190b6f6a38cc264eb38a9dcd83efa4f,
     type: 2}
   m_PrefabInternal: {fileID: 1976969375}
---- !u!1001 &1605261251
-Prefab:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_LocalPosition.x
-      value: 0.67186
-      objectReference: {fileID: 0}
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_LocalPosition.y
-      value: -3.09
-      objectReference: {fileID: 0}
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_LocalPosition.z
-      value: -1.7267
-      objectReference: {fileID: 0}
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4572376302870382, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_RootOrder
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1361134194947954, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_Name
-      value: Shoe_R
-      objectReference: {fileID: 0}
-    - target: {fileID: 1871198311527860, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-      propertyPath: m_Name
-      value: Shoe_L
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_ParentPrefab: {fileID: 100100000, guid: 57c1e7879ea7a994783160d5da96c2c1, type: 2}
-  m_IsPrefabParent: 0
---- !u!4 &1605261252 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 4597789556687120, guid: 57c1e7879ea7a994783160d5da96c2c1,
-    type: 2}
-  m_PrefabInternal: {fileID: 1605261251}
 --- !u!1 &1616236355 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 1585477623286498, guid: 4c81d8dff637fe34daf6eb65485c94e0,
@@ -1615,8 +1593,9 @@ MonoBehaviour:
   isItem: 0
   itemType: 
   itemID: 0
-  isColor: 0
-  color: {r: 0.17527083, g: 0.098897986, b: 0.622, a: 1}
+  isColor: 1
+  colorType: Skin
+  color: {r: 0.21507347, g: 0.08088237, b: 1, a: 1}
   btn: {fileID: 757861239}
 --- !u!1001 &1622850462
 Prefab:
@@ -1769,6 +1748,7 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 1
+  colorType: 
   color: {r: 0.75447625, g: 0.922, b: 0.67121595, a: 1}
   btn: {fileID: 757861239}
 --- !u!1 &1908489790
@@ -1869,6 +1849,7 @@ MonoBehaviour:
   itemType: 
   itemID: 0
   isColor: 1
+  colorType: 
   color: {r: 0, g: 0.0039999485, b: 1, a: 1}
   btn: {fileID: 757861239}
 --- !u!1001 &2058850378

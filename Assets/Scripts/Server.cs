@@ -854,33 +854,44 @@ public class Server : NetworkManager
             pack.name = packet.name;
             int characters = 0;
             List<string> names = new List<string>();
-            List<string> color = new List<string>();
-            List<int> stats = new List<int>();
-            List<Equip> itemsEquip = new List<Equip>();
+            List<int[]> color = new List<int[]>();
+            List<int[]> stats = new List<int[]>();
+            List<List<Equip>> itemsEquip =new List<List<Equip>>();
+            List<int> ids = new List<int>();
             mysqlReader(out mysqlConn, out reader, "SELECT * FROM characters WHERE accountID = '" + id + "'");
             while (reader.Read())
             {
+                int[] stat = new int[6];
+                int[] colors = new int[3];
                 names.Add(reader.GetString("characterName"));
 
-                stats.Add(-1);
-                stats.Add(-1);
-                stats.Add(-1);
-                stats.Add(-1);
-                stats.Add(-1);
-                stats.Add(-1);
+                stat[0] = -1;
+                stat[1] = -1;
+                stat[2] = -1;
+                stat[3] = -1;
+                stat[4] = -1;
+                stat[5] = -1;
 
-                color.Add(reader.GetString("hairColor"));
-                color.Add(reader.GetString("eyeColor"));
-                color.Add(reader.GetString("skinColor"));
-                color.Add(reader.GetString("eyebrowColor"));
+                colors[0] = (reader.GetInt32("hairColor"));
+                colors[1] = (reader.GetInt32("eyeColor"));
+                colors[2] = (reader.GetInt32("skinColor"));
+                int idP = reader.GetInt32("id");
+                ids.Add(idP);
+                color.Add(colors);
+                stats.Add(stat);
             }
-            mysqlReader(out mysqlConn, out reader, "SELECT * FROM inventory LEFT JOIN inventoryEquipment ON inventory.id = inventoryEquipment.inventoryID WHERE characterID = '" + id + "' AND inventory.position <= " + (int)inventoryTabs.EQUIPPED + "");
-            while (reader.Read())
+            mysqlConn.Close();
+            reader.Close();
+            for (int i = 0; i < ids.Count; i++)
             {
-                int invType = reader.GetInt32("inventoryType");
-                if (invType == (int)inventoryTabs.EQUIP)
+                mysqlReader(out mysqlConn, out reader, "SELECT * FROM inventory LEFT JOIN inventoryEquipment ON inventory.id = inventoryEquipment.inventoryID WHERE characterID = '" + ids[i] + "' AND inventory.position <= " + (int)inventoryTabs.EQUIPPED + "");
+                List<Equip> eqps = new List<Equip>();
+                while (reader.Read())
                 {
-                    int[] item = new int[] {
+                    int invType = reader.GetInt32("inventoryType");
+                    if (invType == (int)inventoryTabs.EQUIP)
+                    {
+                        int[] item = new int[] {
                         reader.GetInt32("itemID"),
                         reader.GetInt32("Watt"),
                         reader.GetInt32("Matt"),
@@ -889,14 +900,16 @@ public class Server : NetworkManager
                         reader.GetInt32("dex"),
                         reader.GetInt32("luk"),
                     };
-                    itemsEquip.Add(new Equip(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
+                        eqps.Add(new Equip(reader.GetInt32("id"), reader.GetInt32("position"), invType, item));
+                    }
                 }
+                itemsEquip.Add(eqps);
+                mysqlConn.Close();
+                reader.Close();
             }
-            mysqlConn.Close();
-            reader.Close();
-            pack.colorScheme = color.ToArray();
-            pack.stats = stats.ToArray();
             pack.itemsEquip = Tools.objectToByteArray(itemsEquip);
+            pack.stats = Tools.objectToByteArray(stats);
+            pack.colorScheme = Tools.objectToByteArray(color);
             pack.names = names.ToArray();
 
             if (playerID[packet.name] == null)
