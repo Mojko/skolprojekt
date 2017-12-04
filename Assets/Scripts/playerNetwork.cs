@@ -98,15 +98,14 @@ public class playerNetwork : NetworkBehaviour{
             player.removeEquipModel((Item)Tools.byteArrayToObject(info.item));
         }
     }
-    
     void onEquip(NetworkMessage msg) {
         ItemInfo info = msg.ReadMessage<ItemInfo>();
-
-        if (!info.netId.Equals(this.player.identity.netId)) {
+        if (info.netId.Equals(this.player.identity.netId)) {
+        }
+        else {
             Player player = ClientScene.FindLocalObject(info.netId).GetComponent<Player>();
             player.setEquipModel((Item)Tools.byteArrayToObject(info.item));
         }
-
     }
 
     void onItemPickup(NetworkMessage netMsg){

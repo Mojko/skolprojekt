@@ -668,13 +668,15 @@ public class Server : NetworkManager
                         -1,
                     };
                 Debug.Log("SERVER: position: " + position + " : " + (position > (int)inventoryTabs.EQUIPPED));
-
-
                 if (position > (int)inventoryTabs.EQUIPPED)
+                {
                     player.addItem(new Equip(reader.GetInt32("id"), position, invType, item));
+                }
                 else
+                {
+                    Debug.Log("SERRVER: equipp added: ");
                     player.addEquip(new Equip(reader.GetInt32("id"), position, invType, item));
-
+                }
             }
             else
             {
@@ -745,16 +747,15 @@ public class Server : NetworkManager
         con.Close();
         NetworkServer.SendToAll(PacketTypes.ITEM_UNEQUIP, info);
     }
-
     void onEquipItem(NetworkMessage netMsg)
     {
         MySqlConnection con;
         ItemInfo info = netMsg.ReadMessage<ItemInfo>();
         Equip equip = (Equip)Tools.byteArrayToObject(info.item);
-        //uppdaterar position i databasen
+        Debug.Log("INVENTORY EQUIP!!!!!!!!!!!!!!!!!!!!!!!!!!! " + equip.getKeyID() + " | " + ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1));
+        //-((equip.getID() / Tools.ITEM_INTERVAL) - 3) räknar ut position som den ska ha i inventoryt.
         mysqlNonQuerySelector(out con, "UPDATE inventory SET position = '" + ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1) + "' WHERE id = '" + equip.getKeyID() + "'");
         con.Close();
-        //skockar till alla klienter.
         NetworkServer.SendToAll(PacketTypes.ITEM_EQUIP, info);
     }
 
