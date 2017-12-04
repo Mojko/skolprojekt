@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 public class UIPlayerHandler : MonoBehaviour {
-    public Text nameUI;
     public Text levelUI;
     public RectTransform healthBar;
     public RectTransform manaBar;

@@ -116,6 +116,10 @@ public class Item {
     public int getDamage() {
         return stats[1];
     }
+    public int getAttack()
+    {
+        return stats[2];
+    }
     public int getMagicAttack()
     {
         return stats[2];

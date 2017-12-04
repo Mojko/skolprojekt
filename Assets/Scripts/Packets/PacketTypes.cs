@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PacketTypes{
     //# PLAYER
+    public static readonly short CHARACTER_CREATE = 999;
     public static readonly short DISCONNECT = 1000;
     public static readonly short LOAD_PLAYER = 1001;
     public static readonly short SAVE_PLAYER = 1002;

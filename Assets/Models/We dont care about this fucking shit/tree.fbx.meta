@@ -1,28 +1,27 @@
 fileFormatVersion: 2
-guid: 7ccfb468ef35ea7408f3797ba5017d08
-timeCreated: 1512138794
+guid: 32c18eea35d4455408fa8af42e4527fc
+timeCreated: 1512145698
 licenseType: Free
 ModelImporter:
-  serializedVersion: 22
+  serializedVersion: 21
   fileIDToRecycleName:
-    100000: default
-    100002: //RootNode
-    400000: default
-    400002: //RootNode
-    2300000: default
-    3300000: default
-    4300000: default
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: defaultMat
-    second: {fileID: 2100000, guid: 9f694f623db585840857d24ca6917e94, type: 2}
+    100000: Camera
+    100002: Cylinder
+    100004: Lamp
+    100006: //RootNode
+    400000: Camera
+    400002: Cylinder
+    400004: Lamp
+    400006: //RootNode
+    2000000: Camera
+    2300000: Cylinder
+    3300000: Cylinder
+    4300000: Cylinder
+    10800000: Lamp
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
-    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -35,7 +34,6 @@ ModelImporter:
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
-    importAnimatedCustomProperties: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
@@ -47,7 +45,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 0.7
     meshCompression: 0
     addColliders: 0
     importVisibility: 1
