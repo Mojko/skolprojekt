@@ -105,6 +105,7 @@ public class CreateCharacterUI : MonoBehaviour {
         List<CreateCharacterButton> btns = new List<CreateCharacterButton>();
         for (int i = 0; i < buttons.Count; i++) {
             if (buttons[i].isChecked) {
+                Debug.Log("checked");
                 btns.Add(buttons[i]);
             }
         }

@@ -141,6 +141,7 @@ public class loadCharacters : MessageBase{
 	public byte[] stats;
     public int[] skillProperties;
     public int money;
+    public NetworkInstanceId netID;
     //public byte[] skillClassInBytes;
 }
 public class NPCInteractPacket : MessageBase

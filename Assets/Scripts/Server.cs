@@ -113,6 +113,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
 		NetworkServer.RegisterHandler(PacketTypes.DESTROY, onObjectDestroy);
 		NetworkServer.RegisterHandler(PacketTypes.TEST, onTest);
+        NetworkServer.RegisterHandler(PacketTypes.CHARACTER_CREATE, onCharacterCreate);
 		NetworkServer.RegisterHandler(PacketTypes.CREATE_SKILL, onSkillCreate);
         resourceStructure = new ResourceStructure();
 
@@ -121,7 +122,35 @@ public class Server : NetworkManager
         Instantiate(ResourceStructure.getGameObjectFromObject(e_Objects.SYSTEM_RESPAWNER));
 
     }
+    public void onCharacterCreate(NetworkMessage netMsg) {
+        int id = playerID[connections[netMsg.conn.connectionId]];
+        loadCharacters packet = netMsg.ReadMessage<loadCharacters>();
+        Item[] equips = (Item[])Tools.byteArrayToObject(packet.itemsEquip);
+        string[] color = (string[])Tools.byteArrayToObject(packet.colorScheme);
 
+        MySqlConnection conn;
+
+        mysqlNonQuerySelector(out conn, "INSERT INTO characters (characterName, accountID, health,maxHealth,mana,maxMana,money,level, skinColor,eyeColor) Values('"+packet.name+ "','"+ id + "','"+100+ "','"+100+ "','"+100+"','"+100+ "','"+100+ "','"+1+ "','"+ color[0]+ "','"+ color[0] + "')");
+
+        conn.Close();
+        for (int i = 0; i < equips.Length; i++)
+        {
+            Item item = loadBasicItem(equips[i].getID());
+            int position = item.getID().getEquipPosition();
+            mysqlNonQuerySelector(out conn, "INSERT INTO inventory (characterID, itemID, inventoryType, quantity, position) Values('"+ id + "','" + item.getID() + "','" + item.getInventoryType() + "','" + 1 + "','" + position + "',)");
+        }
+    }
+    private Item loadBasicItem(int id) {
+        ItemVariables variables = ItemDataProvider.getInstance().getStats(id);
+        int[] stats = {
+            id,
+            variables.getInt("luk"),
+            variables.getInt("str"),
+            variables.getInt("dex"),
+            variables.getInt("int"),
+        };
+        return new Item(id, 0, 0, stats);
+    }
 	public void onObjectDestroy(NetworkMessage netMsg){
 		NetworkInstanceIdInfo info = new NetworkInstanceIdInfo();
 		NetworkServer.Destroy(NetworkServer.FindLocalObject(info.netId));

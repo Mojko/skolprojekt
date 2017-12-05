@@ -77,10 +77,6 @@ public static class Tools
     public static readonly int ITEM_INTERVAL = 500;
 	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
 
-    public static int getWew(this int id)
-    {
-        return 1;
-    }
 
 	public static GameObject findInactiveChild(GameObject parent, string name){
 		Transform[] transforms = parent.GetComponentsInChildren<Transform>(true);
@@ -242,6 +238,9 @@ public static class Tools
 		int ID = (int)(Mathf.Ceil((itemID + 1) / (Tools.ITEM_INTERVAL*1f)) * Tools.ITEM_INTERVAL);
 		return ID == (int)type;
 	}
+    public static int getEquipPosition(this int itemID) {
+        return ((itemID / Tools.ITEM_INTERVAL) * -1 + 1);
+    }
     public static Sprite getSprite(this int itemID) {
         ItemVariables vars = ItemDataProvider.getInstance().getStats(itemID);
         return (Sprite)sprites[vars.getInt("imageIndex")];

@@ -120,6 +120,44 @@ public class Login : NetworkBehaviour {
     }
 
     public void onCharacterCreated(CreateCharacterButton[] values, string name) {
+        loadCharacters packet = new loadCharacters();
+        packet.name = name;
+        Item[] equips = new Item[4];
+        string[] color = new string[2];
+        for (int i = 0; i < values.Length; i++) {
+            if (values[i].isItem)
+            {
+                switch (values[i].itemType) {
+
+                    case "Weapon":
+                        equips[0] = new Item(values[i].itemID);
+                    break;
+
+                    case "Shirt":
+                        equips[1] = new Item(values[i].itemID);
+                    break;
+
+                    case "Pants":
+                        equips[1] = new Item(values[i].itemID);
+                    break;
+
+                    case "Shoes":
+                        equips[1] = new Item(values[i].itemID);
+                    break;
+                }
+            }
+            else {
+                if (values[i].colorType == "Skin") {
+                    color[0] = ColorUtility.ToHtmlStringRGB(values[i].color);
+                }
+                else if (values[i].colorType == "Eye")
+                {
+                    color[0] = ColorUtility.ToHtmlStringRGB(values[i].color);
+                }
+            }
+        }
+        packet.itemsEquip = Tools.objectToByteArray(equips);
+        packet.colorScheme = Tools.objectToByteArray(color);
         client.Send(PacketTypes.CHARACTER_CREATE,null);
     }
 
