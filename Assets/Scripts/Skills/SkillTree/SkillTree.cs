@@ -196,10 +196,8 @@ public class SkillTree : UIHandler {
 	public void onSkillBoxSelect(SkillId skillId)
 	{
         Skill skill = skillId.skill;
-		if(!isSkill(skill)) return;
-        if(skillId.points < 1) return;
-        Debug.Log("added skill to skillbar");
-		player.getSkillUiManager().addNewSkillToActionBar(skill);
+		if(!isSkill(skill) || skillId.points < 1) return;
+		player.getSkillUiManager().grabSkill(skill);
 	}
 
 	public void uiToggleVisibility(GameObject obj, bool val){
@@ -327,6 +325,7 @@ public class SkillTree : UIHandler {
         }*/
         skillId.image = inst.GetComponent<Image>();
 		skillId.image.sprite = this.spritesheet[skillId.id/DefaultIds.skillDefaultId];
+		skill.sprite = skillId.image.sprite;
 		//skillId.image.sprite = chooseRandomImage();
 		this.player.skills.Add(skill);
 	}
@@ -353,6 +352,7 @@ public class Skill {
 	public string pathToSkillModel;
 	public int cooldown;
 	public string type;
+	public Sprite sprite;
 }
 
 /*void parseSkill(Skill skill){

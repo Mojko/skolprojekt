@@ -41,6 +41,7 @@ public class MobManager : NetworkBehaviour {
 	[Tooltip("Prefab name: Drop")] public GameObject drop;
 	[Tooltip("Prefab name: Part")] public GameObject part;
     public GameObject impactHitPrefab;
+	public GameObject rewardText;
 
 
     public void setId(int id)
@@ -178,7 +179,7 @@ public class MobManager : NetworkBehaviour {
 					q.increaseMobKills(this.getId());
 	                questsToSend.Add(q);
 					if(q.checkForCompletion()){
-						this.server.addOrUpdateQuestStatusToDatabase(q, targetNetwork, false);
+						this.server.addOrUpdateQuestStatusToDatabase(q, targetNetwork, false, PacketTypes.QUEST_UPDATE);
 						QuestInfo qInfo = new QuestInfo();
 						qInfo.questClassInBytes = Tools.objectToByteArray(q);
 						NetworkServer.SendToClient(targetNetwork.connectionID, PacketTypes.QUEST_COMPLETE, qInfo);
@@ -199,6 +200,9 @@ public class MobManager : NetworkBehaviour {
 		//Server.spawnObject(drop, this.transform.position);
 		//Server.spawnObject(part, new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward);
         spawner.totalEnemiesInArea--;
+		GameObject o = Instantiate(rewardText);
+		o.transform.position = this.transform.position;
+		o.transform.SetParent(GameObject.Find("WorldSpaceCanvas").transform);
 		if(this.skillCastManager != null){
 			NetworkServer.Destroy(this.skillCastManager.gameObject);
 		}

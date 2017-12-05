@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class Player : NetworkBehaviour
 {
@@ -57,6 +58,8 @@ public class Player : NetworkBehaviour
     [Header("Special Effects")]
     [Space(20)]
     public GameObject impactHitPrefab;
+	public GameObject levelUpPrefab;
+	public GameObject magicEmitEffect;
 
 
     [Header("Leave these alone")]
@@ -179,7 +182,8 @@ public class Player : NetworkBehaviour
     }
     public bool canTakeQuest(Quest quest)
     {
-        return (quest == null || quest.getStatus() == e_QuestStatus.NOT_STARTED);
+		return quest.getStatus() == e_QuestStatus.NOT_STARTED && !hasQuest(quest.getId());
+		//return (quest != null && quest.getStatus() == e_QuestStatus.NOT_STARTED);
     }
     public Quest lookupQuest(int questId)
     {
@@ -323,6 +327,15 @@ public class Player : NetworkBehaviour
             //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
         }
 		if(Input.GetKeyDown(KeyCode.B)){
+			GameObject o = Instantiate(levelUpPrefab);
+			o.transform.position = this.transform.position;
+			ParticleScaler s = o.GetComponent<ParticleScaler>();
+			s.objectAttachedTo = this.gameObject;
+			if(s.levelUpUI != null){
+				Text t = s.levelUpUI.transform.Find("Panel").Find("LevelText").GetComponent<Text>();
+				t.text = "Level 3";
+			}
+
 		}
     }
 

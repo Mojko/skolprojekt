@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 222656594520342082}
   - component: {fileID: 114494676337705914}
   m_Layer: 5
-  m_Name: ActionBarPrefab
+  m_Name: SkillIconPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

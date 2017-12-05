@@ -42,6 +42,7 @@ public class playerNetwork : NetworkBehaviour{
 		con.RegisterHandler(PacketTypes.PLAYER_BUFF, onPlayerBuff);
 		con.RegisterHandler(PacketTypes.QUEST_START, onQuestStart);
 		con.RegisterHandler(PacketTypes.QUEST_UPDATE, onQuestUpdate);
+		con.RegisterHandler(PacketTypes.QUEST_TURN_IN, onQuestTurnIn);
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
 		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
@@ -200,6 +201,15 @@ public class playerNetwork : NetworkBehaviour{
 		Debug.Log("QUEST UPDATED");
 	}
 
+	public void onQuestTurnIn(NetworkMessage netMsg){
+		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
+		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
+		Quest q = this.player.lookupQuest(quest.getId());
+		q.setStatus(e_QuestStatus.TURNED_IN);
+		this.player.npcTalkingTo.GetComponent<NPCMain>().onQuestTurnIn(q);
+		this.player.getQuestInformationData().removeQuestPanel(q);
+	}
+
 	public void onQuestComplete(NetworkMessage netMsg){
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
@@ -208,11 +218,11 @@ public class playerNetwork : NetworkBehaviour{
 		}
 	}
 
-	public void sendQuestToServer(Quest quest)
+	public void sendQuestToServer(Quest quest, short type)
     {
 		QuestInfo questInfo = new QuestInfo();
 		questInfo.questClassInBytes = Tools.objectToByteArray(quest);
-		con.Send(PacketTypes.QUEST_START, questInfo);
+		con.Send(type, questInfo);
 		Debug.Log("QUEST SENT");    
 	}
 

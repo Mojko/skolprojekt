@@ -72,14 +72,16 @@ public class SkillManager : NetworkBehaviour {
 	public Skill isPlayerTryingToActivateSkill()
 	{
 		Dictionary<int, KeyCode> keys = this.skillUiManager.getKeys();
-		Skill[] skillsInActionBar = this.skillUiManager.getSkillsInActionBar();
+		ActionBar[] actionBars = this.skillUiManager.getActionBars();
 
-		if(skillsInActionBar.Length > 0){
+		if(actionBars.Length > keys.Count){
 			for(int i=0;i<keys.Count;i++){
 				if (Input.GetKey(keys[i])) {
-					return skillsInActionBar[i];
+					return actionBars[i].skill;
 				}
 			}
+		} else {
+			Debug.LogError("More bound keys than actionbars! (SkillManager.cs)");
 		}
 		return null;
 	}
@@ -92,6 +94,7 @@ public class SkillManager : NetworkBehaviour {
         this.skill = skill;
 		this.currentAnimationPlayingName = animationName;
         startCooldown();
+		Instantiate(this.player.magicEmitEffect).transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z);//this.transform.position;
     }
 
 	public bool isCasting(){

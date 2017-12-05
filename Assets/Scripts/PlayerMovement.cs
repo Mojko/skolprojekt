@@ -180,7 +180,7 @@ public class PlayerMovement : NetworkBehaviour {
 
 		//SKILL
 		Skill skillThatWillBeLaunched = null;
-		if(Input.anyKeyDown){
+		if(Input.anyKey){
 			skillThatWillBeLaunched = player.getSkillManager().isPlayerTryingToActivateSkill();
 		}
         if(skillThatWillBeLaunched != null) {

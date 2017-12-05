@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System;
 using System.Text;
-public class Mouse {
+public class MouseInventory {
 	public int holdingID = -1;
 	public Item whereItemWereTaken;
 
@@ -58,7 +58,7 @@ public class Inventory : MonoBehaviour
     public const int MAX_INVENTORY_SIZE = 16;
     private readonly int EMPTY = -1;
     private int ItemAmounts = 0;
-    Mouse mouse = new Mouse();
+	MouseInventory mouse = new MouseInventory();
     public Player player;
     public inventoryInformation informationPrefab;
     private inventoryInformation information;

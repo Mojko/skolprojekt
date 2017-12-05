@@ -30,7 +30,7 @@ public class NPCMain : NetworkBehaviour {
     private int selection = 0;
     private bool isTalking;
 	private bool canTalk = true;
-	private List<Quest> questsCompleted = new List<Quest>();
+	public List<Quest> questsCompleted = new List<Quest>();
     private e_DialogueLayouts layout;
 	private bool shouldInitilize = true;
 	private Sprite faceImage;
@@ -103,7 +103,6 @@ public class NPCMain : NetworkBehaviour {
         isTalking = false;
 		dialogueUI.SetActive(false);
 		this.player.getPlayerMovement().unfreeze();
-		this.player = null;
         this.state = 0;
 	}
 
@@ -132,6 +131,28 @@ public class NPCMain : NetworkBehaviour {
 			setExclamationMarkHasQuest();
 		}
 	}
+	public void setQuestMarker(Quest quest){
+		Debug.Log("QUEST COMPLETION: " + quest.getStatus().ToString());
+		if(quest.getStatus() == e_QuestStatus.COMPLETED){
+			setQuestionMarkCompleted();
+			return;
+		} else if(quest.getStatus() == e_QuestStatus.STARTED){
+			setQuestionMarkPending();
+			return;
+		}
+			
+		int j = 0;
+		for(int i=0;i<this.questIds.Length;i++){
+			if(player.hasQuest(questIds[i])){
+				j++;
+			}
+		}
+		if(j <= 0){
+			setExclamationMarkHasQuest();
+			return;
+		}
+		setQuestionMarkDisabled();
+	}
 
 	void setQuestionMarkCompleted(){
 		this.questionMark.SetActive(true);
@@ -153,6 +174,7 @@ public class NPCMain : NetworkBehaviour {
 		this.exclamationMark.SetActive(true);
 		foreach(Renderer r in this.exclamationMarkRenderers){
 			r.material.color = this.goldColor;
+			return;
 		}
 		setQuestionMarkDisabled();
 	}
@@ -161,6 +183,16 @@ public class NPCMain : NetworkBehaviour {
 	}
 
 
+	public void onQuestTurnIn(Quest quest){
+		foreach(Quest q in this.questsCompleted.ToArray()){
+			if(q.getId() == quest.getId()){
+				return;
+			}
+		}
+		this.questsCompleted.Add(quest);
+		setQuestMarker(quest);
+		Debug.Log("TURNED IN QUEST");
+	}
 
     private void Update()
     {
@@ -169,10 +201,16 @@ public class NPCMain : NetworkBehaviour {
                 execute();
 				if(layout == e_DialogueLayouts.YESNO || layout == e_DialogueLayouts.OK) canTalk = false;
 
-				if(layout == e_DialogueLayouts.YESNO){ 
-					Quest q = this.player.lookupQuest(questIds[questsCompleted.Count]);
-                    //Quest q = new Quest(questIds[questsCompleted.Count], this.player.getCharacterName());
-                    if(q == null) q = new Quest(questIds[questsCompleted.Count], this.player.getCharacterName());
+				if(layout == e_DialogueLayouts.YESNO) {
+					int index = questsCompleted.Count-1;
+					index = Mathf.Clamp(index, 0, 1000);
+					Quest q = this.player.lookupQuest(questIds[index]);
+					if(q == null) q = new Quest(questIds[index], this.player.getCharacterName());
+
+					if(q.getStatus() == e_QuestStatus.COMPLETED){
+						this.player.getNetwork().sendQuestToServer(q, PacketTypes.QUEST_TURN_IN);
+					}
+
 					if(this.player.canTakeQuest(q)){
                         Debug.Log("status of quest: " + q.getStatus());
 						giveQuestToPlayer(q);
@@ -217,10 +255,12 @@ public class NPCMain : NetworkBehaviour {
 
     public void execute()
     {
-		for(int i=0;i<this.questIds.Length;i++){
-			if(player.hasQuest(questIds[i]) && !player.hasTurnedInQuest(player.lookupQuest(questIds[i]))){
-				dialogue.text = getDialogueAfterQuestId(returnDialogues, questIds[i]);
-				return;
+		if(state >= this.dialogues.Length){
+			for(int i=0;i<this.questIds.Length;i++){
+				if(player.hasQuest(questIds[i]) && !player.hasTurnedInQuest(player.lookupQuest(questIds[i]))){
+					dialogue.text = getDialogueAfterQuestId(returnDialogues, questIds[i]);
+					return;
+				}
 			}
 		}
 
@@ -233,7 +273,7 @@ public class NPCMain : NetworkBehaviour {
 
 	private void giveQuestToPlayer(Quest quest){
 		Debug.Log("wew: " + questIds.Length + " | " + this.player.getQuests().Length);
-		this.player.getNetwork().sendQuestToServer(quest);
+		this.player.getNetwork().sendQuestToServer(quest, PacketTypes.QUEST_START);
 		Debug.Log("Quest has been assigned");
 		/*if (questIds != null) {
             if(this.player.getQuests().Length > 0){
@@ -269,17 +309,20 @@ public class NPCMain : NetworkBehaviour {
 		if(collision.gameObject.CompareTag("Player") && canTalk && !isTalking && Input.GetMouseButton(0)){
             this.player = collision.gameObject.GetComponent<Player>();
             this.player.getPlayerMovement().freeze();
+			this.player.npcTalkingTo = this.gameObject;
             isTalking = true;
 			dialogueUI.SetActive(true);
 
 			if(shouldInitilize){
 				init();
 			}
+			execute();
         }
     }
 
 	private void OnCollisionExit(Collision collision){
 		canTalk = true;
+		this.player = null;
 	}
 }
   
