@@ -18,7 +18,7 @@ public class CreateCharacterSend : MonoBehaviour {
     public void onClick() {
         this.errorText.text = "";
         string name = characterUI.getName().text;
-        if (name.Length >= 15 && name.Length < 2) {
+        if (name.Length >= 15 || name.Length < 2) {
             this.errorText.text = "Name must be between 2 and 15 characters";
             return;
         }

@@ -287,6 +287,7 @@ public class ItemDataEquips : ItemDataAll
 {
     public ItemDataEquips[] items;
     public int id;
+    public int luk,dex,str,Int,Matt,Watt;
     public string name;
     public int damage;
     public int price;

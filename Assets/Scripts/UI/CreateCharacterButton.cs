@@ -60,11 +60,9 @@ public class CreateCharacterButton : MonoBehaviour
             this.btn.color = new Color(1, 1, 1, 1);
             characterUI.equipItem(itemID, itemType);
         }
-        else {
+        else
+        {
             characterUI.changeColor(this.btn.color, colorType);
         }
-    }
-    public void onDoneCreating() {
-        characterUI.onFinishCreating();
     }
 }

@@ -143,6 +143,7 @@ public class loadCharacters : MessageBase{
     public bool successfull = false;
     public string notSuccessfullReason = "";
     public string name = "";
+    public string playerName = "";
     public string password = "";
     public byte[] itemsEquip;
 	public byte[] colorScheme;
@@ -150,6 +151,7 @@ public class loadCharacters : MessageBase{
 	public byte[] stats;
     public int[] skillProperties;
     public int money;
+    public NetworkInstanceId netID;
     //public byte[] skillClassInBytes;
 }
 public class NPCInteractPacket : MessageBase
