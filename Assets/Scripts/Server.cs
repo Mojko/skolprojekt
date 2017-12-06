@@ -114,6 +114,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
 		NetworkServer.RegisterHandler(PacketTypes.DESTROY, onObjectDestroy);
 		NetworkServer.RegisterHandler(PacketTypes.TEST, onTest);
+		NetworkServer.RegisterHandler(PacketTypes.EMPTY, onLevelUp);
 		NetworkServer.RegisterHandler(PacketTypes.CREATE_SKILL, onSkillCreate);
         resourceStructure = new ResourceStructure();
 
@@ -162,6 +163,23 @@ public class Server : NetworkManager
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
 		questManager.turnInQuest(quest, this.getPlayerObject(netMsg.conn.connectionId));
+	}
+
+	public static void giveExpToPlayer(int exp, PlayerServer pServer){
+		KillInfo killInfo = new KillInfo();
+		killInfo.exp = exp;
+		pServer.giveExp(exp);
+		NetworkServer.SendToClient(pServer.connectionID, PacketTypes.GIVE_EXP, killInfo);
+	}
+
+	public void onLevelUp(NetworkMessage netMsg){
+		playerObjects[netMsg.conn.connectionId].levelUp();
+	}
+
+	public static void sendLevelUp(int expRequiredForNextLevel, int connectionID){
+		LevelUpInfo info = new LevelUpInfo();
+		info.expRequiredForNextLevel = expRequiredForNextLevel;
+		NetworkServer.SendToClient(connectionID, PacketTypes.LEVEL_UP, info);
 	}
 
 	/*public void completeQuest(Quest quest){
@@ -279,7 +297,7 @@ public class Server : NetworkManager
     {
         MobInfo mobInfo = netMsg.ReadMessage<MobInfo>();
         for(int i=0;i<mobInfo.amount;i++){
-            spawnMonster(mobInfo.mobId);
+			spawnMonster(mobInfo.mobId);
          }
     }
 
@@ -288,9 +306,9 @@ public class Server : NetworkManager
         return this.resourceStructure;
     }
 
-	private void createSkill(SkillCastInfo skillInfo, GameObject caster, PlayerServer pServer, GameObject target){
+	private void createSkill(SkillCastInfo skillInfo, GameObject caster, PlayerServer pServer, GameObject target, Vector3 position){
 		GameObject skillEffect = Instantiate((GameObject)Resources.Load(skillInfo.pathToEffect));
-		skillEffect.transform.position = new Vector3(skillInfo.spawnPosition.x, skillInfo.spawnPosition.y+1f, skillInfo.spawnPosition.z);
+		skillEffect.transform.position = position;
 		skillEffect.transform.rotation = Quaternion.Euler(skillInfo.rotationInEuler);
 		skillEffect.GetComponent<SkillCastManager>().cast(caster, this, pServer, skillInfo.skillType, target);
 		NetworkServer.Spawn(skillEffect);
@@ -311,13 +329,13 @@ public class Server : NetworkManager
 				if(c.CompareTag("Enemy")){
 					target = c.gameObject;
 					MobManager m = target.GetComponent<MobManager>();
-					if(!m.targeted) createSkill(skillInfo, caster, pServer, target);
+					if(!m.targeted) createSkill(skillInfo, caster, pServer, target, skillInfo.spawnPosition);
 					m.targeted = true;
 				}
 			}
 			return;
 		}
-		createSkill(skillInfo, caster, pServer, null);
+		createSkill(skillInfo, caster, pServer, null, skillInfo.spawnPosition);
     }
 
 	public void onPlayerBuff(NetworkMessage netMsg){
@@ -388,7 +406,8 @@ public class Server : NetworkManager
         if(monsterToFind != null){
             GameObject enemy = Instantiate(ResourceStructure.getGameObjectFromPath(monsterToFind.pathToModel));
             Debug.Log("M_ID: " + monsterToFind.id);
-            enemy.GetComponent<MobManager>().setId(monsterToFind.id);
+			MobManager m = enemy.GetComponent<MobManager>();
+			m.setId(monsterToFind.id);
             NetworkServer.Spawn(enemy);
         }
     }
@@ -558,6 +577,7 @@ public class Server : NetworkManager
         int characterID = getCharacterID(packet.characterName);
         PlayerServer playerReal = new PlayerServer(id, msg.conn.connectionId);
         playerReal.setPlayerID(characterID);
+
         connections.Add(msg.conn.connectionId, packet.name);
         conns.Add(packet.name, msg.conn.connectionId);
         charactersOnline.Add(packet.characterName, getCharacterID(packet.characterName));

@@ -13,6 +13,7 @@ public class SkillTree : UIHandler {
 	public SkillUIManager skillUi;
 	public GameObject linePrefab;
 	public Sprite[] spritesheet;
+	public Sprite[] spritesheet_transparent;
 
     public GameObject pointsTextPrefab;
 
@@ -46,6 +47,7 @@ public class SkillTree : UIHandler {
         GameObject skillTreeContainer = Tools.findInactiveChild(UI, "SkillTreeContainer");
 
 		this.spritesheet = Resources.LoadAll<Sprite>("Sprites/SkillIcons/spritesheet");
+		this.spritesheet_transparent = Resources.LoadAll<Sprite>("Sprites/SkillIcons/spritesheet_transparent");
 
         transform.SetParent(skillTreeUI.transform);
 		//transform.SetParent(UI.transform.Find("SkillTree_UI").Find("Panel").Find("SkillTreeContainer"));
@@ -314,26 +316,16 @@ public class SkillTree : UIHandler {
 		skillId.skill = skill;
 		skillId.maxPoints = skill.maxPoints;
 		skillId.pathToSkillModel = skill.pathToSkillModel;
-        
-        /*skillId.image.sprite = Resources.Load<Sprite>("Sprites/SkillIcons/Default");
-        Sprite[] images = Resources.LoadAll<Sprite>("Sprites/SkillIcons/");
-        Debug.Log(images.Length);
-        foreach(Sprite img in images) {
-            if (img.name.Equals(skill.name)) {
-                skillId.image.sprite = img;
-            }
-        }*/
+
         skillId.image = inst.GetComponent<Image>();
 		skillId.image.sprite = this.spritesheet[skillId.id/DefaultIds.skillDefaultId];
-		skill.sprite = skillId.image.sprite;
-		//skillId.image.sprite = chooseRandomImage();
+		skill.sprite = this.spritesheet_transparent[(skillId.id/DefaultIds.skillDefaultId)-1];
 		this.player.skills.Add(skill);
 	}
 
 	GameObject getParent(GameObject child){
 		return child.transform.parent.gameObject;
-	}
-}
+	}}
 
 [System.Serializable]
 public class Skill {
@@ -350,30 +342,9 @@ public class Skill {
 	public Skill[] Potrait;
 	public bool enhancementSkill;
 	public string pathToSkillModel;
+	public string pathToPreEffect;
 	public int cooldown;
 	public string type;
 	public Sprite sprite;
+	public int[] positionOffset;
 }
-
-/*void parseSkill(Skill skill){
-		GameObject inst = Instantiate(skillTreeSlotPrefab);
-		inst = setParents(inst, this.gameObject, cache);
-		inst.transform.position = new Vector3(xRoot,yRoot,zRoot);
-		inst.transform.localScale = new Vector2(inst.transform.localScale.x/1.5f, inst.transform.localScale.y/1.5f);
-		tempObjects.Add(inst);
-		childCount--;
-		createSkillObject(inst, skill);
-
-		Debug.Log("cCount: " + childCount);
-
-		if(childCount <= 0){
-			for(int i=0;i<tempSkills.Count;i++){
-				cache = inst;
-				childCount = skill.children.Length;
-				Debug.Log("NAME: " + tempSkills[i].name);
-				if(hasSkillChildren(tempSkills[i])){
-					parseChildren(tempSkills[i].children);
-				}
-			}
-		}
-    }*/

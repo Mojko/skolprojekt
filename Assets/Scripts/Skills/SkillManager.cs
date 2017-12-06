@@ -31,6 +31,7 @@ public class SkillManager : NetworkBehaviour {
 	private Animator animator;
 	private string currentAnimationPlayingName;
 	private bool hasInit;
+	private Vector3 position;
 
 	public void init(Player player, SkillUIManager skillUiManager)
     {
@@ -62,7 +63,14 @@ public class SkillManager : NetworkBehaviour {
 
 		if(isAnimationFinished(this.currentAnimationPlayingName)) {
 			Debug.Log("sending skillscast..");
-			player.getNetwork().sendSkillCast(this.skill.pathToSkillModel, player.transform.position, player.getPlayerMovement().rot.eulerAngles, this.skill.type);
+			Vector3 offset = Tools.arrayToVector3(skill.positionOffset);
+			if(offset.x > 0) offset = player.transform.right;
+			if(offset.x < 0) offset = -player.transform.right;
+			if(offset.y > 0) offset = player.transform.up;
+			if(offset.y < 0) offset = -player.transform.up;
+			if(offset.z > 0) offset = -player.transform.forward;
+			if(offset.z < 0) offset = player.transform.forward;
+			player.getNetwork().sendSkillCast(this.skill.pathToSkillModel, new Vector3(player.transform.position.x+offset.x, player.transform.position.y+offset.y, player.transform.position.z+offset.z), player.getPlayerMovement().rot.eulerAngles, this.skill.type);
 
             stopCooldown();
 			player.getPlayerMovement().unfreeze();
@@ -76,7 +84,7 @@ public class SkillManager : NetworkBehaviour {
 
 		if(actionBars.Length > keys.Count){
 			for(int i=0;i<keys.Count;i++){
-				if (Input.GetKey(keys[i])) {
+				if (Input.GetKey(keys[i]) && actionBars[i].skill.id != 0) {
 					return actionBars[i].skill;
 				}
 			}
@@ -94,7 +102,10 @@ public class SkillManager : NetworkBehaviour {
         this.skill = skill;
 		this.currentAnimationPlayingName = animationName;
         startCooldown();
-		Instantiate(this.player.magicEmitEffect).transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z);//this.transform.position;
+
+		if(!skill.pathToPreEffect.Equals(string.Empty)){
+			Instantiate((GameObject)Resources.Load(skill.pathToPreEffect)).transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z);//this.transform.position;
+		}
     }
 
 	public bool isCasting(){

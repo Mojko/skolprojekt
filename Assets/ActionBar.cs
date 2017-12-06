@@ -5,8 +5,11 @@ using UnityEngine;
 public class ActionBar : MonoBehaviour {
 
 	public Skill skill;
+	public GameObject skillIcon;
 
-	public bool isMouseOver(){
-		return false;
+	void Update(){
+		if(Input.GetKeyDown(KeyCode.F10)){
+			Debug.Log("IS IT NULL THOUGH? " + skill);
+		}
 	}
 }

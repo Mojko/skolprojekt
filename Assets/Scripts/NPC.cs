@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System;
 using System.Text;
+/*
 public class NPC : MonoBehaviour
 {
 
@@ -13,7 +14,7 @@ public class NPC : MonoBehaviour
 
     bool isTalking = false;
     GameObject player;
-    Dialogue dialogue;
+    7Dialogue dialogue;
     //public GameObject prefabDialogueCanvas;
     public Canvas dialogueCanvas;
     private Canvas activeCanvas;
@@ -24,7 +25,7 @@ public class NPC : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main.GetComponent<MainCamera>();
-        dialogue = new Dialogue(this);
+        //dialogue = new Dialogue(this);
         //dialogue.startNewDialogue("|t|0.9|t|OMG|t|orgSpeed|t| Hello fellow stranger. I need some help, can you please collect five |I|1000|I| and ten |I|1002|I|", textSpeed, 0, this);
         //dialogue.startNewDialogue("|t|0.2|t|Reddit|t|orgSpeed|t| Hello fellow strawewe |I|1000|I| and ten |I|1002|I|", textSpeed, 0, this);
 
@@ -73,3 +74,4 @@ public class NPC : MonoBehaviour
         transform.rotation = Quaternion.Slerp(transform.rotation, rot, 0.2f);
     }
 }
+*/

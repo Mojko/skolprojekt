@@ -54,6 +54,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4993440320825572}
   - component: {fileID: 114042256357860300}
+  - component: {fileID: 114462498779606322}
   m_Layer: 0
   m_Name: Level Up
   m_TagString: Untagged
@@ -194,6 +195,38 @@ MonoBehaviour:
   objectAttachedTo: {fileID: 0}
   timerUntilKill: 3
   levelUpUI: {fileID: 1150940104444164, guid: 0b3180752e382f849882eda3d3b1ea7f, type: 2}
+--- !u!114 &114462498779606322
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1599866367325428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 91
+    i1: 247
+    i2: 179
+    i3: 29
+    i4: 192
+    i5: 237
+    i6: 179
+    i7: 244
+    i8: 155
+    i9: 239
+    i10: 158
+    i11: 96
+    i12: 106
+    i13: 121
+    i14: 187
+    i15: 158
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!198 &198294144376188772
 ParticleSystem:
   m_ObjectHideFlags: 1

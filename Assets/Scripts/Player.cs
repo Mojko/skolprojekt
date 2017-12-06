@@ -10,7 +10,11 @@ public class Player : NetworkBehaviour
     //Private variables
     private Inventory inventory;
     private GameObject UICanvas;
-    private NPC currentNPC;
+    
+
+	private NPCMain currentNPC;
+
+
     private SkillUIManager skillUi;
     private SkillManager skillManager;
     private PlayerMovement movement;
@@ -27,12 +31,18 @@ public class Player : NetworkBehaviour
     public NetworkIdentity identity;
 	public delegate void PickupEventHandler(Item item);
 	public event PickupEventHandler pickupEventHandler;
+	private Text expText;
+	private Text levelText;
+	private int expRequiredForNextLevel;
+
 
     [Header("Player Attributes")]
     public PlayerStats stats;
     public string playerName;
     public int money = 0;
     private GameObject[] playerEquipSlots;
+	public int exp;
+	public int level;
 
     [Header("Quests")]
     [Space(20)]
@@ -92,6 +102,20 @@ public class Player : NetworkBehaviour
     public GameObject getEquipSlot(int index) {
         return playerEquipSlots[index];
     }
+	public void giveExp(int exp){
+		this.exp += exp;
+		updateExpUI();
+	}
+	public void levelUp(int expRequiredForNextLevel){
+		this.level += 1;
+		this.exp = 0;
+		this.expRequiredForNextLevel = expRequiredForNextLevel;
+		updateExpUI();
+	}
+	public void updateExpUI(){
+		this.expText.text = exp + " / " + expRequiredForNextLevel;
+		this.levelText.text = "Level         "  + this.level;
+	}
     public override void OnStartLocalPlayer ()
 	{
         if(!isLocalPlayer) return;
@@ -160,6 +184,10 @@ public class Player : NetworkBehaviour
         this.UIPlayer.setPlayer(this);
         this.UIPlayer.gameObject.SetActive(true);
 
+		//LEVEL STUFF
+		this.expText = UICanvas.transform.Find("Footer_UI").Find("ExpBar").Find("Bar").Find("Text").GetComponent<Text>();
+		this.levelText = UICanvas.transform.Find("Footer_UI").Find("Level").GetComponent<Text>();
+
 		//QuestManager
 		this.npcController = GameObject.FindWithTag("NPCManager").GetComponent<NPCController>();
 		npcController.initilize(this);
@@ -195,6 +223,7 @@ public class Player : NetworkBehaviour
         return null;
     }
 	public bool hasQuest(Quest quest){
+		if(quest == null) return false;
 		foreach(Quest q in quests.ToArray()){
 			if(quest.getId().Equals(q.getId())){
 				return true;
@@ -269,12 +298,13 @@ public class Player : NetworkBehaviour
     {
         return this.skillManager;
     }
-    public NPC isTalkingToNpc() {
+   	public NPCMain isTalkingToNpc() {
         return currentNPC;
     }
-    public void setActiveNPC(NPC npc) {
+    public void setActiveNPC(NPCMain npc) {
         currentNPC = npc;
     }
+
     public GameObject getUI() {
         return UICanvas;
     }
@@ -338,14 +368,6 @@ public class Player : NetworkBehaviour
 
 		}
     }
-
-	void OnCollisionEnter (Collision col) {
-		if (col.gameObject.CompareTag ("NPC")) {
-			npcTalkingTo = col.gameObject;
-            setActiveNPC(npcTalkingTo.GetComponent<NPC>());
-            //this.getNetwork().onTalkNPC(this.currentNPC.getID(),0);
-		}
-	}
     public Chat getChat() {
         return chat;
     }

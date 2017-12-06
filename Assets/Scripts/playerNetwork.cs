@@ -48,6 +48,8 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
+		con.RegisterHandler(PacketTypes.GIVE_EXP, onGiveExp);
+		con.RegisterHandler(PacketTypes.LEVEL_UP, onLevelUp);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -76,6 +78,15 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
+	public void onLevelUp(NetworkMessage netMsg){
+		this.player.levelUp(netMsg.ReadMessage<LevelUpInfo>().expRequiredForNextLevel);
+	}
+	public void sendLevelUp(int level){
+		this.con.Send(PacketTypes.EMPTY, new EmptyInfo());
+	}
+	void onGiveExp(NetworkMessage netMsg){
+		this.player.giveExp(netMsg.ReadMessage<KillInfo>().exp);
+	}
     void onUnequipItem(NetworkMessage msg) {
         ItemInfo info = msg.ReadMessage<ItemInfo>();
         if (info.netId.Equals(this.player.identity.netId))
@@ -158,47 +169,28 @@ public class playerNetwork : NetworkBehaviour{
 	public void startQuest(Quest quest){
 		this.player.startNewQuest(quest);
 		Debug.Log("STATUS_CLIENT: " + quest.getStatus());
-		if(quest.getStatus() == e_QuestStatus.STARTED || quest.getStatus() == e_QuestStatus.COMPLETED){
+		if(quest.getStatus() != e_QuestStatus.NOT_STARTED){
 			this.player.getQuestInformationData().addNewQuestPanel(quest);
 		}
-		Debug.Log("QUEST STARTED");
+		Debug.Log("QUEST STARTED " + quest.getStatus());
 	}
 
 	public void onQuestUpdate(NetworkMessage netMsg){
 		QuestInfo questInfo = netMsg.ReadMessage<QuestInfo>();
 
-		Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(questInfo.questClassInBytes);
+		Quest quest = (Quest)Tools.byteArrayToObject(questInfo.questClassInBytes);
 
 		//Quest[] quests = (Quest[])Tools.byteArrayToObjectArray(questInfo.questClassInBytes);
-		foreach(Quest q in quests){
-			foreach(Quest playerQ in player.getQuests()){
-				int[] ids = q.getMobIds();
-				for(int i=0;i<ids.Length;i++){
-					playerQ.setMobKills(ids[i], q.getMobKills(ids[i]));
-				}
-				foreach(QuestContainer container in player.getQuestWrapper().questContainers.ToArray()){
-					container.setQuestInformation();
-				}
+		foreach(Quest playerQ in player.getQuests()){
+			int[] ids = quest.getMobIds();
+			for(int i=0;i<ids.Length;i++){
+				playerQ.setMobKills(ids[i], quest.getMobKills(ids[i]));
 			}
-            /*
-             * 
-             * 
-                FIX THIS SHITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-             */
-                         /*
-             * 
-             * 
-                FIX THIS SHITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-             */
-                         /*
-             * 
-             * 
-                FIX THIS SHITTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-             */
-            
-            //this.questUI.addNewQuestToolTip(q.getTooltip());
+			foreach(QuestContainer container in player.getQuestWrapper().questContainers){
+				container.setQuestInformation();
+			}
 		}
-		Debug.Log("QUEST UPDATED");
+		Debug.Log("================QUEST UPDATED================");
 	}
 
 	public void onQuestTurnIn(NetworkMessage netMsg){
@@ -473,6 +465,7 @@ public class playerNetwork : NetworkBehaviour{
     }
     void onReciveNPCText(NetworkMessage msg)
     {
+		/*
         NPCInteractPacket obj = msg.ReadMessage<NPCInteractPacket>();
         NPC npc;
         Debug.Log("recived message");
@@ -480,7 +473,9 @@ public class playerNetwork : NetworkBehaviour{
         {
             npc.startDialogue(obj.npcText);
         }
+        */
     }
+    
     //# INVENTORY
     public void sendItem(short packetType, Item item) {
         ItemInfo info = new ItemInfo();

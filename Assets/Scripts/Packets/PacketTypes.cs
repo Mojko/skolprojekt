@@ -11,6 +11,8 @@ public class PacketTypes{
     public static readonly short LOGIN = 1003;
     public static readonly short NPC_INTERACT = 1004;
     public static readonly short PICK_CHAR = 1005;
+	public static readonly short GIVE_EXP = 1006;
+	public static readonly short LEVEL_UP = 1007;
     //# INVENTORY
 	public static readonly short SAVE_INVENTORY = 1006;
 	public static readonly short LOAD_OTHER_PLAYER = 1007;
@@ -32,7 +34,6 @@ public class PacketTypes{
 
 	//#ENEMIES
 	public static readonly short MONSTER_SPAWN = 1301;
-
 
 	//#STAT ALLOCATOR
 	public static readonly short PLAYER_BUFF = 1401;
@@ -58,6 +59,7 @@ public class PacketTypes{
     //ERROR
     public static readonly short ERROR = 9999;
 	public static readonly short TEST = 9998;
+	public static readonly short EMPTY = 9997;
 
 }
 public enum MessageTypes

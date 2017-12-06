@@ -9,6 +9,9 @@ public class PlayerServer {
     public int databaseID;
     public int connectionID;
     public int playerID;
+	public int exp = 0;
+	public int expRequiredForNextLevel = 10;
+	public int level = 1;
 
     PlayerStats info;
 
@@ -57,6 +60,23 @@ public class PlayerServer {
         }
         return false;
     }
+
+	//This can only run ONCE
+	public void levelUp(){
+		this.level += 1;
+		this.exp = 0;
+		expRequiredForNextLevel *= 2;
+		Server.sendLevelUp(expRequiredForNextLevel, this.connectionID);
+		Debug.Log("LEVELUP!!");
+	}
+
+	public void giveExp(int exp){
+		this.exp += exp;
+		if(this.exp >= expRequiredForNextLevel){
+			levelUp();
+		}
+		Debug.Log("EXP given, EXP now: " + this.exp + " | " + expRequiredForNextLevel);
+	}
 
     public ItemVariables useItem(Item item) {
 

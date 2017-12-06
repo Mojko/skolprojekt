@@ -234,6 +234,9 @@ public static class Tools
         item = Mathf.Lerp(item, b, time);
     }
 
+	public static Vector3 arrayToVector3(int[] array){
+		return new Vector3(array[0], array[1], array[2]);
+	}
 
     public static PlayerServer getPlayer(this NetworkMessage msg)
     {

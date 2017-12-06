@@ -1039,8 +1039,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.7764384, y: 1.5628304, z: 0.8498687}
-  m_Center: {x: -0.033890516, y: 0.65085244, z: -0.010766089}
+  m_Size: {x: 0.7764384, y: 11.694, z: 3.45003}
+  m_Center: {x: -0.033890527, y: 5.716436, z: 0.077928066}
 --- !u!95 &95390616485541244
 Animator:
   serializedVersion: 3
@@ -1163,6 +1163,8 @@ MonoBehaviour:
     s_dex: 0
   playerName: 
   money: 0
+  exp: 0
+  level: 0
   quests: []
   quest_UI: {fileID: 1200795492654618, guid: fe1f21a7fcee7fb48a9eb0a6c378c3ec, type: 2}
   skillPrefab: {fileID: 1909951923887278, guid: ed4b4b59595e5684780483c6c30c1f67,
