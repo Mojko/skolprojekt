@@ -114,11 +114,11 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquipItem);
 		NetworkServer.RegisterHandler(PacketTypes.DESTROY, onObjectDestroy);
 		NetworkServer.RegisterHandler(PacketTypes.TEST, onTest);
-<<<<<<< HEAD
+
 		NetworkServer.RegisterHandler(PacketTypes.EMPTY, onLevelUp);
-=======
+
         NetworkServer.RegisterHandler(PacketTypes.CHARACTER_CREATE, onCharacterCreate);
->>>>>>> d2447c106c541b072c4a8a2fcc4f2e942d32e766
+
 		NetworkServer.RegisterHandler(PacketTypes.CREATE_SKILL, onSkillCreate);
         resourceStructure = new ResourceStructure();
 
