@@ -113,7 +113,6 @@ public class Login : NetworkBehaviour {
         ColorUtility.TryParseHtmlString("#" + color, out col);
         for (int i = 0; i < eyeModels.Length; i++)
         {
-            Debug.Log("eyeColor: " + col + " : " + color);
             eyeModels[i].GetComponent<SkinnedMeshRenderer>().material.SetColor("_Color", col);
         }
     }
