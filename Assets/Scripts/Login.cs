@@ -70,10 +70,15 @@ public class Login : NetworkBehaviour {
 	public void createCharacters(loadCharacters characters){
 		int length = characters.names.Length;
         List<List<Equip>> equips = (List<List<Equip>>)Tools.byteArrayToObject(characters.itemsEquip);
+        List<string[]> colors = (List<string[]>)Tools.byteArrayToObject(characters.colorScheme);
         Debug.Log("Equips size:" + equips.Count);
         for (int i = 0; i < length; i++) {
-			GameObject child = (GameObject)Instantiate (playerModel, Vector3.zero,Quaternion.identity);
-			child.transform.SetParent (this.charSelect.transform.GetChild(i));
+            GameObject child = (GameObject)Instantiate (playerModel, Vector3.zero,Quaternion.identity);
+            GameObject[] skin = Tools.getChildren(child.transform.GetChild(1).gameObject, "BodyModel", "HeadModel");
+            GameObject[] eyes = Tools.getChildren(child.transform.GetChild(1).gameObject, "Eye_L_Model", "Eye_R_Model");
+            setSkinColor(skin, colors[i][2]);
+            setEyeColor(eyes, colors[i][1]);
+            child.transform.SetParent (this.charSelect.transform.GetChild(i));
 			child.transform.localPosition = Vector3.zero;
             this.charSelect.transform.GetChild(i).transform.localRotation = Quaternion.Euler(0,135,0);
             PickCharacter pickChar = this.charSelect.transform.GetChild(i).GetChild(0).gameObject.AddComponent<PickCharacter>();
@@ -84,7 +89,6 @@ public class Login : NetworkBehaviour {
             this.charSelect.transform.GetChild(i).GetChild(0).GetChild(0).gameObject.GetComponent<TextMesh>().text = characters.names[i];
             pickChar.camera = camera.gameObject.GetComponent<Camera>();
 		}
-        Debug.Log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: " + length);
         for (int i = length; i < this.charSelect.transform.childCount; i++) {
             GameObject child = (GameObject)Instantiate(signModel, Vector3.zero, Quaternion.identity);
             child.transform.SetParent(this.charSelect.transform.GetChild(i));
@@ -96,11 +100,35 @@ public class Login : NetworkBehaviour {
             charCreate.setUI(createCharacterUI);
         }
 	}
+    private void setSkinColor(GameObject[] skinModels, string color) {
+        Color col;
+        ColorUtility.TryParseHtmlString("#"+color, out col);
+        for (int i = 0; i < skinModels.Length; i++) {
+            Debug.Log("skinColor: " + col + " : " + color);
+            skinModels[i].GetComponent<SkinnedMeshRenderer>().material.SetColor("_Color", col);
+        }
+    }
+    private void setEyeColor(GameObject[] eyeModels, string color) {
+        Color col;
+        ColorUtility.TryParseHtmlString("#" + color, out col);
+        for (int i = 0; i < eyeModels.Length; i++)
+        {
+            Debug.Log("eyeColor: " + col + " : " + color);
+            eyeModels[i].GetComponent<SkinnedMeshRenderer>().material.SetColor("_Color", col);
+        }
+    }
     private void equipItems(List<Equip> items, PickCharacter character) {
 
-        GameObject[] playerEquipSlots = Tools.getChildren(character.gameObject, "hatStand", "armorStand");
+        GameObject[] playerEquipSlots = Tools.getChildren(character.gameObject, "hatStand", "weaponStand");
+        GameObject[] clothes = Tools.getChildren(character.gameObject, "Shirt", "Pants");
         for (int i = 0; i < items.Count; i++) {
-            Player.setEquipModel(items[i], playerEquipSlots);
+            if (items[i].getID().isItemType(e_itemTypes.HATS) || items[i].getID().isItemType(e_itemTypes.WEAPON))
+            {
+                Player.setEquipModel(items[i], playerEquipSlots);
+            }
+            else {
+                Player.setClothes(items[i], clothes);
+            }
         }
         //Player.setEquipModel(item, playerEquipSlots);
 
@@ -138,11 +166,11 @@ public class Login : NetworkBehaviour {
                     break;
 
                     case "Pants":
-                        equips[1] = new Item(values[i].itemID);
+                        equips[2] = new Item(values[i].itemID);
                     break;
 
                     case "Shoes":
-                        equips[1] = new Item(values[i].itemID);
+                        equips[3] = new Item(values[i].itemID);
                     break;
                 }
             }
@@ -152,13 +180,14 @@ public class Login : NetworkBehaviour {
                 }
                 else if (values[i].colorType == "Eye")
                 {
-                    color[0] = ColorUtility.ToHtmlStringRGB(values[i].color);
+                    color[1] = ColorUtility.ToHtmlStringRGB(values[i].color);
                 }
             }
         }
         packet.itemsEquip = Tools.objectToByteArray(equips);
         packet.colorScheme = Tools.objectToByteArray(color);
-        client.Send(PacketTypes.CHARACTER_CREATE,null);
+        packet.playerName = this.name;
+        client.Send(PacketTypes.CHARACTER_CREATE, packet);
     }
 
     public void loginPlayer(NetworkMessage msg) {

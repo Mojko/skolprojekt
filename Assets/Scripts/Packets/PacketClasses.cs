@@ -134,6 +134,7 @@ public class loadCharacters : MessageBase{
     public bool successfull = false;
     public string notSuccessfullReason = "";
     public string name = "";
+    public string playerName = "";
     public string password = "";
     public byte[] itemsEquip;
 	public byte[] colorScheme;

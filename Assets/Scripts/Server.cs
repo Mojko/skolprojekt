@@ -124,33 +124,42 @@ public class Server : NetworkManager
 
     }
     public void onCharacterCreate(NetworkMessage netMsg) {
-        int id = playerID[connections[netMsg.conn.connectionId]];
         loadCharacters packet = netMsg.ReadMessage<loadCharacters>();
+        int id = getPlayerIDFromDir(packet.playerName);
         Item[] equips = (Item[])Tools.byteArrayToObject(packet.itemsEquip);
         string[] color = (string[])Tools.byteArrayToObject(packet.colorScheme);
 
         MySqlConnection conn;
 
         mysqlNonQuerySelector(out conn, "INSERT INTO characters (characterName, accountID, health,maxHealth,mana,maxMana,money,level, skinColor,eyeColor) Values('"+packet.name+ "','"+ id + "','"+100+ "','"+100+ "','"+100+"','"+100+ "','"+100+ "','"+1+ "','"+ color[0]+ "','"+ color[0] + "')");
-
+        int characterID = getCharacterID(packet.name);
         conn.Close();
         for (int i = 0; i < equips.Length; i++)
         {
+            if (equips[i] == null) continue;
             Item item = loadBasicItem(equips[i].getID());
             int position = item.getID().getEquipPosition();
-            mysqlNonQuerySelector(out conn, "INSERT INTO inventory (characterID, itemID, inventoryType, quantity, position) Values('"+ id + "','" + item.getID() + "','" + item.getInventoryType() + "','" + 1 + "','" + position + "',)");
+            mysqlNonQuerySelector(out conn, "INSERT INTO inventory (characterID, itemID, inventoryType, quantity, position) Values('"+ characterID + "','" + item.getID() + "','" + item.getInventoryType() + "','" + 1 + "','" + position + "')");
+            int inventoryID = getInventoryID(item.getID(), position);
+            mysqlNonQuerySelector(out conn, "INSERT INTO inventoryequipment (inventoryID, Watt, Matt, luk, str,dex,intell) Values('" + inventoryID + "','" + item.getVariables().getInt("Watt") + "','" + item.getVariables().getInt("Matt") + "','" + item.getVariables().getInt("luk") + "','" + item.getVariables().getInt("str") + "','" + item.getVariables().getInt("dex") + "','" + item.getVariables().getInt("Int") + "')");
         }
+    }
+    private int getInventoryID(int id, int position) {
+        MySqlConnection conn;
+        MySqlDataReader reader;
+
+        mysqlReader(out conn, out reader, "SELECT id FROM inventory WHERE itemID = '" + id + "' AND position = '"+position+"'");
+        int invId = -1;
+        while (reader.Read()) {
+            invId = reader.GetInt32("id");
+        }
+        return invId;
     }
     private Item loadBasicItem(int id) {
         ItemVariables variables = ItemDataProvider.getInstance().getStats(id);
-        int[] stats = {
-            id,
-            variables.getInt("luk"),
-            variables.getInt("str"),
-            variables.getInt("dex"),
-            variables.getInt("int"),
-        };
-        return new Item(id, 0, 0, stats);
+        Item item = new Item(id);
+        item.setItemVariables(variables);
+        return item;
     }
 	public void onObjectDestroy(NetworkMessage netMsg){
 		NetworkInstanceIdInfo info = new NetworkInstanceIdInfo();
@@ -705,7 +714,7 @@ public class Server : NetworkManager
                         reader.GetInt32("Watt"),
                         reader.GetInt32("Matt"),
                         reader.GetInt32("str"),
-                        reader.GetInt32("int"),
+                        reader.GetInt32("intell"),
                         reader.GetInt32("dex"),
                         reader.GetInt32("luk"),
                     };
@@ -894,7 +903,7 @@ public class Server : NetworkManager
             pack.name = packet.name;
             int characters = 0;
             List<string> names = new List<string>();
-            List<int[]> color = new List<int[]>();
+            List<string[]> color = new List<string[]>();
             List<int[]> stats = new List<int[]>();
             List<List<Equip>> itemsEquip =new List<List<Equip>>();
             List<int> ids = new List<int>();
@@ -902,7 +911,7 @@ public class Server : NetworkManager
             while (reader.Read())
             {
                 int[] stat = new int[6];
-                int[] colors = new int[3];
+                string[] colors = new string[3];
                 names.Add(reader.GetString("characterName"));
 
                 stat[0] = -1;
@@ -912,9 +921,9 @@ public class Server : NetworkManager
                 stat[4] = -1;
                 stat[5] = -1;
 
-                colors[0] = (reader.GetInt32("hairColor"));
-                colors[1] = (reader.GetInt32("eyeColor"));
-                colors[2] = (reader.GetInt32("skinColor"));
+                colors[0] = (reader.GetString("hairColor"));
+                colors[1] = (reader.GetString("eyeColor"));
+                colors[2] = (reader.GetString("skinColor"));
                 int idP = reader.GetInt32("id");
                 ids.Add(idP);
                 color.Add(colors);
@@ -936,7 +945,7 @@ public class Server : NetworkManager
                         reader.GetInt32("Watt"),
                         reader.GetInt32("Matt"),
                         reader.GetInt32("str"),
-                        reader.GetInt32("int"),
+                        reader.GetInt32("intell"),
                         reader.GetInt32("dex"),
                         reader.GetInt32("luk"),
                     };

@@ -91,9 +91,6 @@ public class CreateCharacterUI : MonoBehaviour {
             }
         }
     }
-    public void onFinishCreating() {
-
-    }
     public Text getName() {
         return name;
     }

@@ -35,6 +35,10 @@ public class Item {
     public void setItemVariables(ItemVariables dataDisplay) {
         this.dataDisplay = dataDisplay;
     }
+    public ItemVariables getVariables()
+    {
+        return this.dataDisplay;
+    }
     public Item(int keyID, int position, int inventoryType, int quantity, params int[] stats)
     {
         this.id = stats[0];

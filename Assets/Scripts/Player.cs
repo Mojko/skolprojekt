@@ -72,12 +72,23 @@ public class Player : NetworkBehaviour
     }
     public static void setEquipModel(Item item, GameObject[] origins)
     {
-        int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
+        int index = 0;
+        if (item.getID().isItemType(e_itemTypes.WEAPON)) index = 1; 
         Debug.Log("item index: ");
         GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
         itemEquip.transform.SetParent(origins[index].transform);
         itemEquip.transform.localScale = Vector3.one;
         itemEquip.transform.localPosition = Vector3.zero;
+    }
+    public static void setClothes(Item item, GameObject[] origins) {
+        int index = 1;
+        Debug.Log(item.getID());
+        if (item.getID().isItemType(e_itemTypes.BODY)) index = 0;
+        Transform trans = origins[index].GetComponent<Transform>();
+        GameObject tempItem = Instantiate(ResourceStructure.getGameObjectFromPath(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
+        origins[index].GetComponent<SkinnedMeshRenderer>().sharedMesh = tempItem.GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        origins[index].GetComponent<SkinnedMeshRenderer>().sharedMaterial = tempItem.GetComponent<SkinnedMeshRenderer>().sharedMaterial;
+        Destroy(tempItem);
     }
     public void setEquipModel(Item item) {
         setEquipModel(item, playerEquipSlots);
