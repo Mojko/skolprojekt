@@ -10,6 +10,7 @@ public class PlayerStats {
     public int mana = 0;
     public int maxHealth = 100;
     public int maxMana = 100;
+	public int money = 0;
 
     public string hairColor;
     public string skinColor;

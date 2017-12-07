@@ -8,20 +8,29 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
+
 public class SkillCastManager : NetworkBehaviour {
 
-	PlayerServer playerServer;
-	Server server;
-	GameObject caster;
-	delegate void SkillDelegate();
 	GameObject targetObject;
 	string type;
-	Timer timer;
 	MethodInfo methodInfo;
-	MethodInfo updateMethod;
-	AI ai;
 
-	public void cast(GameObject caster, Server server, PlayerServer playerServer, string type, GameObject target){
+	public void cast(string type, GameObject targetObject){
+		this.methodInfo = this.GetType().GetMethod(type);
+	}
+
+	public void target(){
+		this.transform.position = targetObject.transform.position;
+	}
+	public void aoe(){
+	}
+	public void projectile(){
+
+		float speed = 4f;
+		this.transform.position += transform.forward * speed * Time.deltaTime;
+	}
+
+	/*public void cast(GameObject caster, Server server, PlayerServer playerServer, string type, GameObject target){
 		this.caster = caster;
 		this.server = server;
 		this.playerServer = playerServer;
@@ -32,17 +41,8 @@ public class SkillCastManager : NetworkBehaviour {
 		this.updateMethod = this.GetType().GetMethod("update_"+type);
         if(methodInfo != null) methodInfo.Invoke(this, null);
 		if(updateMethod != null) updateMethod.Invoke(this, null);
-	}
-		
-	public void aoe(){
-	}
-    public void update_projectile(){
-
-        float speed = 4f;
-		this.transform.position += transform.forward * speed * Time.deltaTime;
-	}
-	public void buff(){
-	}
+	}*/
+	/*
 	public void target(){
 
 		if(targetObject != null){
@@ -53,13 +53,9 @@ public class SkillCastManager : NetworkBehaviour {
 			}
 		}
 		timer = new Timer(2, false);
-	}
-	public void update_target(){
-		if(targetObject != null){
-			this.transform.position = new Vector3(this.targetObject.transform.position.x, this.targetObject.transform.position.y+2.5f, this.targetObject.transform.position.z);
-		}
-	}
-	void Update(){
+	}*/
+
+	/*void Update(){
 		if(!isServer) return;
 		if(updateMethod != null) this.updateMethod.Invoke(this, null);
 		if(timer != null) {
@@ -70,9 +66,9 @@ public class SkillCastManager : NetworkBehaviour {
 				NetworkServer.Destroy(this.gameObject);
 			}
 		}
-	}
+	}*/
 
-	private void OnTriggerEnter(Collider other)
+	/*private void OnTriggerEnter(Collider other)
 	{
 		if(!isServer) return;
 		if(!type.Equals("projectile")) return;
@@ -93,5 +89,5 @@ public class SkillCastManager : NetworkBehaviour {
 			Debug.Log("It hit! " + this.server + " | " + " collision");
 			NetworkServer.Destroy(this.gameObject);
 		}
-	}
+	}*/
 }

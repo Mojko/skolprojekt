@@ -79,6 +79,7 @@ public class Player : NetworkBehaviour
     public void Start()
     {
         playerEquipSlots = Tools.getChildren(this.gameObject, "hatStand", "armorStand");
+		ResourceStructure.initilize();
     }
     public static void setEquipModel(Item item, GameObject[] origins)
     {
