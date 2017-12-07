@@ -50,6 +50,7 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
 		con.RegisterHandler(PacketTypes.GIVE_EXP, onGiveExp);
 		con.RegisterHandler(PacketTypes.LEVEL_UP, onLevelUp);
+		con.RegisterHandler(PacketTypes.CREATE_SKILL, onReturnSkill);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -256,17 +257,63 @@ public class playerNetwork : NetworkBehaviour{
     }
 
     //#Skill
-	public void sendSkillCast(string pathToEffect, Vector3 spawnPosition, Vector3 rotationInEuler, string type)
-    {
+
+	private void onReturnSkill(NetworkMessage netMsg){
+		SkillCastInfo skillcastInfo = netMsg.ReadMessage<SkillCastInfo>();
+
+		SkillCastManager s = this.GetComponent<SkillCastManager>();
+
+		GameObject skillEffect = Instantiate((GameObject)Resources.Load(skillcastInfo.pathToEffect));
+		skillEffect.transform.position = skillcastInfo.spawnPosition;
+		skillEffect.transform.rotation = Quaternion.Euler(skillcastInfo.rotationInEuler);
+
+		StartCoroutine(updateSkillPosition(ClientScene.FindLocalObject(skillcastInfo.enemyNetId), skillEffect));
+	}
+
+	/*
+	 * 
+	 * 
+	 * REMEMBER TO SET THE OFFSET HERE TOMORROW FOR THE ENEMY SKILL!!!!
+	 */
+
+	private IEnumerator updateSkillPosition(GameObject enemy, GameObject skill){
+		while(enemy != null || skill != null){
+			if(skill == null || enemy == null) yield break;
+			skill.transform.position = enemy.transform.position;
+			yield return null;
+		}
+	}
+
+	private void createSkill(string pathToEffect, Vector3 spawnPositionOffset, GameObject target, Vector3 rotationInEuler, string type){
 		SkillCastInfo skillInfo = new SkillCastInfo();
 		skillInfo.pathToEffect = pathToEffect;
-		skillInfo.spawnPosition = spawnPosition;
+		skillInfo.spawnPosition = new Vector3(target.transform.position.x + spawnPositionOffset.x, target.transform.position.y + spawnPositionOffset.y, target.transform.position.z + spawnPositionOffset.z);
 		skillInfo.rotationInEuler = rotationInEuler;
 		skillInfo.netId = this.GetComponent<NetworkIdentity>().netId;
 		skillInfo.skillType = type;
 		skillInfo.range = 10;
-		Debug.Log("casting skill to server");
+		skillInfo.enemyNetId = target.GetComponent<NetworkIdentity>().netId;
 		con.Send(PacketTypes.CREATE_SKILL, skillInfo);
+	}
+
+	public void sendSkillCast(string pathToEffect, Vector3 spawnPositionOffset, Vector3 rotationInEuler, string type)
+    {
+		Collider[] targetColliders = Physics.OverlapSphere(this.transform.position, 10);
+		GameObject target = null;
+		foreach(Collider c in targetColliders){
+			if(c.CompareTag("Enemy")){
+				target = c.gameObject;
+				MobManager m = target.GetComponent<MobManager>();
+				if(type.Equals("target")){
+					damageEnemy(target, 4, e_Objects.VFX_IMPACT_SKILL_MAGE_DEFUALT);
+					createSkill(pathToEffect, spawnPositionOffset, target, rotationInEuler, type);
+				}
+				if(type.Equals("aoe")){
+					damageEnemy(target, 4, e_Objects.VFX_IMPACT_MELEE_1);
+					createSkill(pathToEffect, spawnPositionOffset, target, rotationInEuler, type);
+				}
+			}
+		}
     }
 
 	//#STAT ALLOCATOR

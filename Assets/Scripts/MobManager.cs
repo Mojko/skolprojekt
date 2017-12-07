@@ -84,6 +84,8 @@ public class MobManager : NetworkBehaviour {
 	public void damage (int damage, GameObject damager, PlayerServer playerServer) {
         if(!isServer) return;
 		targetNetwork = playerServer;
+		this.target = target;
+		this.targetId = playerServer.connectionID;
         StartCoroutine(flash());
 		health -= damage;
         //Server.spawnObject(e_Objects.VFX_IMPACT_MELEE_1, new Vector3(this.transform.position.x, this.transform.position.y+0.5f, this.transform.position.z));
@@ -202,6 +204,7 @@ public class MobManager : NetworkBehaviour {
             QuestInfo qInfo = new QuestInfo();
 			foreach(Quest q in questsToSend){
             	qInfo.questClassInBytes = Tools.objectToByteArray(q);
+				Debug.Log("TARGET_ID: " + targetId);
 				NetworkServer.SendToClient(targetId, PacketTypes.QUEST_UPDATE, qInfo);
 			}
         }

@@ -68,6 +68,7 @@ public class LevelUpInfo : MessageBase {
 public class SkillCastInfo : MessageBase 
 {
 	public NetworkInstanceId netId;
+	public NetworkInstanceId enemyNetId;
 	public string pathToObject;
 	public string pathToEffect;
 	public Vector3 spawnPosition;

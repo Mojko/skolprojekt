@@ -5,16 +5,25 @@ using UnityEngine;
 public class KillParticles : MonoBehaviour {
 
 	ParticleSystem ps;	
-	public bool test;
+	public bool hasTimer;
+	public float time;
 
 	void Start () {
 		ps = this.GetComponent<ParticleSystem>();
 	}
 	
 	void Update () {
-		test = ps.IsAlive();
-		if (!ps.IsAlive ()) {
-			Destroy(this.gameObject);
+		if(hasTimer){
+			time -= 1 * Time.deltaTime;
+			if(time <= 0){
+				Destroy(this.gameObject);
+			}
+		} else {
+			if(ps != null){
+				if (!ps.IsAlive ()) {
+					Destroy(this.gameObject);
+				}
+			}
 		}
 	}
 }

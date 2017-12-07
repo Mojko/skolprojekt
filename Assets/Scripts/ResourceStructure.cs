@@ -9,21 +9,24 @@ public enum e_Objects
     PARTICLE_DEATH,
     PARTICLE_GROUNDDUST,
     SKILL_PREFAB,
-    VFX_IMPACT_MELEE_1
+    VFX_IMPACT_MELEE_1,
+	VFX_IMPACT_SKILL_MAGE_DEFUALT
 }
 
 public class ResourceStructure {
     public static Dictionary<e_Objects, string> paths = new Dictionary<e_Objects, string>();
 
-    public ResourceStructure()
-    {
-        paths.Add(e_Objects.MONSTER_SQUIRRLE, "Prefabs/Meshes/E_Squirrle");
-        paths.Add(e_Objects.PARTICLE_DEATH, "Particles/Hit");
-        paths.Add(e_Objects.PARTICLE_GROUNDDUST, "Particles/ImpactOnGround");
-        paths.Add(e_Objects.SYSTEM_RESPAWNER, "System/Respawner");
-        paths.Add(e_Objects.SKILL_PREFAB, "Particles/Skills/Skill");
-        paths.Add(e_Objects.VFX_IMPACT_MELEE_1, "SpecialEffects/Impact");
-    }
+	public static void initilize(){
+		if(paths.Count <= 0){
+			paths.Add(e_Objects.MONSTER_SQUIRRLE, "Prefabs/Meshes/E_Squirrle");
+			paths.Add(e_Objects.PARTICLE_DEATH, "Particles/Hit");
+			paths.Add(e_Objects.PARTICLE_GROUNDDUST, "Particles/ImpactOnGround");
+			paths.Add(e_Objects.SYSTEM_RESPAWNER, "System/Respawner");
+			paths.Add(e_Objects.SKILL_PREFAB, "Particles/Skills/Skill");
+			paths.Add(e_Objects.VFX_IMPACT_MELEE_1, "SpecialEffects/Impact");
+			paths.Add(e_Objects.VFX_IMPACT_SKILL_MAGE_DEFUALT, "SpecialEffects/ImpactMageSkillDefault");
+		}
+	}
 
     public static string getPathForObject(e_Objects id)
     {
