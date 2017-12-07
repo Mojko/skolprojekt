@@ -573,7 +573,7 @@ public class Server : NetworkManager
             player.getPlayerStats().level = reader.GetInt16("level");
 
             player.getPlayerStats().s_luk = reader.GetInt16("luk");
-            player.getPlayerStats().s_int = reader.GetInt16("int");
+            player.getPlayerStats().s_int = reader.GetInt16("intell");
             player.getPlayerStats().s_str = reader.GetInt16("str");
             player.getPlayerStats().s_dex = reader.GetInt16("dex");
 
@@ -651,7 +651,12 @@ public class Server : NetworkManager
         }
 
 		OtherPlayerInfo oInfo = new OtherPlayerInfo();
-		oInfo.equipment = packet.equipment;
+        List<string> color = new List<string>();
+        color.Add(player.getPlayerStats().hairColor);
+        color.Add(player.getPlayerStats().skinColor);
+        color.Add(player.getPlayerStats().eyeColor);
+        oInfo.equipment = packet.equipment;
+        oInfo.color = Tools.objectToByteArray(color);
 		oInfo.id = packet.id;
 
 		NetworkServer.SendToAll(PacketTypes.LOAD_OTHER_PLAYER, oInfo);
@@ -693,7 +698,7 @@ public class Server : NetworkManager
 	private PlayerServer getInventoryFromDatabase(int connectionId) {
 		return getInventoryFromDatabase(getPlayerObject(connectionId));
     }
-        private PlayerServer getInventoryFromDatabase(PlayerServer player)
+    private PlayerServer getInventoryFromDatabase(PlayerServer player)
     {
 
 		int characterID = getCharacterIDFromDir(player.playerName);

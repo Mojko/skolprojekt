@@ -398,7 +398,8 @@ public class playerNetwork : NetworkBehaviour{
 		if (!info.id.Equals(this.player.identity.netId)) {
 			Player player = ClientScene.FindLocalObject(info.id).GetComponent<Player>();
 			List<Equip> equips = (List<Equip>)Tools.byteArrayToObject(info.equipment);
-			foreach(Equip equip in equips)
+            List<string> color = (List<string>)Tools.byteArrayToObject(info.color);
+            foreach (Equip equip in equips)
 			{
 				if (equip == null) continue;
 				player.setEquipModel(equip);

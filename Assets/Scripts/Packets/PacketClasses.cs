@@ -21,7 +21,7 @@ public class DropInfo : MessageBase {
 }
 
 public class OtherPlayerInfo : MessageBase {
-	public byte[] equipment;
+	public byte[] equipment, color;
 	public NetworkInstanceId id;
 	public string characterName;
 }
@@ -106,6 +106,7 @@ public class PlayerInfo : MessageBase
     public byte[] stats;
 	public byte[] items;
 	public byte[] equipment;
+    public byte[] color;
 }
 
 public class LoginPacket : MessageBase

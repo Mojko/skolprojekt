@@ -33,7 +33,7 @@ public class Player : NetworkBehaviour
     public string playerName;
     public int money = 0;
     private GameObject[] playerEquipSlots;
-
+    private GameObject[] colorObjects;
     [Header("Quests")]
     [Space(20)]
     public List<Quest> quests = new List<Quest>();
@@ -69,6 +69,7 @@ public class Player : NetworkBehaviour
     public void Start()
     {
         playerEquipSlots = Tools.getChildren(this.gameObject, "hatStand", "armorStand");
+        colorObjects = Tools.getChildren(this.gameObject, "BodyModel", "Eye_L_Model", "Eye_R_Model");
     }
     public static void setEquipModel(Item item, GameObject[] origins)
     {
