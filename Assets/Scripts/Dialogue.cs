@@ -16,9 +16,9 @@ public class Dialogue {
     int latestPosition = 0;
     Dictionary<string, deleg> checks = new Dictionary<string, deleg>();
     //"<colerd>wew</col><col></col>"
-    public NPC npc;
+	public NPCMain npc;
     private string latestCommandSeen = "";
-    public Dialogue(NPC npc) {
+    public Dialogue(NPCMain npc) {
 
         check("|i|", getItem);
         check("|I|", getItems);
@@ -30,7 +30,7 @@ public class Dialogue {
     public int getDialogueLength() {
         return queuedDialogues.Count;
     }
-    public void startNewDialogue (string fullstring, float delayBetweenCharacters, int type,NPC npc)
+    public void startNewDialogue (string fullstring, float delayBetweenCharacters, int type, NPCMain npc)
 	{
 		queuedDialogues.Add (new Message(this, fullstring, delayBetweenCharacters, type, false));
 	}

@@ -21,6 +21,7 @@ public class MobManager : NetworkBehaviour {
 	private float flashTimer = 1;
 	private int id;
 	private SkillCastManager skillCastManager;
+	private Monster monster;
 
 	[Header("MobManager")]
 	[Header("Leave these alone")]
@@ -44,7 +45,7 @@ public class MobManager : NetworkBehaviour {
 	public GameObject rewardText;
 
 
-    public void setId(int id)
+	public void setId(int id)
     {
         this.id = id;
     }
@@ -56,12 +57,15 @@ public class MobManager : NetworkBehaviour {
 
     private void Start()
     {
-        this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
-		Debug.Log("Mob initilized");
         if(this.id == 0) {
-            setId(10000);
+			this.id = 10000;
         }
+		this.monster = lookupMonster(this.id);
     }
+
+	public void setServer(Server server){
+		this.server = server;
+	}
 
     public void stun(int damage, int duration) {
 
@@ -163,6 +167,12 @@ public class MobManager : NetworkBehaviour {
 
         Vector3 pos = new Vector3(this.transform.position.x, this.transform.position.y + 0.5f, this.transform.position.z) + this.transform.forward;
         Server.spawnObject(e_Objects.PARTICLE_DEATH, pos);
+		Monster m = lookupMonster(this.id);
+		if(this.id != 0){
+			Server.giveExpToPlayer(m.exp, this.targetNetwork);
+			Debug.Log("EXP GIVEN: " + m.exp);
+		}
+
         for(int i=0;i<4;i++){
             //spawnDrop("Coin_gold", pos);
         }
@@ -172,27 +182,26 @@ public class MobManager : NetworkBehaviour {
 		bool shouldUpdate = true;
         foreach(Quest q in targetNetwork.questList.ToArray()){
 			Debug.Log("is this array going " + targetNetwork.questList.Count);
-			if(q.getStatus() == e_QuestStatus.COMPLETED) continue;
+			if(q.getStatus() == e_QuestStatus.TURNED_IN) continue;
 			int[] ids = q.getMobIds();
 			for(int i=0;i<ids.Length;i++){
 				if(ids[i] == getId()){
 					q.increaseMobKills(this.getId());
 	                questsToSend.Add(q);
 					if(q.checkForCompletion()){
-						this.server.addOrUpdateQuestStatusToDatabase(q, targetNetwork, false, PacketTypes.QUEST_UPDATE);
+						this.server.addOrUpdateQuestStatusToDatabase(q, targetNetwork, true, PacketTypes.QUEST_UPDATE);
 						QuestInfo qInfo = new QuestInfo();
 						qInfo.questClassInBytes = Tools.objectToByteArray(q);
 						NetworkServer.SendToClient(targetNetwork.connectionID, PacketTypes.QUEST_COMPLETE, qInfo);
 						shouldUpdate = true;
-						Debug.Log("completing quest..");
 					}
 			    }
 			}
 		}
-		if(questsToSend != null && questsToSend.Count > 0 && shouldUpdate && isServer){
+		if(shouldUpdate){
             QuestInfo qInfo = new QuestInfo();
-            qInfo.questClassInBytes = Tools.objectArrayToByteArray(questsToSend.ToArray());
-			if(qInfo.questClassInBytes.Length > 0){
+			foreach(Quest q in questsToSend){
+            	qInfo.questClassInBytes = Tools.objectToByteArray(q);
 				NetworkServer.SendToClient(targetId, PacketTypes.QUEST_UPDATE, qInfo);
 			}
         }
@@ -254,5 +263,6 @@ public class Monster
 	public string pathToModel;
 	public int[] dropIds;
 	public int[] dropQuantity;
+	public int exp;
 
 }

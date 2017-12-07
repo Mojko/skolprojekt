@@ -38,6 +38,11 @@ public class EquipmentHandler : UIHandler {
     public void setEquip(int type, Equip equip) {
         int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
         Equip item;
+        if (equip.getID().isItemType(e_itemTypes.HATS) || equip.getID().isItemType(e_itemTypes.WEAPON))
+        {
+            setEquipCloth(equip);
+            return;
+        }
         foreach (Transform child in player.getEquipSlot(index).transform.getAllChildren())
         {
             Destroy(child.gameObject);
@@ -48,6 +53,16 @@ public class EquipmentHandler : UIHandler {
         }
 
         equips[index] = equip;
+        GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(equip.getID()).getString("pathToModel")));
+        itemEquip.transform.SetParent(player.getEquipSlot(index).transform);
+        itemEquip.transform.localScale = Vector3.one;
+        itemEquip.transform.localPosition = Vector3.zero;
+        player.getNetwork().equipItem(equip);
+        updateSlots();
+    }
+    public void setEquipCloth(Equip equip) {
+        int index = ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1);
+        //equips[index];
         GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(equip.getID()).getString("pathToModel")));
         itemEquip.transform.SetParent(player.getEquipSlot(index).transform);
         itemEquip.transform.localScale = Vector3.one;

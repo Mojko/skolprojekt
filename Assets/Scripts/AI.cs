@@ -155,6 +155,7 @@ public class AI : MobManager {
         RaycastHit rayHit;
         if (canAttack(out rayHit, "Player")) {
             //Then attack lol
+			Debug.Log("ATTEMPTING TO ATTACK");
 			setState(e_States.ATTACK);
 			return;
         }
@@ -208,7 +209,6 @@ public class AI : MobManager {
                 if(canAttack(out rayHit, "Player")) {
                    	this.target.GetComponent<Player>().damage(5, this.gameObject);
                 }
-
 			}
 
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.7f && !hasActivatedEffect){
@@ -219,7 +219,6 @@ public class AI : MobManager {
 
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f){
 				RaycastHit rayHit;
-				hasActivatedEffect = false;
                 if(canAttack(out rayHit, "Player")){
 					animator.Play("Bite", 0, 0);
 				} else {
@@ -227,7 +226,9 @@ public class AI : MobManager {
 					unfreeze();
 				}
 				hasDamaged = false;
+				hasActivatedEffect = false;
 			}
+			Debug.Log("ATTACKING " + animator.GetCurrentAnimatorStateInfo(0).normalizedTime + " | " + hasDamaged + " | rotate:; " + shouldRotate);
 		}
 
 

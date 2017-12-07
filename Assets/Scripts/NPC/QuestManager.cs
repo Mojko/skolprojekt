@@ -38,7 +38,6 @@ public enum e_QuestStatus {
 	TURNED_IN
 }
 
-
 /*public class QuestRequirement 
 {
 	Quest quest;
@@ -79,7 +78,7 @@ public class Quest
 
 	string characterName;
     string name;
-	int id;
+	public int id;
 
 	//int mobKillsOfSpecifiedMobId = 0;
 	Dictionary<int, int> mobKills = new Dictionary<int, int>();
@@ -88,7 +87,7 @@ public class Quest
 
 	//int[] requirementData;
 	QuestJson questJson;
-	e_QuestStatus status;
+	public e_QuestStatus status;
 	QuestSQLData sqlData;
 
 	public Quest(int id, string characterName)
@@ -114,6 +113,7 @@ public class Quest
 
 		for(int i=0;i<questJson.completionData.completionId.Count;i++){
 			if(isCompletionIdMobId(i)){
+				Debug.Log("MOB_KILLS: " + mobKills);
 				this.mobKills.Add(questJson.completionData.completionId[i], 0);
 			}
 			if(isCompletionIdItemId(i)){

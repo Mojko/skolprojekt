@@ -173,7 +173,6 @@ public class Inventory : MonoBehaviour
         for (int i = 0; i < MAX_INVENTORY_SIZE; i++) {
             isEmpty = true;
             for (int j = 0; j < itemsOwned.Count; j++) {
-                Debug.Log("ITEMS OWNED M8! " + itemsOwned[j].getItem().getType() + " : " + storeType + " || " + itemsOwned[j].getItem().getPosition() + " : " + i);
                 if (itemsOwned[j].getItem().getInventoryType() == storeType && itemsOwned[j].getItem().getPosition() == i) {
                     isEmpty = false;
                     break;

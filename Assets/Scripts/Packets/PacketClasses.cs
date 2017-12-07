@@ -56,6 +56,15 @@ public class SkillInfo : MessageBase
 	public int maxPoints;
 }
 
+public class KillInfo : MessageBase {
+	public int exp;
+}
+public class EmptyInfo : MessageBase {
+}
+public class LevelUpInfo : MessageBase {
+	public int expRequiredForNextLevel;
+}
+
 public class SkillCastInfo : MessageBase 
 {
 	public NetworkInstanceId netId;

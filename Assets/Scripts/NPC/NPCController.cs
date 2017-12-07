@@ -6,9 +6,16 @@ using UnityEngine.UI;
 
 public class NPCController : NetworkBehaviour {
 
-	public GameObject UI;
-	public GameObject questGiverObject;
+	[HideInInspector] public GameObject UI;
+	[HideInInspector] public GameObject questGiverObject;
+
+	public GameObject dialogueUI;
+	public Text dialogueUI_questDescription;
+	public Text dialogueUI_questGiverName;
+	public Image dialogueUI_questGiverFace;
+
 	public GameObject[] npcs;
+
 	private List<NPCMain> npcMain = new List<NPCMain>();
 	private Player player;
 
@@ -22,8 +29,14 @@ public class NPCController : NetworkBehaviour {
 		img = questGiverObject.GetComponent<Image>();
 		wrapper = player.getQuestInformationData().questWrapper.GetComponent<QuestWrapper>();
 
-		foreach(GameObject o in npcs){
-			npcMain.Add(o.GetComponent<NPCMain>());
+		for(int i=0;i<npcs.Length;i++){
+			NPCMain main = npcs[i].GetComponent<NPCMain>();
+			main.uniqueId = i; 
+			main.dialogueUI_questDescription = this.dialogueUI_questDescription;
+			main.dialogueUI_questGiverFace = this.dialogueUI_questGiverFace;
+			main.dialogueUI_questGiverName = this.dialogueUI_questGiverName;
+			main.dialogueUI = this.dialogueUI;
+			npcMain.Add(main);
 		}
 	}
 		

@@ -143,7 +143,7 @@ public class Login : NetworkBehaviour {
     }
     public void loadWorld() {
         Destroy(this.loginWorld);
-        Instantiate(world);
+		this.world.SetActive(true);
     }
 
     public void onCharacterCreated(CreateCharacterButton[] values, string name) {

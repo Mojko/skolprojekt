@@ -26,22 +26,25 @@ public class SkillUIManager : MonoBehaviour {
 		bindKey(KeyCode.F3, 2);
     }
 	void Update(){
-		if(this.skillHolding == null) return;
-
-		if(Input.GetMouseButtonDown(0)){
-			foreach(ActionBar a in this.actionBars){
-				if(isMouseHoveringOverUIElement(a.transform.position)){
+		foreach(ActionBar a in this.actionBars){
+			if(isMouseHoveringOverUIElement(a.transform.position)){
+				if(Input.GetMouseButton(0) && this.skillHolding != null){
 					addNewSkillToActionBar(this.skillHolding, a);
 					return;
+				} else if(Input.GetMouseButton(1) && this.skillHolding == null && a.skill != null){
+					Skill s = null;
+					removeSkillFromActionBar(a, out s);
+					grabSkill(s);
 				}
 			}
+
 		}
 	}
 
 	public void grabSkill(Skill skill){
+		if(skill == null) return;
 		this.skillHolding = skill;
 		uiHolderImage.followMouse(skill.sprite);
-		Debug.Log("grabbed skill");
 	}
 
 	public void dropSkill(){
@@ -51,24 +54,38 @@ public class SkillUIManager : MonoBehaviour {
 
 	public void addNewSkillToActionBar(Skill skill, ActionBar actionBar)
     {
-        if(skillsInActionBar.Count >= maxSpaceInAbilityBar) return;
-
+		if(skillsInActionBar.Count >= maxSpaceInAbilityBar || skill == null) return;
 		dropSkill();
 		Skill skillInActionBar = actionBar.skill;
 
-		if(skillInActionBar.id != 0){
+
+		if(skillInActionBar == null || skillInActionBar.id != 0){
 			grabSkill(actionBar.skill);
 		}
 
 		GameObject skillIcon = Instantiate(this.skillIconPrefab);
 		skillsInActionBar.Add(skill);
 		actionBar.skill = skill;
+		actionBar.skillIcon = skillIcon;
 		skillIcon.transform.SetParent(actionBar.transform);
 		skillIcon.GetComponent<RectTransform>().anchoredPosition = Vector3.zero;
 		skillIcon.GetComponent<Image>().sprite = skill.sprite;
 
 		Debug.Log("added skill to skillbar");
     }
+
+	/*public void replaceSkillInActionBar(ActionBar actionBar, Skill newSkill){
+		actionBar.skill = newSkill;
+		Destroy(actionBar.skillIcon);
+		addNewSkillToActionBar(newSkill, actionBar);
+	}*/
+
+	public void removeSkillFromActionBar(ActionBar actionBar, out Skill skill){
+		skill = actionBar.skill;
+		actionBar.skill = null;
+		skillsInActionBar.Remove(skill);
+		Destroy(actionBar.skillIcon);
+	}
 
 
 	//Put this in Tools
@@ -87,7 +104,7 @@ public class SkillUIManager : MonoBehaviour {
 		float width = rect.sizeDelta.x;
 		float height = rect.sizeDelta.y;
 
-		return (x1 < x2 + width && x1 + mouseWidth > x2 && y1 < y2 + mouseHeight && height + y1 > y2);
+		return (x1 < x2 + (width/1.25f) && x1 + mouseWidth > x2 && y1 < y2 + mouseHeight && (height/1.25f) + y1 > y2);
 	}
 
     public void bindKey(KeyCode key, int skillBox)
