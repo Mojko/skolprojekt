@@ -31,20 +31,15 @@ public class Player : NetworkBehaviour
     public NetworkIdentity identity;
 	public delegate void PickupEventHandler(Item item);
 	public event PickupEventHandler pickupEventHandler;
-	private Text expText;
-	private Text levelText;
 	private int expRequiredForNextLevel;
 
 
     [Header("Player Attributes")]
     public PlayerStats stats;
     public string playerName;
-    public int money = 0;
     private GameObject[] playerEquipSlots;
     private SkinnedMeshRenderer[] colorObjects;
     private GameObject[] skinEquips;
-	public int exp;
-	public int level;
     [Header("Quests")]
     [Space(20)]
     public List<Quest> quests = new List<Quest>();
@@ -132,19 +127,27 @@ public class Player : NetworkBehaviour
         return skinEquips[index];
     }
 	public void giveExp(int exp){
-		this.exp += exp;
+		this.stats.exp += exp;
 		updateExpUI();
 	}
-	public void levelUp(int expRequiredForNextLevel){
-		this.level += 1;
-		this.exp = 0;
-		this.expRequiredForNextLevel = expRequiredForNextLevel;
-		updateExpUI();
-	}
-	public void updateExpUI(){
-		this.expText.text = exp + " / " + expRequiredForNextLevel;
-		this.levelText.text = "Level         "  + this.level;
-	}
+    public void levelUp(int expRequiredForNextLevel){
+	    this.stats.level += 1;
+	    this.stats.exp = 0;
+	    this.expRequiredForNextLevel = expRequiredForNextLevel;
+	    updateExpUI();
+	    levelUpEffect();
+    }
+    public void levelUpEffect()
+    {
+	    GameObject o = Instantiate(levelUpPrefab);
+	    o.transform.position = this.transform.position;
+	    ParticleScaler s = o.GetComponent<ParticleScaler>();
+	    s.objectAttachedTo = this.gameObject;
+	    if(s.levelUpUI != null){
+		    Text t = s.levelUpUI.transform.Find("Panel").Find("LevelText").GetComponent<Text>();
+		    t.text = "Level " + this.stats.level;
+	    }
+    }
     public override void OnStartLocalPlayer ()
 	{
         if(!isLocalPlayer) return;
@@ -216,6 +219,8 @@ public class Player : NetworkBehaviour
 		//LEVEL STUFF
 		this.expText = UICanvas.transform.Find("Footer_UI").Find("ExpBar").Find("Bar").Find("Text").GetComponent<Text>();
 		this.levelText = UICanvas.transform.Find("Footer_UI").Find("Level").GetComponent<Text>();
+        this.updateExpUI();
+        //expText.text = "weweewewew";
 
 		//QuestManager
 		this.npcController = GameObject.FindWithTag("NPCManager").GetComponent<NPCController>();
@@ -386,15 +391,7 @@ public class Player : NetworkBehaviour
             //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
         }
 		if(Input.GetKeyDown(KeyCode.B)){
-			GameObject o = Instantiate(levelUpPrefab);
-			o.transform.position = this.transform.position;
-			ParticleScaler s = o.GetComponent<ParticleScaler>();
-			s.objectAttachedTo = this.gameObject;
-			if(s.levelUpUI != null){
-				Text t = s.levelUpUI.transform.Find("Panel").Find("LevelText").GetComponent<Text>();
-				t.text = "Level 3";
-			}
-
+            levelUpEffect();
 		}
     }
     public Chat getChat() {

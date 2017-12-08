@@ -11,6 +11,7 @@ public class PlayerStats {
     public int maxHealth = 100;
     public int maxMana = 100;
 	public int money = 0;
+    public int expRequiredForNextLevel = 10;
 
     public string hairColor;
     public string skinColor;

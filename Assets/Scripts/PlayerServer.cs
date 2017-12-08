@@ -9,7 +9,6 @@ public class PlayerServer {
     public int databaseID;
     public int connectionID;
     public int playerID;
-	public int exp = 0;
 	public int expRequiredForNextLevel = 10;
 	public int level = 1;
 
@@ -64,18 +63,18 @@ public class PlayerServer {
 	//This can only run ONCE
 	public void levelUp(){
 		this.level += 1;
-		this.exp = 0;
+		this.info.exp = 0;
 		expRequiredForNextLevel *= 2;
 		Server.sendLevelUp(expRequiredForNextLevel, this.connectionID);
 		Debug.Log("LEVELUP!!");
 	}
 
 	public void giveExp(int exp){
-		this.exp += exp;
-		if(this.exp >= expRequiredForNextLevel){
+		this.info.exp += exp;
+		if(this.info.exp >= expRequiredForNextLevel){
 			levelUp();
 		}
-		Debug.Log("EXP given, EXP now: " + this.exp + " | " + expRequiredForNextLevel);
+		Debug.Log("EXP given, EXP now: " + this.info.exp + " | " + expRequiredForNextLevel);
 	}
 
     public ItemVariables useItem(Item item) {
@@ -96,7 +95,7 @@ public class PlayerServer {
 
     public void setMoney(int money)
     {
-        this.money = money;
+        this.info.money = money;
     }
     public int getMoney()
     {

@@ -115,7 +115,7 @@ public class playerNetwork : NetworkBehaviour{
 		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
 		Debug.Log("PICKING UP ITEM: " + item + " | " + item.isMoney());
 		if(item.isMoney()){
-			this.player.money += item.getQuantity();
+			this.player.stats.money += item.getQuantity();
 			return;
 		}
 	}

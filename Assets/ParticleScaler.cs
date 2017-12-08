@@ -13,12 +13,16 @@ public class ParticleScaler : MonoBehaviour {
 	bool isScaled;
 	public GameObject objectAttachedTo;
 	public float timerUntilKill = 6f;
+    private RectTransform rect;
 
 	public GameObject levelUpUI;
 
 	void Start(){
 		levelUpUI = Instantiate(levelUpUI);
 		levelUpUI.transform.SetParent(GameObject.Find("UI").transform);
+        rect = levelUpUI.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(0, 100);
+        rect.transform.localPosition = new Vector2(0,0);
 	}
 
 	void Update(){

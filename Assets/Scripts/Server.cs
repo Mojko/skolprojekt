@@ -566,8 +566,10 @@ public class Server : NetworkManager
             player.getPlayerStats().mana = reader.GetInt16("mana");
             player.getPlayerStats().maxMana = reader.GetInt16("maxMana");
             player.getPlayerStats().level = reader.GetInt16("level");
-			player.getPlayerStats().money = reader.GetInt16("money");
 			player.getPlayerStats().exp = reader.GetInt16("exp");
+            player.getPlayerStats().money = reader.GetInt16("money");
+            player.getPlayerStats().expRequiredForNextLevel = ((player.getPlayerStats().level * 2))*10;
+
 
             player.getPlayerStats().s_luk = reader.GetInt16("luk");
             player.getPlayerStats().s_int = reader.GetInt16("intell");
@@ -602,9 +604,7 @@ public class Server : NetworkManager
 
         characterConnections.Add(msg.conn.connectionId, packet.characterName);
         playerReal.playerName = packet.characterName;
-		Debug.Log("after initilization1111");
         player = loadCharacterInfoFromDatabase(playerReal);
-		Debug.Log("after initilization");
 
 		packet.items = Tools.objectToByteArray(player.getItems());
 		packet.equipment = Tools.objectToByteArray(player.getEquips());
@@ -613,16 +613,6 @@ public class Server : NetworkManager
         packet.stats = Tools.objectToByteArray(player.getPlayerStats());
         MySqlConnection conn;
         MySqlDataReader reader;
-		mysqlReader(out conn, out reader, "SELECT money FROM characters WHERE id = '" + id + "'");
-
-
-		while(reader.Read()){
-			int money = reader.GetInt32("money");
-			playerReal.setMoney(money);
-			Debug.Log("reading money: " + money);
-		}
-		conn.Close();
-		reader.Close();
 
         mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE characterID = '" + id + "'");
         List<int> skillProperties = new List<int>();
