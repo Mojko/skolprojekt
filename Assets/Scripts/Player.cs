@@ -128,13 +128,13 @@ public class Player : NetworkBehaviour
     }
 	public void giveExp(int exp){
 		this.stats.exp += exp;
-		updateExpUI();
+		this.UIPlayer.updateInfo();
 	}
     public void levelUp(int expRequiredForNextLevel){
 	    this.stats.level += 1;
 	    this.stats.exp = 0;
 	    this.expRequiredForNextLevel = expRequiredForNextLevel;
-	    updateExpUI();
+        this.UIPlayer.updateInfo();
 	    levelUpEffect();
     }
     public void levelUpEffect()
@@ -217,9 +217,7 @@ public class Player : NetworkBehaviour
         this.UIPlayer.gameObject.SetActive(true);
 
 		//LEVEL STUFF
-		this.expText = UICanvas.transform.Find("Footer_UI").Find("ExpBar").Find("Bar").Find("Text").GetComponent<Text>();
-		this.levelText = UICanvas.transform.Find("Footer_UI").Find("Level").GetComponent<Text>();
-        this.updateExpUI();
+        this.UIPlayer.updateInfo();
         //expText.text = "weweewewew";
 
 		//QuestManager
