@@ -58,8 +58,8 @@ GameObject:
   - component: {fileID: 114344770337181092}
   - component: {fileID: 114993748016262118}
   - component: {fileID: 195156094420513492}
-  - component: {fileID: 114549047497833676}
   - component: {fileID: 114713682292594386}
+  - component: {fileID: 114308911039269192}
   m_Layer: 0
   m_Name: E_Pig
   m_TagString: Enemy
@@ -90,8 +90,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1961908591003962}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.2, y: -3, z: -0.32}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 3.0374372, y: -2.528214, z: -4.0675874}
   m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_Children:
   - {fileID: 4935688963722804}
@@ -291,6 +291,27 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
+--- !u!114 &114308911039269192
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1961908591003962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TransformSyncMode: 1
+  m_SendInterval: 0.033333335
+  m_SyncRotationAxis: 7
+  m_RotationSyncCompression: 0
+  m_SyncSpin: 0
+  m_MovementTheshold: 0.001
+  m_VelocityThreshold: 0.0001
+  m_SnapThreshold: 5
+  m_InterpolateRotation: 1
+  m_InterpolateMovement: 1
 --- !u!114 &114344770337181092
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -323,27 +344,6 @@ MonoBehaviour:
     i15: 197
   m_ServerOnly: 0
   m_LocalPlayerAuthority: 0
---- !u!114 &114549047497833676
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1961908591003962}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1768714887, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TransformSyncMode: 1
-  m_SendInterval: 0.033333335
-  m_SyncRotationAxis: 7
-  m_RotationSyncCompression: 0
-  m_SyncSpin: 0
-  m_MovementTheshold: 0.001
-  m_VelocityThreshold: 0.0001
-  m_SnapThreshold: 5
-  m_InterpolateRotation: 1
-  m_InterpolateMovement: 1
 --- !u!114 &114713682292594386
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -371,6 +371,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 275b3debf68e42c4aba3ff8890a80132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 100
   mobHolder: {fileID: 0}
   newPos: {x: 0, y: 0, z: 0}
   respawner: {fileID: 0}
@@ -392,6 +393,8 @@ MonoBehaviour:
     type: 2}
   body: {fileID: 1096508894729674}
   angerLight: {fileID: 0}
+  friendly: 1
+  charge: 0
 --- !u!195 &195156094420513492
 NavMeshAgent:
   m_ObjectHideFlags: 1
@@ -410,6 +413,6 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 0
   m_Height: 1
-  m_BaseOffset: 0.5
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4

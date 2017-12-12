@@ -36,6 +36,7 @@ public class NPCController : NetworkBehaviour {
 			main.dialogueUI_questGiverFace = this.dialogueUI_questGiverFace;
 			main.dialogueUI_questGiverName = this.dialogueUI_questGiverName;
 			main.dialogueUI = this.dialogueUI;
+			main.gameObject.SetActive(true);
 			npcMain.Add(main);
 		}
 	}

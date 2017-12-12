@@ -121,6 +121,7 @@ public class PlayerMovement : NetworkBehaviour {
 					animator.SetBool("slash", false);
 					unfreeze();
 					state = (int)e_PlayerStates.IDLE;
+					CmdAnimationSync(this.player.identity.netId, "slash", false, "Slash");
 				}
 			}
 
@@ -133,6 +134,18 @@ public class PlayerMovement : NetworkBehaviour {
 		if (canLedgeGrab ()) {
 			state = (int)e_PlayerStates.LEDGEHANG;
 		}	
+	}
+
+	[Command]
+	private void CmdAnimationSync(NetworkInstanceId netId, string booleanName, bool booleanValue, string animationName){
+		RpcAnimationSync(netId, booleanName, booleanValue, animationName);
+	}
+	[ClientRpc]
+	private void RpcAnimationSync(NetworkInstanceId netId, string booleanName, bool booleanValue, string animationName){
+		PlayerMovement p = ClientScene.FindLocalObject(netId).GetComponent<PlayerMovement>();
+		if(!p.animator.GetCurrentAnimatorStateInfo(0).IsName(animationName)){
+			p.animator.SetBool(booleanName, booleanValue);
+		}
 	}
 
 	public bool canLedgeGrab () {
@@ -197,7 +210,7 @@ public class PlayerMovement : NetworkBehaviour {
 		Collider[] colliders = Physics.OverlapSphere (transform.position, attackRange);
 		for (int i = 0; i < colliders.Length; i++) {
             if(colliders[i].CompareTag("Enemy")){
-                player.getNetwork().damageEnemy(colliders[i].gameObject, 5, e_Objects.VFX_IMPACT_MELEE_1);
+				player.getNetwork().damageEnemy(colliders[i].gameObject, e_Objects.VFX_IMPACT_MELEE_1, e_DamageType.STRENGTH, 1);
                 //player.getNetwork().damageEnemy(this.gameObject, colliders[i].gameObject, 5);
                 //CmdDamageEnemy(colliders[i].gameObject, this.gameObject, 10, player.connectionToServer.connectionId);
             }
@@ -231,9 +244,11 @@ public class PlayerMovement : NetworkBehaviour {
 	bool isMoving () {
 		if (xAxis != 0 || zAxis != 0) {
 			animator.SetBool("walk",true);
+			CmdAnimationSync(this.player.identity.netId, "walk", true, "Walk");
 			return true;
 		}
 		animator.SetBool("walk",false);
+		CmdAnimationSync(this.player.identity.netId, "walk", false, "Idle");
 		return false;
 	}
 

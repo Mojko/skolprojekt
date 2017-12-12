@@ -36,7 +36,20 @@ public class SkillTree : UIHandler {
     public float otherSpellWidthOffset; //25
     public float otherSpellHeightOffset; //100
 
+
+	[HideInInspector]
+	public GameObject UISkillStats;
+	private GameObject UISkillStatsWrapper;
+	private Text UISkillStatsName;
+	private Text UISkillStatsPoints;
+	[HideInInspector]
+	public List<SkillId> skillsObjects = new List<SkillId>();
+	[HideInInspector]
+	public SkillId UISkillStatsWatcher;
+	private RectTransform UISkillStatsRectTransform;
+
 	public void initilize (Player player) {
+		
 
 		playerNetwork = player.getNetwork ();
 		this.player = player;
@@ -49,7 +62,15 @@ public class SkillTree : UIHandler {
 		this.spritesheet = Resources.LoadAll<Sprite>("Sprites/SkillIcons/spritesheet");
 		this.spritesheet_transparent = Resources.LoadAll<Sprite>("Sprites/SkillIcons/spritesheet_transparent");
 
-        transform.SetParent(skillTreeUI.transform);
+		transform.SetParent(skillTreeUI.transform);
+		this.UISkillStats = Tools.findInactiveChild(this.transform.parent.gameObject, "Panel").transform.Find("Stats_BG").gameObject;
+
+		this.UISkillStatsWrapper = Tools.findInactiveChild(UISkillStats, "Wrapper");
+		this.UISkillStatsPoints = Tools.findInactiveChild(UISkillStats, "Points").GetComponent<Text>();
+		this.UISkillStatsName = Tools.findInactiveChild(UISkillStats, "Name").GetComponent<Text>();
+
+		UISkillStatsRectTransform = this.UISkillStats.GetComponent<RectTransform>();
+
 		//transform.SetParent(UI.transform.Find("SkillTree_UI").Find("Panel").Find("SkillTreeContainer"));
         Debug.Log("INTIILIZEDIDDDDDDD!!!!");
         UI.GetComponent<UIReferences>().skillTreeReference = this.gameObject;
@@ -74,7 +95,9 @@ public class SkillTree : UIHandler {
 			currentIndex++;
 			//Create parents
 			GameObject inst = Instantiate(skillTreeSlotPrefab);
-			inst.GetComponent<SkillId>().setSkillTree(this);
+			SkillId skillId = inst.GetComponent<SkillId>();
+			skillId.setSkillTree(this);
+			skillsObjects.Add(skillId);
 			inst.transform.SetParent(potrait.transform);
 			createSkillObject(inst, skill);
 
@@ -84,7 +107,7 @@ public class SkillTree : UIHandler {
 			inst.transform.position = new Vector3(xRoot+(masterSpellWidthOffset*xType), yRoot+(masterSpellHeightOffset*yType), zRoot);
             createText(inst, false);
 
-			onSkillUpgrade(inst, inst.GetComponent<SkillId>(), potrait, skill);
+			onSkillUpgrade(inst, skillId, potrait, skill);
 
 			if(hasSkillChildren(skill)){
 				parseChildren(skill.children, skill, inst);
@@ -123,18 +146,26 @@ public class SkillTree : UIHandler {
         }
     }
 
+	public void hoveringOverSkill(SkillId skillId){
+		UISkillStats.SetActive(true);
+		this.UISkillStats.transform.position = new Vector3(skillId.transform.position.x, skillId.transform.position.y+1f, skillId.transform.position.z);
+	}
+
 	void parseChildren(Skill[] children, Skill parent, GameObject parentObject){
 		foreach(Skill skill in children){
 			if(parent != null){
 				skill.parent = parent;
 			}
 			GameObject inst = Instantiate(skillTreeSlotPrefab);
-			inst.GetComponent<SkillId>().setSkillTree(this);
+			SkillId skillId = inst.GetComponent<SkillId>();
+			skillId.setSkillTree(this);
+			skillsObjects.Add(skillId);
 			createSkillObject(inst, skill);
+
 
 			if(parentObject != null){
 				inst.transform.SetParent(parentObject.transform);
-				onSkillUpgrade(inst, inst.GetComponent<SkillId>(), parentObject, skill);
+				onSkillUpgrade(inst, skillId, parentObject, skill);
 			}
 
 
@@ -179,27 +210,60 @@ public class SkillTree : UIHandler {
 	            potrait.transform.localScale += new Vector3(0.1f, 0.1f, 0);
 	        }
 		}
+
+		foreach(SkillId s in this.skillsObjects){
+			if(s.isMouseHoveringOverUIElement(s.transform.position)){
+				this.UISkillStats.SetActive(true);
+				this.UISkillStats.transform.position = new Vector3(s.transform.position.x, s.transform.position.y+120f, s.transform.position.z);
+				this.UISkillStatsWatcher = s;
+				updateSkillStatsUI(s);
+				return;
+			}
+		}
+		if(this.UISkillStatsWatcher != null){
+			if(!this.UISkillStatsWatcher.isMouseHoveringOverUIElement(this.UISkillStatsWatcher.transform.position)){
+				this.UISkillStats.SetActive(false);
+				this.UISkillStatsWatcher = null;
+			}
+		}
+
+		//this.UISkillStats.transform.position = new Vector2(Input.mousePosition.x + UISkillStatsRectTransform.sizeDelta.x/2, Input.mousePosition.y + UISkillStatsRectTransform.sizeDelta.y/2);
+	}
+
+	public void updateSkillStatsUI(SkillId s){
+		Text[] t = UISkillStatsWrapper.GetComponentsInChildren<Text>();
+		t[0].text = "Strength: +" + s.stats.STR;
+		t[1].text = "Dexterity: +" + s.stats.DEX;
+		t[2].text = "Intelligence: +" + s.stats.INT;
+		UISkillStatsPoints.text = s.points + " / " + s.maxPoints;
+		UISkillStatsName.text = s.skill.name;
+		UISkillStatsName.fontSize = (int)Mathf.Round(100/UISkillStatsName.text.Length);
 	}
 
 	public void confirmSkills(){
-		objectThatGotSent.GetComponent<SkillId>().points += 1;
-		onSkillUpgrade(objectThatGotSent, objectThatGotSent.GetComponent<SkillId>(), objectThatGotSent.transform.parent.gameObject, objectThatGotSent.GetComponent<SkillId>().skill);
+		SkillId skillId = objectThatGotSent.GetComponent<SkillId>();
+		skillId.points += 1;
+		skillId.damageMultiplier *= (skillId.points * 0.3f);
+		this.player.stats.increment(skillId.stats.STR, skillId.stats.DEX, skillId.stats.INT, 0,0,0,0,0,0,0,this.player.uiStats);
+		onSkillUpgrade(objectThatGotSent, skillId, objectThatGotSent.transform.parent.gameObject, skillId.skill);
 		objectThatGotSent = null;
+		this.updateSkillStatsUI(skillId);
 	}
 
 	public void hasSkillBoxBeenClicked(GameObject obj, Skill skill){
 		if(!isSkill(skill)) return;
-
 		if(isSkillUpgradeable(skill, obj.transform.parent.gameObject)){
 			objectThatGotSent = obj;
 			playerNetwork.sendSkill(obj);
 		}
+
 	}
 	public void onSkillBoxSelect(SkillId skillId)
 	{
         Skill skill = skillId.skill;
 		if(!isSkill(skill) || skillId.points < 1) return;
 		player.getSkillUiManager().grabSkill(skill);
+		this.transform.parent.gameObject.SetActive(false);
 	}
 
 	public void uiToggleVisibility(GameObject obj, bool val){
@@ -318,9 +382,19 @@ public class SkillTree : UIHandler {
 		skillId.pathToSkillModel = skill.pathToSkillModel;
 
         skillId.image = inst.GetComponent<Image>();
-		skillId.image.sprite = this.spritesheet[skillId.id/DefaultIds.skillDefaultId];
-		skill.sprite = this.spritesheet_transparent[(skillId.id/DefaultIds.skillDefaultId)-1];
+		int index = (skillId.id-DefaultIds.skillDefaultId)+1;
+		Debug.Log("SPRITE INDEX: " + index + " | " + skillId.id + " | " + DefaultIds.skillDefaultId + " | " + (skillId.id-DefaultIds.skillDefaultId) + " | " + ((skillId.id-DefaultIds.skillDefaultId)+1));
+		skillId.image.sprite = this.spritesheet[index];
+
+		skillId.stats.STR = skill.str;
+		skillId.stats.INT = skill.intell;
+		skillId.stats.DEX = skill.dex;
+		skill.damageMultiplier *= (skillId.points * 0.3f);
+		skillId.damageMultiplier = skill.damageMultiplier;
+		index = (skillId.id-DefaultIds.skillDefaultId);
+		skill.sprite = this.spritesheet_transparent[index];
 		this.player.skills.Add(skill);
+		
 	}
 
 	GameObject getParent(GameObject child){
@@ -329,6 +403,15 @@ public class SkillTree : UIHandler {
 
 [System.Serializable]
 public class Skill {
+	public Skill(int id, int currentPoints, int maxPoints){
+		this.id = id;
+		this.currentPoints = currentPoints;
+		this.maxPoints = maxPoints;
+	}	
+	public Skill(){
+
+	}
+
 	public Skill[] Magician;
 	public int id;
 	public string name;
@@ -347,4 +430,10 @@ public class Skill {
 	public string type;
 	public Sprite sprite;
 	public int[] positionOffset;
+	public int range;
+	public int str;
+	public int dex;
+	public int intell;
+	public int damageType;
+	public float damageMultiplier;
 }

@@ -32,6 +32,9 @@ public class DamageInfo : MessageBase
     public NetworkInstanceId enemyNetworkInstanceId;
     public int damage;
     public e_DamageType damageType;
+	public e_DamageTarget damageTarget;
+	public Vector3 textPosition;
+	public float damageMultiplier;
 }
 
 public class ItemInfo : MessageBase
@@ -58,6 +61,7 @@ public class SkillInfo : MessageBase
 
 public class KillInfo : MessageBase {
 	public int exp;
+	public Vector3 rewardTextPosition;
 }
 public class EmptyInfo : MessageBase {
 }
@@ -71,10 +75,11 @@ public class SkillCastInfo : MessageBase
 	public NetworkInstanceId enemyNetId;
 	public string pathToObject;
 	public string pathToEffect;
-	public Vector3 spawnPosition;
+	public Vector3 targetPosition;
 	public Vector3 rotationInEuler;
 	public string skillType;
 	public float range;
+	public Vector3 offset;
 }
 
 public class StatInfo : MessageBase 
@@ -104,6 +109,15 @@ public class InventoryInfo : MessageBase
 public class MonsterInfo : MessageBase 
 {
     public byte[] monster;
+	public int exp;
+	public Vector3 position;
+	public Vector3 rotation;
+	public NetworkInstanceId netId;
+}
+
+public class MonsterKill : MessageBase {
+	public int exp;
+	public Vector3 rewardTextPosition;
 }
 
 public class PlayerInfo : MessageBase
@@ -117,7 +131,10 @@ public class PlayerInfo : MessageBase
 	public byte[] items;
 	public byte[] equipment;
     public byte[] color;
-    public byte[] otherPlayers;
+	public int health;
+	public byte[] otherPlayers;
+	public int exp;
+	public Vector3 position;
 }
 
 public class LoginPacket : MessageBase

@@ -27,24 +27,20 @@ public class Player : NetworkBehaviour
     private GameObject questInformationObject;
 	private QuestWrapper questWrapper;
 	private GameObject npcManager;
-	private UIPlayerHandler UIPlayer;
+	private GameObject UIActionBar;
     public NetworkIdentity identity;
 	public delegate void PickupEventHandler(Item item);
 	public event PickupEventHandler pickupEventHandler;
-	private Text expText;
-	private Text levelText;
-	private int expRequiredForNextLevel;
+	private bool isDead = false;
+
 
 
     [Header("Player Attributes")]
     public PlayerStats stats;
     public string playerName;
-    public int money = 0;
     private GameObject[] playerEquipSlots;
     private SkinnedMeshRenderer[] colorObjects;
     private GameObject[] skinEquips;
-	public int exp;
-	public int level;
     [Header("Quests")]
     [Space(20)]
     public List<Quest> quests = new List<Quest>();
@@ -65,6 +61,9 @@ public class Player : NetworkBehaviour
 	public GameObject npcTalkingTo;
     public Chat chat;
     public GameObject[] prefabsToRegister;
+	public GameObject gravestone;
+	public GameObject UIDeath;
+	public GameObject nameTag;
 
     [Header("Special Effects")]
     [Space(20)]
@@ -73,10 +72,14 @@ public class Player : NetworkBehaviour
 	public GameObject magicEmitEffect;
 
 
-    [Header("Leave these alone")]
+	[HideInInspector]
     [Space(20)]
     public NPCMain npcMain;
 	public NPCController npcController;
+	public UIPlayerHandler UIPlayer;
+	public UIStats uiStats;
+	public List<Player> otherPlayers = new List<Player>();
+
     public void Start()
     {
         playerEquipSlots = Tools.getChildren(this.gameObject, "hatStand", "weaponStand");
@@ -146,20 +149,31 @@ public class Player : NetworkBehaviour
     public void updateSkinSlot(Item item, GameObject slot) {
         skinEquips[getSkinSlotIndex(item)] = slot;
     }
-	public void giveExp(int exp){
-		this.exp += exp;
-		updateExpUI();
+	public void giveExp(int exp, Vector3 expPosition){
+		this.stats.exp += exp;
+		this.UIPlayer.updateInfo();
+		this.UIPlayer.spawnActionText(expPosition, "+" + exp + "XP", ColorExt.xpColor(), Tools.TEXT_SPEED/4);
+		Debug.Log("PLAYER GIVEN EXP WITH POSITION: " + exp);
 	}
-	public void levelUp(int expRequiredForNextLevel){
-		this.level += 1;
-		this.exp = 0;
-		this.expRequiredForNextLevel = expRequiredForNextLevel;
-		updateExpUI();
-	}
-	public void updateExpUI(){
-		this.expText.text = exp + " / " + expRequiredForNextLevel;
-		this.levelText.text = "Level         "  + this.level;
-	}
+    public void levelUp(int expRequiredForNextLevel){
+		Debug.Log("client level up!!!");
+	    this.stats.level += 1;
+	    this.stats.exp = 0;
+		this.stats.expRequiredForNextLevel = expRequiredForNextLevel;
+        this.UIPlayer.updateInfo();
+	    levelUpEffect();
+    }
+    public void levelUpEffect()
+    {
+	    GameObject o = Instantiate(levelUpPrefab);
+	    o.transform.position = this.transform.position;
+	    ParticleScaler s = o.GetComponent<ParticleScaler>();
+	    s.objectAttachedTo = this.gameObject;
+	    if(s.levelUpUI != null){
+		    Text t = s.levelUpUI.transform.Find("Panel").Find("LevelText").GetComponent<Text>();
+		    t.text = "Level " + this.stats.level;
+	    }
+    }
     public override void OnStartLocalPlayer ()
 	{
         if(!isLocalPlayer) return;
@@ -167,6 +181,7 @@ public class Player : NetworkBehaviour
 		for (int i = 0; i < prefabsToRegister.Length; i++) {
 			ClientScene.RegisterPrefab (prefabsToRegister [i]);
 		}
+		ResourceStructure.initilize();
         /*
         ClientScene.RegisterPrefab((GameObject)Resources.Load("Prefabs/Enemy"));
         ClientScene.RegisterPrefab((GameObject)Resources.Load("Particles/Hit"));
@@ -203,6 +218,7 @@ public class Player : NetworkBehaviour
         equip = Tools.getChild(UICanvas, "Equipment_UI").GetComponent<EquipmentHandler>();
         equip.setEquipmentUI(Tools.getChild(UICanvas, "Equipment_UI"));
         equip.setPlayer(this);
+
         //camera
         camera = Camera.main;
         camera.GetComponent<MainCamera> ().player = this.gameObject;
@@ -218,6 +234,7 @@ public class Player : NetworkBehaviour
         this.questInformationData = tempQuestUI.GetComponentInChildren<QuestInformationData>();
         tempQuestUI.transform.SetParent(this.getUI().transform);
         tempQuestUI.transform.SetAsLastSibling();
+		tempQuestUI.SetActive(false);
         questInformationObject = tempQuestUI;
 
 		//QuestWrapper
@@ -227,10 +244,18 @@ public class Player : NetworkBehaviour
         this.UIPlayer = Tools.findInactiveChild(UICanvas, "Footer_UI").GetComponent<UIPlayerHandler>();
         this.UIPlayer.setPlayer(this);
         this.UIPlayer.gameObject.SetActive(true);
+        this.UIPlayer.updateInfo();
 
-		//LEVEL STUFF
-		this.expText = UICanvas.transform.Find("Footer_UI").Find("ExpBar").Find("Bar").Find("Text").GetComponent<Text>();
-		this.levelText = UICanvas.transform.Find("Footer_UI").Find("Level").GetComponent<Text>();
+		this.UIActionBar = Tools.findInactiveChild(UICanvas, "Actionbar_UI");
+		UIActionBar.SetActive(true);
+		this.uiStats = Tools.findInactiveChild(UICanvas, "Stat_UI").GetComponent<UIStats>();
+		uiStats.gameObject.SetActive(false);
+		Debug.Log("STATS: " + this.stats.s_str);
+
+		this.UIDeath = Tools.findInactiveChild(this.getUI(), "Death_UI");
+		this.UIDeath.SetActive(true);
+		this.UIDeath.GetComponent<GraveStone>().player = this;
+		this.UIDeath.SetActive(false);
 
 		//QuestManager
 		this.npcController = GameObject.FindWithTag("NPCManager").GetComponent<NPCController>();
@@ -284,15 +309,20 @@ public class Player : NetworkBehaviour
 		return false;
 	}
 	public void completeQuest(Quest quest){
-		foreach(Quest q in this.quests.ToArray()){
+		/*foreach(Quest q in this.quests.ToArray()){
 			if(q.getId().Equals(quest.getId())){
 				q.setStatus(e_QuestStatus.COMPLETED);
 			}
-		}
+		}*/
 		npcController.getNpcWithQuest(quest).setQuestMarker(this);
-		/*Quest q = lookupQuest(quest.getId());
-		q.setStatus(quest.getStatus());*/
+		Quest q = lookupQuest(quest.getId());
+		q.setStatus(e_QuestStatus.COMPLETED);
 		Debug.Log("Quest completed, not removed yet.");
+	}
+
+	public void turnInQuest(Quest quest){
+		npcController.getNpcWithQuest(quest).setQuestMarker(this);
+		getQuestInformationData().removeQuestPanel(quest);
 	}
 	public GameObject getNpcManager(){
 		return this.npcManager;
@@ -380,6 +410,7 @@ public class Player : NetworkBehaviour
     public void updateStats(PlayerStats stats) {
         this.stats = stats;
         this.UIPlayer.updateInfo();
+		uiStats.update(this.stats);
     }
     public void Update() {
         if (!isLocalPlayer) return;
@@ -399,18 +430,29 @@ public class Player : NetworkBehaviour
             getQuestInformationObject().SetActive(!getQuestInformationObject().activeInHierarchy);
             //this.questUI.gameObject.SetActive(!this.questUI.gameObject.activeInHierarchy);
         }
-		if(Input.GetKeyDown(KeyCode.B)){
-			GameObject o = Instantiate(levelUpPrefab);
-			o.transform.position = this.transform.position;
-			ParticleScaler s = o.GetComponent<ParticleScaler>();
-			s.objectAttachedTo = this.gameObject;
-			if(s.levelUpUI != null){
-				Text t = s.levelUpUI.transform.Find("Panel").Find("LevelText").GetComponent<Text>();
-				t.text = "Level 3";
-			}
+		foreach(Player p in otherPlayers){
+			p.nameTag.transform.position = new Vector3(p.transform.position.x + 1.8f, p.transform.position.y+0.5f, p.transform.position.z);
+			Debug.Log("another player is found : " + p.nameTag);
+		} 
+		nameTag.transform.position = new Vector3(this.transform.position.x + 1.8f, this.transform.position.y+0.5f, this.transform.position.z);
 
-		}
     }
+	public void kill(){
+		isDead = true;
+		GameObject o = Instantiate(this.gravestone);
+		o.transform.position = this.transform.position;
+		GraveStone g = o.GetComponent<GraveStone>();
+		g.player = this;
+		this.UIDeath.SetActive(true);
+		this.gameObject.SetActive(false);
+	}
+	public void respawn(){
+		isDead = false;
+		getNetwork().sendRespawn();
+		this.stats.health = this.stats.maxHealth;
+		this.UIDeath.SetActive(false);
+		this.UIPlayer.updateInfo();
+	}
     public Chat getChat() {
         return chat;
     }
@@ -426,10 +468,14 @@ public class Player : NetworkBehaviour
     public int getMaxHealth() {
         return this.stats.maxHealth;
     }
-    public void damage(int dmg, GameObject damager)
+    public void damage(int dmg)
     {
         this.stats.health -= dmg;
-		StartCoroutine(flash());
+		UIPlayer.onHealthChange();
+		if(this.stats.health <= 0 && !isDead){
+			kill();
+			return;
+		}
     }
 
 	[ClientRpc]

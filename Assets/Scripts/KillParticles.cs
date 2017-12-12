@@ -7,6 +7,10 @@ public class KillParticles : MonoBehaviour {
 	ParticleSystem ps;	
 	public bool hasTimer;
 	public float time;
+	public SkillCastManager skillCastManager;
+
+	[HideInInspector]
+	public bool fromServer;
 
 	void Start () {
 		ps = this.GetComponent<ParticleSystem>();
@@ -16,14 +20,25 @@ public class KillParticles : MonoBehaviour {
 		if(hasTimer){
 			time -= 1 * Time.deltaTime;
 			if(time <= 0){
-				Destroy(this.gameObject);
+				Debug.Log("PRE-DESTROY");
+				onDestroy();
+				Debug.Log("DESTROYED");
 			}
 		} else {
 			if(ps != null){
 				if (!ps.IsAlive ()) {
-					Destroy(this.gameObject);
+					onDestroy();
 				}
 			}
 		}
+	}
+
+	void onDestroy(){
+		if(!fromServer){
+			if(skillCastManager != null){
+				skillCastManager.targetEntity.targeted = false;
+			}
+		}
+		Destroy(this.gameObject);
 	}
 }

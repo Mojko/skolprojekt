@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 using System.Text;
 using System.Xml;
 using System.IO;
-
+using UnityEngine.UI;
 
 public enum e_StatType {
 	HEALTH,
@@ -50,20 +50,22 @@ public class playerNetwork : NetworkBehaviour{
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
 		con.RegisterHandler(PacketTypes.GIVE_EXP, onGiveExp);
 		con.RegisterHandler(PacketTypes.LEVEL_UP, onLevelUp);
+		con.RegisterHandler(PacketTypes.MONSTER_KILL, onMonsterKill);
 		con.RegisterHandler(PacketTypes.CREATE_SKILL, onReturnSkill);
-        con.RegisterHandler(PacketTypes.DROP_INIT, onDrop);
+		con.RegisterHandler(PacketTypes.DEAL_DAMAGE, onDealDamage);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
+		con.RegisterHandler(PacketTypes.ENEMY_SYNC_MOVEMENT, onEnemySyncMovement);
         sendPlayer (player.playerName, login.getCharacterName());
-
-		//questUI = Tools.findInactiveChild(player.getUI(), "Quest_UI").GetComponent<QuestUI>();
-
 
         login.transform.parent.GetComponent<UIHandler>().removeThisFromParent();
 
-        //this.onTalkNPC(5000, 0);
-
         Destroy(login.transform.parent.gameObject);
         Destroy(login_world);
+
+		this.player.nameTag = Instantiate(this.player.nameTag);
+		player.nameTag.transform.SetParent(GameObject.Find("WorldSpaceCanvas").transform);
+		player.nameTag.GetComponent<Text>().text = this.player.playerName;
+		player.nameTag.GetComponent<NameTag>().player = this.player;
     }
 
     /*public Item itemOnStandby;
@@ -80,11 +82,17 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
-    public void onDrop(NetworkMessage netMsg) {
-        ItemInfo packet = netMsg.ReadMessage<ItemInfo>();
-        Drop drop = ClientScene.FindLocalObject(packet.netId).GetComponent<Drop>();
-        drop.initilize((Item)Tools.byteArrayToObject(packet.item));
-    }
+	void onEnemySyncMovement(NetworkMessage netMsg){
+		MonsterInfo mInfo = netMsg.ReadMessage<MonsterInfo>();
+		GameObject o = ClientScene.FindLocalObject(mInfo.netId);
+		o.transform.position = mInfo.position;
+		o.transform.rotation = Quaternion.Euler(mInfo.rotation);
+	}
+	void onMonsterKill(NetworkMessage netMsg){
+		MonsterKill monsterInfo = new MonsterKill();
+		this.player.giveExp(monsterInfo.exp, monsterInfo.rewardTextPosition);
+
+	}
 	public void onLevelUp(NetworkMessage netMsg){
 		this.player.levelUp(netMsg.ReadMessage<LevelUpInfo>().expRequiredForNextLevel);
 	}
@@ -92,7 +100,8 @@ public class playerNetwork : NetworkBehaviour{
 		this.con.Send(PacketTypes.EMPTY, new EmptyInfo());
 	}
 	void onGiveExp(NetworkMessage netMsg){
-		this.player.giveExp(netMsg.ReadMessage<KillInfo>().exp);
+		KillInfo info = netMsg.ReadMessage<KillInfo>();
+		this.player.giveExp(info.exp, info.rewardTextPosition);
 	}
     void onUnequipItem(NetworkMessage msg) {
         ItemInfo info = msg.ReadMessage<ItemInfo>();
@@ -152,20 +161,43 @@ public class playerNetwork : NetworkBehaviour{
         this.player.setHealth(Mathf.Min(this.player.stats.health + vars.getInt("health"), player.stats.maxHealth));
         this.player.setMana(Mathf.Min(this.player.stats.mana + vars.getInt("mana"), player.stats.maxMana));
     }
-    public void damageEnemy(GameObject enemy, int damage, e_Objects impactEffect)
+	public void damageEnemy(GameObject enemy, e_Objects impactEffect, e_DamageType type, float damageMultiplier)
     {
         DamageInfo damageInfo = new DamageInfo();
         damageInfo.clientNetworkInstanceId = this.GetComponent<NetworkIdentity>().netId;
         damageInfo.enemyNetworkInstanceId = enemy.GetComponent<NetworkIdentity>().netId;
-        damageInfo.damage = damage;
-        damageInfo.damageType = e_DamageType.MOB;
+		damageInfo.damageType = type;
+		damageInfo.damageTarget = e_DamageTarget.MOB;
+		damageInfo.damageMultiplier = damageMultiplier;
 
-        Vector3 pos = new Vector3(enemy.transform.position.x, enemy.transform.position.y+0.5f, enemy.transform.position.z);
-        Instantiate(ResourceStructure.getGameObjectFromObject(impactEffect)).transform.position = pos;
+		Vector3 pos = new Vector3(enemy.transform.position.x, enemy.transform.position.y+0.5f, enemy.transform.position.z);
+		GameObject o = Instantiate(ResourceStructure.getGameObjectFromObject(impactEffect));
+		o.transform.position = pos;
+		o.transform.localScale = new Vector3(enemy.transform.lossyScale.x*2, enemy.transform.lossyScale.y*2, enemy.transform.lossyScale.z*2);
+
         player.CmdSpawnGameObjectLocally(ResourceStructure.getPathForObject(impactEffect), pos);
 
         con.Send(PacketTypes.DEAL_DAMAGE, damageInfo);
     }
+
+	public void sendExpToServer(int exp){
+		PlayerInfo info = new PlayerInfo();
+		info.exp = exp;
+		con.Send(PacketTypes.GIVE_EXP, info);
+	}
+
+	private void onDealDamage(NetworkMessage netMsg){
+		DamageInfo damageinfo = netMsg.ReadMessage<DamageInfo>();
+		if(damageinfo.damageTarget == e_DamageTarget.PLAYER){
+			this.player.damage(damageinfo.damage);
+		} else if(damageinfo.damageTarget == e_DamageTarget.MOB || damageinfo.damageTarget == null) {
+			this.player.UIPlayer.spawnActionText(damageinfo.textPosition, damageinfo.damage.ToString(), Color.red, Tools.TEXT_SPEED);
+		}
+	}
+
+	public void sendRespawn(){
+		this.con.Send(PacketTypes.RESPAWN, new PlayerInfo());
+	}
 
     public NetworkConnection getConnection()
     {
@@ -211,6 +243,7 @@ public class playerNetwork : NetworkBehaviour{
 		q.setStatus(e_QuestStatus.TURNED_IN);
 		this.player.npcTalkingTo.GetComponent<NPCMain>().onQuestTurnIn(q);
 		this.player.getQuestInformationData().removeQuestPanel(q);
+		this.sendExpToServer(quest.expReward);
 	}
 
 	public void onQuestComplete(NetworkMessage netMsg){
@@ -268,59 +301,72 @@ public class playerNetwork : NetworkBehaviour{
 
     //#Skill
 
-	private void onReturnSkill(NetworkMessage netMsg){
-		SkillCastInfo skillcastInfo = netMsg.ReadMessage<SkillCastInfo>();
-
-		SkillCastManager s = this.GetComponent<SkillCastManager>();
-
+	private GameObject spawnSkillEffect(SkillCastInfo skillcastInfo){
 		GameObject skillEffect = Instantiate((GameObject)Resources.Load(skillcastInfo.pathToEffect));
-		skillEffect.transform.position = skillcastInfo.spawnPosition;
+		skillEffect.transform.position = skillcastInfo.targetPosition;
 		skillEffect.transform.rotation = Quaternion.Euler(skillcastInfo.rotationInEuler);
-
-		StartCoroutine(updateSkillPosition(ClientScene.FindLocalObject(skillcastInfo.enemyNetId), skillEffect));
+		return skillEffect;
 	}
 
-	/*
-	 * 
-	 * 
-	 * REMEMBER TO SET THE OFFSET HERE TOMORROW FOR THE ENEMY SKILL!!!!
-	 */
+	private void onReturnSkill(NetworkMessage netMsg){
+		SkillCastInfo skillcastInfo = netMsg.ReadMessage<SkillCastInfo>();
+		if(skillcastInfo.netId == this.GetComponent<NetworkIdentity>().netId) return;
 
-	private IEnumerator updateSkillPosition(GameObject enemy, GameObject skill){
+		GameObject skillEffect = spawnSkillEffect(skillcastInfo);
+		skillEffect.GetComponent<KillParticles>().fromServer = true;
+		if(skillcastInfo.skillType.Equals("target")){
+			StartCoroutine(updateSkillPosition(ClientScene.FindLocalObject(skillcastInfo.enemyNetId), skillEffect, skillcastInfo.offset));
+		}
+
+	}
+	private IEnumerator updateSkillPosition(GameObject enemy, GameObject skill, Vector3 offset){
 		while(enemy != null || skill != null){
 			if(skill == null || enemy == null) yield break;
-			skill.transform.position = enemy.transform.position;
+			skill.transform.position = new Vector3(enemy.transform.position.x+offset.x, enemy.transform.position.y+offset.y, enemy.transform.position.z+offset.z);
 			yield return null;
 		}
 	}
 
-	private void createSkill(string pathToEffect, Vector3 spawnPositionOffset, GameObject target, Vector3 rotationInEuler, string type){
+	private void createSkill(string pathToEffect, Vector3 spawnPositionOffset, GameObject target, Vector3 rotationInEuler, string type, int range, Vector3 spawnPosition, MobManager m){
 		SkillCastInfo skillInfo = new SkillCastInfo();
 		skillInfo.pathToEffect = pathToEffect;
-		skillInfo.spawnPosition = new Vector3(target.transform.position.x + spawnPositionOffset.x, target.transform.position.y + spawnPositionOffset.y, target.transform.position.z + spawnPositionOffset.z);
+		skillInfo.offset = spawnPositionOffset;
+		skillInfo.targetPosition = new Vector3(spawnPosition.x + spawnPositionOffset.x,spawnPosition.y + spawnPositionOffset.y, spawnPosition.z + spawnPositionOffset.z);//new Vector3(target.transform.position.x + spawnPositionOffset.x, target.transform.position.y + spawnPositionOffset.y, target.transform.position.z + spawnPositionOffset.z);
 		skillInfo.rotationInEuler = rotationInEuler;
 		skillInfo.netId = this.GetComponent<NetworkIdentity>().netId;
 		skillInfo.skillType = type;
-		skillInfo.range = 10;
-		skillInfo.enemyNetId = target.GetComponent<NetworkIdentity>().netId;
+		skillInfo.range = range;
+		GameObject o = spawnSkillEffect(skillInfo);
+		o.transform.localScale = new Vector3(target.transform.lossyScale.x * 4, target.transform.lossyScale.y * 4, target.transform.lossyScale.z * 4);
+		StartCoroutine(updateSkillPosition(target, o, spawnPositionOffset));
+		if(target != null){
+			skillInfo.enemyNetId = target.GetComponent<NetworkIdentity>().netId;
+			o.GetComponent<SkillCastManager>().targetEntity = m;
+			m.targeted = true;
+		}
 		con.Send(PacketTypes.CREATE_SKILL, skillInfo);
 	}
 
-	public void sendSkillCast(string pathToEffect, Vector3 spawnPositionOffset, Vector3 rotationInEuler, string type)
+	public void sendSkillCast(string pathToEffect, Vector3 relativePosition, Vector3 rotationInEuler, string type, int range, e_DamageType damageType, float damageMultiplier)
     {
-		Collider[] targetColliders = Physics.OverlapSphere(this.transform.position, 10);
+		Collider[] targetColliders = Physics.OverlapSphere(this.transform.position, range);
 		GameObject target = null;
+		if(type.Equals("aoe")){
+			createSkill(pathToEffect, relativePosition, null, rotationInEuler, type, range, this.transform.position, null);
+		}
 		foreach(Collider c in targetColliders){
 			if(c.CompareTag("Enemy")){
 				target = c.gameObject;
 				MobManager m = target.GetComponent<MobManager>();
 				if(type.Equals("target")){
-					damageEnemy(target, 4, e_Objects.VFX_IMPACT_SKILL_MAGE_DEFUALT);
-					createSkill(pathToEffect, spawnPositionOffset, target, rotationInEuler, type);
+					if(m.targeted) continue;
+					damageEnemy(target, e_Objects.VFX_IMPACT_SKILL_MAGE_DEFUALT, damageType, damageMultiplier);
+					createSkill(pathToEffect, relativePosition, target, rotationInEuler, type, range, target.transform.position, m);
+					m.targeted = true;
+					Debug.Log("found some enemies, targeting");
 				}
 				if(type.Equals("aoe")){
-					damageEnemy(target, 4, e_Objects.VFX_IMPACT_MELEE_1);
-					createSkill(pathToEffect, spawnPositionOffset, target, rotationInEuler, type);
+					damageEnemy(target, e_Objects.VFX_IMPACT_MELEE_1, damageType, damageMultiplier);
 				}
 			}
 		}
@@ -413,6 +459,7 @@ public class playerNetwork : NetworkBehaviour{
 		msg.playerName = this.player.playerName;
 		msg.currentPoints = skill.points;
 		msg.maxPoints = skill.maxPoints;
+
 		con.Send(PacketTypes.VERIFY_SKILL, msg);
 	}
 
@@ -448,11 +495,16 @@ public class playerNetwork : NetworkBehaviour{
 			List<Equip> equips = (List<Equip>)Tools.byteArrayToObject(info.equipment);
             List<string> color = (List<string>)Tools.byteArrayToObject(info.color);
             player.setColor(color);
+			player.playerName = info.characterName;
             foreach (Equip equip in equips)
 			{
 				if (equip == null) continue;
 				player.setEquipModel(equip);
 			}
+			player.nameTag = (GameObject)Instantiate(Resources.Load("Prefabs/NameTag"));
+			player.nameTag.transform.SetParent(GameObject.Find("WorldSpaceCanvas").transform);
+			player.nameTag.GetComponent<Text>().text = info.characterName;
+			this.player.otherPlayers.Add(player);
 		}
 	}
     private void equipOtherPlayers(PlayerNetworkObject[] playerObjects) {
@@ -494,9 +546,6 @@ public class playerNetwork : NetworkBehaviour{
             else
                 this.player.setClothesModel(equipments[i]);
         }
-
-        Debug.Log("log in from own packet!!!!!!!!!!");
-        this.player.updateStats(stats);
         GameObject playerObj = ClientScene.FindLocalObject(m.id);
         Player player;
         if(playerObj != null){
@@ -505,7 +554,13 @@ public class playerNetwork : NetworkBehaviour{
             player = this.GetComponent<Player>();
         }
 
-
+		PlayerServerData[] playerData = (PlayerServerData[])Tools.byteArrayToObjectArray(m.otherPlayers);
+		foreach(PlayerServerData pData in playerData){
+			GameObject p = ClientScene.FindLocalObject(pData.netId);
+			GameObject o = Instantiate(this.player.nameTag);
+			o.GetComponent<NameTag>().player = p.GetComponent<Player>();
+			o.GetComponent<Text>().text = pData.name;
+		}
 
 
 		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
@@ -530,9 +585,13 @@ public class playerNetwork : NetworkBehaviour{
             tempSkill.maxPoints = m.skillProperties[i]; //maxPoints
             this.player.skillsToVerifyWithFromServer.Add(tempSkill);
         }
+		foreach(Skill s in skillsToVerifyFromServer){
+			this.player.stats.increment(s.str, s.dex, s.intell, 0,0,0,0,0,0,0,this.player.uiStats);
+		}
 		Debug.Log("Character loaded");
         skillTree = Instantiate (skillTreePrefab).GetComponent<SkillTree> ();
 		skillTree.initilize (player);
+		this.transform.position = new Vector3(-30, 0, 16);
     }
    
     public void onTalkNPC(int npcID, int state)

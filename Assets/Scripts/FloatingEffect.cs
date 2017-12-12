@@ -13,7 +13,7 @@ public class FloatingEffect : NetworkBehaviour {
 
 	void Update () {
 		v += periodSpeed;
-		this.transform.position += new Vector3(0,Mathf.Sin(v/period) * amp * Time.deltaTime,0);
+		this.transform.position += new Vector3(0,(Mathf.Sin(v/period) * amp * Time.deltaTime),0);
 		this.transform.Rotate(new Vector3(0,rotSpeed * Time.deltaTime,0));
 	}
 }

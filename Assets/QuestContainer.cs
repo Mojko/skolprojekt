@@ -117,6 +117,7 @@ public class QuestContainer : MonoBehaviour {
 		this.questName.text = "";
 		thisImage.color = Tools.hexColor(0x6CB95D);
 		toggleTextAndImages(false);
+		Destroy(this.gameObject);
 	}
 
 	public void onClick(){

@@ -13,17 +13,19 @@ public class Spawner : NetworkBehaviour {
     public int totalEnemiesInArea;
     public Timer timer = new Timer(5, true);
     private Monster monster;
+	public float time;
 
 	void Start() 
     {
-        if(!isServer) return;
+		if(!isServer) return;
 		vector3Radius = new Vector3(radius, 1, radius);
         this.monster = Server.getMonsterFromJson(monsterId);
 	}
     private void Update()
     {
-        if(!isServer) return;
+		if(!isServer) return;
         timer.update();
+		time = timer.getTime();
         if (timer.isFinished() && totalEnemiesInArea < maxEnemies) {
             MobManager m = Server.spawnMonster(monsterId, randomVector3InRadius());
 			m.spawner = this;

@@ -39,8 +39,8 @@ GameObject:
   - component: {fileID: 114314382177117744}
   - component: {fileID: 114269452594118236}
   - component: {fileID: 195101400408257358}
-  - component: {fileID: 114705861131460070}
   - component: {fileID: 114168646090379712}
+  - component: {fileID: 114766606944056766}
   m_Layer: 0
   m_Name: E_Squirrle
   m_TagString: Enemy
@@ -665,6 +665,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 275b3debf68e42c4aba3ff8890a80132, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  health: 100
   mobHolder: {fileID: 0}
   newPos: {x: 0, y: 0, z: 0}
   respawner: {fileID: 0}
@@ -686,6 +687,8 @@ MonoBehaviour:
     type: 2}
   body: {fileID: 1998042900341542}
   angerLight: {fileID: 1802564842090274}
+  friendly: 0
+  charge: 0
 --- !u!114 &114314382177117744
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -718,7 +721,7 @@ MonoBehaviour:
     i15: 140
   m_ServerOnly: 0
   m_LocalPlayerAuthority: 0
---- !u!114 &114705861131460070
+--- !u!114 &114766606944056766
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -969,6 +972,6 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 0
   m_Height: 1
-  m_BaseOffset: 0.5
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4

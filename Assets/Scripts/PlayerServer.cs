@@ -11,9 +11,8 @@ public class PlayerServer {
     public int databaseID;
     public int connectionID;
     public int playerID;
-	public int exp = 0;
-	public int expRequiredForNextLevel = 10;
 	public int level = 1;
+	public NetworkInstanceId netId;
 
     PlayerStats info;
 
@@ -23,8 +22,7 @@ public class PlayerServer {
 	public List<Quest> questList = new List<Quest>();
     //public Quest[] quests;
     int[] stats = new int[5];
-
-    int[] skills;
+    Skill[] skills;
     public PlayerServer( int databaseID, int connectionID, NetworkInstanceId netID) {
         info = new PlayerStats();
         this.databaseID = databaseID;
@@ -33,7 +31,6 @@ public class PlayerServer {
         for (int i = 0; i < 9; i++) {
             equips.Add(null);
         }
-
     }
     public int getClosestSlot(int storeType)
     {
@@ -104,18 +101,18 @@ public class PlayerServer {
 	//This can only run ONCE
 	public void levelUp(){
 		this.level += 1;
-		this.exp = 0;
-		expRequiredForNextLevel *= 2;
-		Server.sendLevelUp(expRequiredForNextLevel, this.connectionID);
+		this.info.exp = 0;
+		this.getPlayerStats().expRequiredForNextLevel *= 2;
+		Server.sendLevelUp(this.getPlayerStats().expRequiredForNextLevel, this.connectionID);
 		Debug.Log("LEVELUP!!");
 	}
 
 	public void giveExp(int exp){
-		this.exp += exp;
-		if(this.exp >= expRequiredForNextLevel){
+		this.info.exp += exp;
+		if(this.info.exp >= this.getPlayerStats().expRequiredForNextLevel){
 			levelUp();
 		}
-		Debug.Log("EXP given, EXP now: " + this.exp + " | " + expRequiredForNextLevel);
+		Debug.Log("EXP given, EXP now: " + this.info.exp + " | " + this.getPlayerStats().expRequiredForNextLevel);
 	}
 
     public ItemVariables useItem(Item item) {
@@ -136,7 +133,7 @@ public class PlayerServer {
 
     public void setMoney(int money)
     {
-        this.money = money;
+        this.info.money = money;
     }
     public int getMoney()
     {
@@ -161,9 +158,12 @@ public class PlayerServer {
     public void removeEquip(Equip equip) {
         equips[equips.IndexOf(equip)] = null;
     }
-    public void setSkills(int[] skills) {
+	public void setSkills(Skill[] skills) {
         this.skills = skills;
     }
+	public Skill[] getSkills(){
+		return this.skills;
+	}
     public void saveInventory(Server server) {
         MySqlConnection mysqlConn;
         server.mysqlNonQuerySelector(out mysqlConn, "");

@@ -79,6 +79,7 @@ public class Quest
 	string characterName;
     string name;
 	public int id;
+	public int expReward;
 
 	//int mobKillsOfSpecifiedMobId = 0;
 	Dictionary<int, int> mobKills = new Dictionary<int, int>();
@@ -120,6 +121,7 @@ public class Quest
 				setItemCount(questJson.completionData.completionId[i], 0);
 			}
 		}
+		this.expReward = questJson.expReward;
 		checkForCompletion();
 	}
 
@@ -327,7 +329,7 @@ public class QuestManager {
 
 		if(qJson != null){
 			quest.start(qJson);
-			server.addOrUpdateQuestStatusToDatabase(quest, playerServer, true, PacketTypes.QUEST_TURN_IN);
+			server.addOrUpdateQuestStatusToDatabase(quest, playerServer, true, PacketTypes.QUEST_START);
 			playerServer.questList.Add(quest);
 		}
 	}
@@ -380,6 +382,7 @@ public class QuestJson {
     public string description;
 	public CompletionData completionData;
 	public int imageIndex;
+	public int expReward;
 }
 
 [System.Serializable]
