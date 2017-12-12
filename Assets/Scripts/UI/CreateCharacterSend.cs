@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Text.RegularExpressions;
 public class CreateCharacterSend : MonoBehaviour {
     public CreateCharacterUI characterUI;
     public Login login;
@@ -23,6 +24,7 @@ public class CreateCharacterSend : MonoBehaviour {
             return;
         }
         CreateCharacterButton[] buttons = characterUI.getCheckedButtons();
+        Debug.Log("reference: " + characterUI + " : " + buttons + " : " + name);
         characterUI.getLogin().onCharacterCreated(buttons, name);
 
     }

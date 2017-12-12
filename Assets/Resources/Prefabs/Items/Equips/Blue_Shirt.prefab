@@ -20,6 +20,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4054440067501246}
   - component: {fileID: 137832073277235568}
+  - component: {fileID: 114682878361675260}
+  - component: {fileID: 33027077591570990}
   m_Layer: 0
   m_Name: Blue_Shirt
   m_TagString: Untagged
@@ -40,6 +42,45 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &33027077591570990
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1870476495488990}
+  m_Mesh: {fileID: 4300006, guid: 073430c612c0d64489ad6c3e423cb94b, type: 3}
+--- !u!114 &114682878361675260
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1870476495488990}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 158
+    i1: 236
+    i2: 150
+    i3: 210
+    i4: 77
+    i5: 118
+    i6: 197
+    i7: 20
+    i8: 24
+    i9: 176
+    i10: 47
+    i11: 1
+    i12: 118
+    i13: 131
+    i14: 152
+    i15: 135
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!137 &137832073277235568
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
@@ -53,7 +94,7 @@ SkinnedMeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: adaef1ebdf4d1a948994a19ae8439e88, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -95,7 +136,7 @@ SkinnedMeshRenderer:
   - {fileID: 0}
   - {fileID: 0}
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 0}
+  m_RootBone: {fileID: 4666600396779528, guid: fdf04f14e76f75745a6273e96e73097b, type: 2}
   m_AABB:
     m_Center: {x: -0.00017818809, y: -0.009515398, z: -0.0047567515}
     m_Extent: {x: 0.015974265, y: 0.012266026, z: 0.008035839}

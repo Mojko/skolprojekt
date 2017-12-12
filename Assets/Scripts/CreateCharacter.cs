@@ -36,7 +36,8 @@ public class CreateCharacter : MonoBehaviour {
         {
             GameObject hitObj = Tools.mouse3D(realCamera);
             if (hitObj == null) return;
-            if (hitObj.Equals(this.gameObject)) {
+            if (hitObj.Equals(this.gameObject.transform.GetChild(0).gameObject)) {
+                Debug.Log("camera panning here");
                 camera.panTo(new Vector3(16,14.5f,-1), Quaternion.Euler(-8,190,0),2f,3f);
                 StartCoroutine(onPanDone(1.5f));
             }

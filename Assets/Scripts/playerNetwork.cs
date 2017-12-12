@@ -44,13 +44,14 @@ public class playerNetwork : NetworkBehaviour{
 		con.RegisterHandler(PacketTypes.QUEST_UPDATE, onQuestUpdate);
 		con.RegisterHandler(PacketTypes.QUEST_TURN_IN, onQuestTurnIn);
         con.RegisterHandler(PacketTypes.ITEM_USE,onItemUse);
-		con.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onItemPickup);
+		con.RegisterHandler(PacketTypes.PICKUP, onItemPickup);
         con.RegisterHandler(PacketTypes.ITEM_EQUIP, onEquip);
 		con.RegisterHandler(PacketTypes.QUEST_COMPLETE, onQuestComplete);
         con.RegisterHandler(PacketTypes.ITEM_UNEQUIP, onUnequipItem);
 		con.RegisterHandler(PacketTypes.GIVE_EXP, onGiveExp);
 		con.RegisterHandler(PacketTypes.LEVEL_UP, onLevelUp);
 		con.RegisterHandler(PacketTypes.CREATE_SKILL, onReturnSkill);
+        con.RegisterHandler(PacketTypes.DROP_INIT, onDrop);
         con.RegisterHandler(MsgType.Disconnect, OnDisconnectFromServer);
         sendPlayer (player.playerName, login.getCharacterName());
 
@@ -79,6 +80,11 @@ public class playerNetwork : NetworkBehaviour{
 			return;
 		}
 	}*/
+    public void onDrop(NetworkMessage netMsg) {
+        ItemInfo packet = netMsg.ReadMessage<ItemInfo>();
+        Drop drop = ClientScene.FindLocalObject(packet.netId).GetComponent<Drop>();
+        drop.initilize((Item)Tools.byteArrayToObject(packet.item));
+    }
 	public void onLevelUp(NetworkMessage netMsg){
 		this.player.levelUp(netMsg.ReadMessage<LevelUpInfo>().expRequiredForNextLevel);
 	}
@@ -113,11 +119,15 @@ public class playerNetwork : NetworkBehaviour{
     void onItemPickup(NetworkMessage netMsg){
 		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
 		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
-		Debug.Log("PICKING UP ITEM: " + item + " | " + item.isMoney());
-		if(item.isMoney()){
-			this.player.money += item.getQuantity();
-			return;
-		}
+        Debug.Log("IJTENJDSFGJSDIKJF GBHNSKJDHLFGBHNKHJSDNFGBJKHLSDFGB LJKHSDFG B");
+        if (item.isMoney())
+        {
+            this.player.money += item.getQuantity();
+            return;
+        }
+        else {
+            this.player.getInventory().addItem(item);
+        }
 	}
 
     void onItemUse(NetworkMessage netMsg) {
@@ -418,7 +428,6 @@ public class playerNetwork : NetworkBehaviour{
             characterName = characterName,
             id = this.gameObject.GetComponent<NetworkIdentity>().netId
         };
-        Debug.Log("players name: " + PacketTypes.LOAD_PLAYER + " : " + con);
 		con.Send(PacketTypes.LOAD_PLAYER, msg);
 	}
     private void OnDisconnect()
@@ -446,12 +455,31 @@ public class playerNetwork : NetworkBehaviour{
 			}
 		}
 	}
+    private void equipOtherPlayers(PlayerNetworkObject[] playerObjects) {
+        PlayerNetworkObject playerNetwork;
+        NetworkInstanceId netID = this.GetComponent<NetworkIdentity>().netId;
+        Debug.Log("length; " + playerObjects.Length);
+        for (int i = 0; i < playerObjects.Length; i++) {
+            playerNetwork = playerObjects[i];
+            if (netID == playerNetwork.netID) continue;
+            Player player = ClientScene.FindLocalObject(playerNetwork.netID).GetComponent<Player>();
+            List<int> equips = playerNetwork.equipsID;
+            player.setColor(new List<string>() { playerNetwork.colors[0], playerNetwork.colors[1], playerNetwork.colors[2] });
+            player.playerName = playerNetwork.name;
+            for (int j = 0; j < equips.Count; j++)
+            {
+                if (equips[j] == null) continue;
+                player.setEquipModel(new Item(equips[j]));
+            }
+        }
+    }
     void onLoadCharacter(NetworkMessage msg)
     {
 		Debug.Log("Character pre- loaded");
         PlayerInfo m = msg.ReadMessage<PlayerInfo>();
-
-		PlayerStats stats = (PlayerStats)Tools.byteArrayToObject(m.stats);
+        PlayerNetworkObject[] otherPlayers = (PlayerNetworkObject[])Tools.byteArrayToObject(m.otherPlayers);
+        equipOtherPlayers(otherPlayers);
+        PlayerStats stats = (PlayerStats)Tools.byteArrayToObject(m.stats);
 		this.player.updateStats(stats);
 		List<Equip> equipments = (List<Equip>)(Tools.byteArrayToObject(m.equipment));
 		List<Item> inventory = (List<Item>)(Tools.byteArrayToObject(m.items));

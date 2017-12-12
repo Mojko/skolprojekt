@@ -48,7 +48,7 @@ public class ItemInfoHandler : MonoBehaviour {
     }
     public void setEquipClicked() {
         destroyItemInInventory();
-        player.getEquipHandler().setEquip(equip.getID(), equip);
+        player.getEquipHandler().equipItem(equip);
         this.player.getInventory().hideItemActionMenu();
     }
     private void destroyItemInInventory() {

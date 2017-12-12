@@ -192,7 +192,7 @@ public class Inventory : MonoBehaviour
         slot.setID(itemsOwned.Count);
         slot.setItem(item.getPosition(), item);
         slot.setImage(slot.getItem());
-        slot.transform.SetParent(canvas[activeCanvas].transform);
+        slot.transform.SetParent(canvas[item.getInventoryType()].transform);
         itemsOwned.Add(slot);
         recalcPos(itemsOwned.Count - 1, item.getPosition());
         return true;

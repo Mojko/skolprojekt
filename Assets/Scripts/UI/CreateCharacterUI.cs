@@ -11,12 +11,13 @@ public class CreateCharacterUI : MonoBehaviour {
     private TextMesh text;
     private GameObject[] equips;
     private GameObject[] shoes;
-    private string[] strings = new string[] { "Shirt", "Pants", "Shoes", "Weapon" };
+    private string[] strings = new string[] { "Shirt", "Pants","Weapon", "Shoes" };
     public List<CreateCharacterButton> buttons = new List<CreateCharacterButton>();
     private GameObject[] skin;
     private GameObject[] eyes;
     private GameObject headTransform;
     public Login login;
+    public int slideTo = 0;
 	// Use this for initialization
 	void Start () {
         this.rectTransform = this.transform.GetChild(0).gameObject.GetComponent<RectTransform>();
@@ -26,7 +27,7 @@ public class CreateCharacterUI : MonoBehaviour {
         character.transform.GetChild(0).GetComponent<TextMesh>().text = "";
         this.text = this.character.transform.GetChild(0).gameObject.GetComponent<TextMesh>();
         Debug.Log("child name " + this.character.name);
-        equips = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "Shirt", "Pants", "Weapon");
+        equips = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "Shirt", "Pants","weaponStand");
         skin = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "BodyModel", "HeadModel");
         shoes = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "Shoe_L", "Shoe_R");
         eyes = Tools.getChildren(this.character.transform.GetChild(1).gameObject, "Eye_L_Model", "Eye_R_Model");
@@ -35,14 +36,17 @@ public class CreateCharacterUI : MonoBehaviour {
     public void addButton(CreateCharacterButton btn) {
         buttons.Add(btn);
     }
+    private bool isCloseTo(int point,float position, float area) {
+        return(position < point + area && position > point - area);
+    }
 	// Update is called once per frame
 	void Update () {
         if (shouldSlide) {
-            this.rectTransform.offsetMin = Vector2.Lerp(this.rectTransform.offsetMin, new Vector2(0, 0),3f * Time.deltaTime);
-            this.rectTransform.offsetMax = Vector2.Lerp(this.rectTransform.offsetMax, new Vector2(0, 0), 3f * Time.deltaTime);
-            if (this.rectTransform.offsetMin.x < 0.02f) {
-                this.rectTransform.offsetMin = new Vector2(0, 0);
-                this.rectTransform.offsetMax = new Vector2(0, 0);
+            this.rectTransform.offsetMin = Vector2.Lerp(this.rectTransform.offsetMin, new Vector2(slideTo, 0),3f * Time.deltaTime);
+            this.rectTransform.offsetMax = Vector2.Lerp(this.rectTransform.offsetMax, new Vector2(slideTo, 0), 3f * Time.deltaTime);
+            if (isCloseTo(slideTo, this.rectTransform.offsetMin.x, 0.02f)) {
+                this.rectTransform.offsetMin = new Vector2(slideTo, 0);
+                this.rectTransform.offsetMax = new Vector2(slideTo, 0);
                 shouldSlide = false;
             }
         }
@@ -58,7 +62,23 @@ public class CreateCharacterUI : MonoBehaviour {
         }
         return -1;
     }
+    public void equipWeapon(int itemID) {
+        int index = getIndex("Weapon");
+        if(equips[index].transform.childCount == 1)
+            Destroy(equips[index].transform.GetChild(0).gameObject);
+        GameObject weapon = (GameObject)Instantiate(ResourceStructure.getGameObjectFromPath(ItemDataProvider.getInstance().getStats(itemID).getString("pathToModel")));
+        weapon.transform.SetParent(equips[index].transform);
+        weapon.transform.localPosition = Vector3.zero;
+        weapon.transform.localScale = Vector3.one;
+        weapon.transform.localRotation = Quaternion.identity;
+
+    }
     public void equipItem(int itemID, string type) {
+
+        if (type == "Weapon") {
+            equipWeapon(itemID);
+            return;
+        }
         if (type == "Shoe") {
             for (int i = 0; i < shoes.Length; i++)
             {
@@ -113,5 +133,12 @@ public class CreateCharacterUI : MonoBehaviour {
     public void slideIn() {
         this.shouldSlide = true;
         this.loaded = true;
+        this.slideTo = 0;
+    }
+    public void slideOut()
+    {
+        this.shouldSlide = true;
+        this.loaded = true;
+        this.slideTo = 250;
     }
 }

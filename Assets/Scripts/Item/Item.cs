@@ -23,6 +23,7 @@ public class Item {
     private int quantity;
     private e_ItemTypes type;
 	private int money;
+    private string name;
 	public Item(int keyID, int position, int inventoryType, params int[] stats){
 		this.id = stats[0];
 		this.stats = stats;
@@ -49,10 +50,18 @@ public class Item {
         this.quantity = quantity;
 
     }
-	public Item(int id)
+    public void setID(int id) {
+        this.id = id;
+    }
+    public void setKeyID(int id)
+    {
+        this.keyID = keyID;
+    }
+    public Item(int id)
 	{
 		this.id = id;
-	}
+        this.name = ItemDataProvider.getInstance().getStats(id).getString("name");
+    }
     public void setQuantity(int amount) {
         this.quantity = amount;
     }
@@ -141,7 +150,7 @@ public class Item {
 
     }
     public string getName() {
-        return ItemDataProvider.getInstance().getStats(id).getString("name");
+        return name;
     }
     public Equip toEquip() {
         if (inventoryType == (int)inventoryTabs.EQUIP)

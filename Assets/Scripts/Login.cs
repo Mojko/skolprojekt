@@ -20,7 +20,7 @@ public class Login : NetworkBehaviour {
     private bool hasClicked = false;
     public GameObject world, loginWorld;
     public int[] skillProperties;
-
+    public loadCharacters packet;
 	void Update () {
 		if (Input.GetKey (KeyCode.N)) {
 			//Debug.Log(GetComponentInParent<Transform>().gameObject.name);
@@ -92,7 +92,9 @@ public class Login : NetworkBehaviour {
         for (int i = length; i < this.charSelect.transform.childCount; i++) {
             GameObject child = (GameObject)Instantiate(signModel, Vector3.zero, Quaternion.identity);
             child.transform.SetParent(this.charSelect.transform.GetChild(i));
-            child.transform.localPosition = Vector3.zero;
+            child.transform.localPosition = new Vector3(0,-3,0);
+            child.transform.localRotation = Quaternion.Euler(0, -108, 0);
+            child.transform.localScale = new Vector3(0.7f,0.7f,0.7f);
             this.charSelect.transform.GetChild(i).transform.localRotation = Quaternion.Euler(0, 135, 0);
             CreateCharacter charCreate = this.charSelect.transform.GetChild(i).GetChild(0).gameObject.AddComponent<CreateCharacter>();
             charCreate.setCamera(this.camera);
@@ -191,6 +193,7 @@ public class Login : NetworkBehaviour {
 
     public void loginPlayer(NetworkMessage msg) {
 		loadCharacters packet = msg.ReadMessage<loadCharacters>();
+        this.packet = packet;
         if (!packet.successfull) {
            	Debug.Log("not successfull: " + packet.notSuccessfullReason);
             client.Disconnect();

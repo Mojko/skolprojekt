@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using MySql.Data.MySqlClient;
 using System.IO;
+using UnityEngine.Networking;
 public class PlayerServer {
     public List<Item> items = new List<Item>();
     public List<Equip> equips = new List<Equip>();
+    public NetworkInstanceId netID;
     public int databaseID;
     public int connectionID;
     public int playerID;
@@ -23,14 +25,37 @@ public class PlayerServer {
     int[] stats = new int[5];
 
     int[] skills;
-    public PlayerServer( int databaseID, int connectionID) {
+    public PlayerServer( int databaseID, int connectionID, NetworkInstanceId netID) {
         info = new PlayerStats();
         this.databaseID = databaseID;
         this.connectionID = connectionID;
+        this.netID = netID;
         for (int i = 0; i < 9; i++) {
             equips.Add(null);
         }
 
+    }
+    public int getClosestSlot(int storeType)
+    {
+        bool isEmpty = true;
+        for (int i = 0; i < Inventory.MAX_INVENTORY_SIZE; i++)
+        {
+            isEmpty = true;
+            for (int j = 0; j < items.Count; j++)
+            {
+                if (items[j].getItem().getInventoryType() == storeType && items[j].getPosition() == i)
+                {
+                    isEmpty = false;
+                    break;
+                }
+            }
+            if (isEmpty)
+            {
+                Debug.Log("Emty::::::::: " + i);
+                return i;
+            }
+        }
+        return -1;
     }
     public PlayerStats getPlayerStats() {
         return info;
@@ -60,7 +85,22 @@ public class PlayerServer {
         }
         return false;
     }
-
+    public Item getItem(Item item) {
+        for (int i = 0; i < this.items.Count; i++)
+        {
+            if (this.items[i].compareTo(item))
+                return items[i];
+        }
+        return null;
+    }
+    public Item findItemWithKey(int key) {
+        for (int i = 0; i < this.items.Count; i++)
+        {
+            if (this.items[i].getKeyID() == key)
+                return items[i];
+        }
+        return null;
+    }
 	//This can only run ONCE
 	public void levelUp(){
 		this.level += 1;
@@ -143,9 +183,9 @@ public class PlayerServer {
     public void SetEquipsFromBytes(byte[] bytes) {
         this.equips = (List<Equip>)Tools.byteArrayToObject(bytes);
     }
-    public static PlayerServer GetDefaultCharacter(int connectionID)
+    public static PlayerServer GetDefaultCharacter(int connectionID, NetworkInstanceId netID)
     {
-        return new PlayerServer(-1, connectionID);
+        return new PlayerServer(-1, connectionID,  netID);
         
     }
 }

@@ -4,17 +4,19 @@ using UnityEngine;
 
 public class PacketTypes{
     //# PLAYER
-    public static readonly short CHARACTER_CREATE = 999;
-    public static readonly short DISCONNECT = 1000;
-    public static readonly short LOAD_PLAYER = 1001;
-    public static readonly short SAVE_PLAYER = 1002;
-    public static readonly short LOGIN = 1003;
-    public static readonly short NPC_INTERACT = 1004;
-    public static readonly short PICK_CHAR = 1005;
-	public static readonly short GIVE_EXP = 1006;
-	public static readonly short LEVEL_UP = 1007;
+    public static readonly short CHARACTER_CREATE = 99;
+    public static readonly short DISCONNECT = 100;
+    public static readonly short LOAD_PLAYER = 101;
+    public static readonly short SAVE_PLAYER = 102;
+    public static readonly short LOGIN = 103;
+    public static readonly short NPC_INTERACT = 104;
+    public static readonly short PICK_CHAR = 105;
+	public static readonly short GIVE_EXP = 106;
+	public static readonly short LEVEL_UP = 107;
+    public static readonly short PICKUP = 108;
+
     //# INVENTORY
-	public static readonly short SAVE_INVENTORY = 1006;
+    public static readonly short SAVE_INVENTORY = 1006;
 	public static readonly short LOAD_OTHER_PLAYER = 1007;
     public static readonly short INVENTORY_MOVE_ITEM = 1008;
     public static readonly short INVENTORY_DROP_ITEM = 1009;

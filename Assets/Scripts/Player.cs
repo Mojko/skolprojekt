@@ -96,11 +96,11 @@ public class Player : NetworkBehaviour
     {
         int index = 0;
         if (item.getID().isItemType(e_itemTypes.WEAPON)) index = 1; 
-        Debug.Log("item index: ");
         GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(item.getID()).getString("pathToModel")));
         itemEquip.transform.SetParent(origins[index].transform);
         itemEquip.transform.localScale = Vector3.one;
         itemEquip.transform.localPosition = Vector3.zero;
+        itemEquip.transform.localRotation = Quaternion.identity;
     }
     public static void setClothes(Item item, GameObject[] origins) {
         int index = 1;
@@ -120,16 +120,31 @@ public class Player : NetworkBehaviour
     }
     public void removeEquipModel(Item item) {
         int index = (item.getID() / Tools.ITEM_INTERVAL) - 2;
-        foreach (Transform child in getEquipSlot(index).transform.getAllChildren())
+        foreach (Transform child in getEquipSlot(item).transform.getAllChildren())
         {
             Destroy(child.gameObject);
         }
     }
-    public GameObject getEquipSlot(int index) {
-        return playerEquipSlots[index];
+    public GameObject getEquipSlot(Item item) {
+        if (item.getID().isItemType(e_itemTypes.HATS))
+            return playerEquipSlots[0];
+        if (item.getID().isItemType(e_itemTypes.WEAPON))
+            return playerEquipSlots[1];
+        return null;
     }
-    public GameObject getSkinSlot(int index) {
-        return skinEquips[index];
+    private int getSkinSlotIndex(Item item) {
+        if (item.getID().isItemType(e_itemTypes.BODY))
+            return 0;
+        if (item.getID().isItemType(e_itemTypes.PANTS))
+            return 1;
+
+        return -1;
+    }
+    public GameObject getSkinSlot(Item item) {
+        return skinEquips[getSkinSlotIndex(item)];
+    }
+    public void updateSkinSlot(Item item, GameObject slot) {
+        skinEquips[getSkinSlotIndex(item)] = slot;
     }
 	public void giveExp(int exp){
 		this.exp += exp;
@@ -364,7 +379,6 @@ public class Player : NetworkBehaviour
     }
     public void updateStats(PlayerStats stats) {
         this.stats = stats;
-        Debug.Log(stats.health + " : " + stats.maxHealth + " || " + stats.health + " : " + stats.maxHealth + " - INFO2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
         this.UIPlayer.updateInfo();
     }
     public void Update() {

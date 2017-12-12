@@ -117,6 +117,7 @@ public class PlayerInfo : MessageBase
 	public byte[] items;
 	public byte[] equipment;
     public byte[] color;
+    public byte[] otherPlayers;
 }
 
 public class LoginPacket : MessageBase

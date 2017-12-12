@@ -137,29 +137,33 @@ public class MobManager : NetworkBehaviour {
 		}
 		return null;
 	}
-
-    void spawnDrop(string nameOfDrop, Vector3 position)
+    bool isUnder(float chance) {
+     return (Random.Range(0, 100) <= chance*100);
+    }
+    void spawnDrop(Monster monster, Vector3 position)
     {
-        GameObject prefab = (GameObject)Resources.Load("Prefabs/Drops/"+"D_"+nameOfDrop);
-        GameObject o = Instantiate(prefab);
-        Drop drop = o.GetComponent<Drop>();
-
-		Monster monster = lookupMonster(getId());
-		int randomIndex = Random.Range(0,monster.dropIds.Length);
-		int itemId = monster.dropIds[randomIndex];
-		int itemQuantity = monster.dropQuantity[randomIndex];
-
-		Item item = new Item(itemId);
-		item.setQuantity(itemQuantity);
-		Debug.Log("ITEM_ID: " + item.getID() + " | QUANITY: " + item.getQuantity());
-		drop.initilize(item, this.targetNetwork);
-
-        o.transform.position = position;
-        NetworkServer.Spawn(o);
-		DropInfo dropInfo = new DropInfo();
-		dropInfo.netId = o.GetComponent<NetworkIdentity>().netId;
-		dropInfo.item = Tools.objectToByteArray(drop.getItem());
-		NetworkServer.SendToClient(this.targetNetwork.connectionID, PacketTypes.DROP_INIT, dropInfo);
+        for (int i = 0; i < monster.dropIds.Length; i++)
+        {
+            if (!isUnder(monster.dropChance[i])) continue;
+            int itemID = monster.dropIds[i];
+            Debug.Log("item ID here!: " + itemID + " : " + i);
+            GameObject prefab;      
+            prefab = (GameObject)Instantiate(ResourceStructure.getGameObjectFromPath(ItemDataProvider.getInstance().getStats(itemID).getString("pathToDropModel")));
+            //Drop drop = prefab.AddComponent<Drop>();
+            NetworkIdentity identity = prefab.GetComponent<NetworkIdentity>();
+            int itemQuantity = monster.dropQuantity[i];
+            Item item = new Item(itemID);
+            item.setQuantity(itemQuantity);
+            Drop drop = prefab.GetComponent<Drop>();
+            drop.initilize(item);
+            //drop.initilize(item, this.targetNetwork);
+            prefab.transform.position = position;
+            NetworkServer.Spawn(prefab);
+            ItemInfo packet = new ItemInfo();
+            packet.item = Tools.objectToByteArray(item);
+            packet.netId = identity.netId;
+            NetworkServer.SendToAll(PacketTypes.DROP_INIT, packet);
+        }
     }
 
 	public void kill(){
@@ -174,11 +178,7 @@ public class MobManager : NetworkBehaviour {
 			Server.giveExpToPlayer(m.exp, this.targetNetwork);
 			Debug.Log("EXP GIVEN: " + m.exp);
 		}
-
-        for(int i=0;i<4;i++){
-            //spawnDrop("Coin_gold", pos);
-        }
-
+        spawnDrop(m, pos);
 		List<Quest> questsToSend = new List<Quest>();
 
 		bool shouldUpdate = true;
@@ -262,6 +262,7 @@ public class Monster
 	public int id;
 	public string name;
 	public int[] stats;
+    public float[] dropChance;
 	public int level;
 	public string pathToModel;
 	public int[] dropIds;

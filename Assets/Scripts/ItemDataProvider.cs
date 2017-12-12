@@ -34,12 +34,14 @@ public class ItemDataProvider {
 public class ItemDataProviderFactory{
     //kollar om directory är en fil och om den är så skapar den en ny Data med det directoryn.
     public static ItemData getItemProvider(ItemDirectory directory) {
-        Debug.Log("is it directory?: " + directory.isItemDirectory());
         if (directory.isItemDirectory())
         {
             return new ItemData(directory);
         }
         return null;
+    }
+    public static MobData getMobProvider() {
+        return new MobData();
     }
 }
 
@@ -116,13 +118,13 @@ public class ItemData{
         }
         reader.Close();
         ItemDataAll ItemDataAll = itemDataConverter(itemID, fileContents);
+        //Debug.Log("ITEM ID!!!: " + itemID);
         ItemVariables variables = ItemDataAll.generateVariables();
         itemValues.Add(itemID, variables);
         Debug.Log("dictionary size: " + itemValues.Count);
         return variables;
     }
     public ItemVariables getMobStats(int mobID) {
-        Debug.Log("GETTINGS STATAS!!!!!!!!!!!");
         if (itemValues.ContainsKey(mobID))
         {
             return itemValues[mobID];
@@ -139,7 +141,6 @@ public class ItemData{
         ItemDataAll ItemDataAll = mobDataConverter(mobID, fileContents);
         ItemVariables variables = ItemDataAll.generateVariables();
         itemValues.Add(mobID, variables);
-        Debug.Log("dictionary size: " + itemValues.Count);
         return variables;
     }
     private ItemDataAll mobDataConverter(int itemID, string file) {
@@ -155,18 +156,18 @@ public class ItemData{
             data = (ItemDataPots)getItemFromParent(data,itemID);
             return data;
         }
-        if (itemID.isItemType(e_itemTypes.EQUIP))
+        else if (itemID.isItemType(e_itemTypes.EQUIP))
         {
             ItemDataEquips data = JsonUtility.FromJson<ItemDataEquips>(file);
             data.parentItems = data.items;
             data = (ItemDataEquips)getItemFromParent(data, itemID);
             return data;
         }
-		if (itemID.isItemType(e_itemTypes.COIN))
+		else if (itemID.isItemType(e_itemTypes.COIN))
 		{
 			ItemDataEtc data = JsonUtility.FromJson<ItemDataEtc>(file);
-			data.parentItems = data.parentItems;
-			data = (ItemDataEtc)getItemFromParent(data, itemID);
+			data.parentItems = data.items;
+            data = (ItemDataEtc)getItemFromParent(data, itemID);
 			return data;
 		}
         return null;
@@ -280,6 +281,7 @@ public class ItemDataPots : ItemDataAll
     public int imageIndex;
     public string description;
     public string[] show;
+    public string pathToDropModel;
 }
 
 [Serializable]
@@ -294,6 +296,7 @@ public class ItemDataEquips : ItemDataAll
     public int imageIndex;
     public string description;
     public string pathToModel;
+    public string pathToDropModel;
 }
 
 [Serializable]
@@ -306,6 +309,7 @@ public class ItemDataScrolls : ItemDataAll
     public int imageIndex;
     public string description;
     public string[] show;
+    public string pathToDropModel;
 }
 [Serializable]
 public class ItemDataEtc : ItemDataAll
@@ -317,4 +321,6 @@ public class ItemDataEtc : ItemDataAll
     public int imageIndex;
     public string description;
     public string[] show;
+    public string pathToModel;
+    public string pathToDropModel;
 }

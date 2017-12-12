@@ -14,7 +14,6 @@ public class Chat : UIHandler {
         base.initUI();
         //this.text = Tools.getChild(this.gameObject,"TextBox").GetComponent<Text>();
         this.field = Tools.getChild(this.gameObject, "InputChat").GetComponent<InputField>();
-        Debug.Log(this.text.text);
 	}
     public void setPlayer(Player player) {
         this.player = player;

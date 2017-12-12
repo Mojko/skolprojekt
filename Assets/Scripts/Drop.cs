@@ -18,9 +18,8 @@ public class Drop : NetworkBehaviour {
     Renderer renderer = null;
 
     private string nameOfDrop;
-	public void initilize(Item item, PlayerServer playerServer){
+	public void initilize(Item item){
 		this.name = item.getName();
-		this.playerServer = playerServer;
 		this.item = item;
 		Debug.Log("initilized drop: " + item.getID() + " | Server: " + isServer + " | Client: " + isClient);
 	}
@@ -50,23 +49,26 @@ public class Drop : NetworkBehaviour {
 
     void Update()
     {
+        /*
 		if(!isServer) return;
 		RpcPositionToClients(this.transform.position);
         if(move){
             dirX = Mathf.Lerp(dirX, 0, 0.25f * Time.deltaTime);
             //dirX -= 0.9f * Time.deltaTime;
             dirY -= 5f * Time.deltaTime;
-            this.transform.position += (transform.up * 4 * Time.deltaTime) * -dirY;
+            this.transform.position += new Vector3(0, 4 * Time.deltaTime * dirY,0);
             this.transform.position += (randomDir * dirX * Time.deltaTime);
         }
         RaycastHit hit;
-        if(Physics.Raycast(this.transform.position, Vector3.down ,out hit, 1) && dirY <= 0){
+        Debug.DrawRay(this.transform.position, Vector3.down * 5, Color.blue);
+        if(Physics.Raycast(this.transform.position, Vector3.down ,out hit, 5)){
             if(hit.transform.CompareTag("Ground")){
+                Debug.Log(this.transform.name);
                 move = false;
 				RpcActivateFloatingEffect();
             }
         }
-
+        */
 		//this.connectGameObject.updateServerAndClients(netIdentity.netId, this.transform.position, this.transform.rotation);
     }
 
@@ -85,8 +87,9 @@ public class Drop : NetworkBehaviour {
 			if(isClient){
 				//this.player.canPickup(this.gameObject);
 				if(Input.GetKey(KeyCode.B) && !isPickedUp){
+                    Debug.Log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!: " + this.item);
 					Player p = col.GetComponent<Player>();
-					p.getNetwork().sendItem(this.item);
+					p.getNetwork().sendItem(PacketTypes.PICKUP,this.item);
 					isPickedUp = true;
 					p.CmdDestroyObject(this.netIdentity);
 					//p.getNetwork().destroyGameObject(this.GetComponent<NetworkIdentity>().netId);

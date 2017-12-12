@@ -17,7 +17,7 @@ public class EquipmentHandler : UIHandler {
         {
             if (slotsMouse[i].isMouseOver() && Input.GetMouseButtonDown(0) && equips[i] != null)
             {
-                Debug.Log("hovering equip slot: " + i);
+                Debug.Log(i + " just got clicked!");
                 onClick(i, equips[i]);
             }
         }
@@ -35,15 +35,16 @@ public class EquipmentHandler : UIHandler {
         }
         return null;
     }
-    public void setEquip(int type, Equip equip) {
+    public void equipItem(Equip equip) {
+        if (equip.getID().isItemType(e_itemTypes.HATS) || equip.getID().isItemType(e_itemTypes.WEAPON))
+            setEquip(equip);
+        else
+            setEquipCloth(equip);
+    }
+    public void setEquip(Equip equip) {
         int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
         Equip item;
-        if (equip.getID().isItemType(e_itemTypes.HATS) || equip.getID().isItemType(e_itemTypes.WEAPON))
-        {
-            setEquipCloth(equip);
-            return;
-        }
-        foreach (Transform child in player.getEquipSlot(index).transform.getAllChildren())
+        foreach (Transform child in player.getEquipSlot(equip).transform.getAllChildren())
         {
             Destroy(child.gameObject);
         }
@@ -54,19 +55,29 @@ public class EquipmentHandler : UIHandler {
 
         equips[index] = equip;
         GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(equip.getID()).getString("pathToModel")));
-        itemEquip.transform.SetParent(player.getEquipSlot(index).transform);
+        itemEquip.transform.SetParent(player.getEquipSlot(equip).transform);
         itemEquip.transform.localScale = Vector3.one;
         itemEquip.transform.localPosition = Vector3.zero;
+        itemEquip.transform.localRotation = Quaternion.identity;
         player.getNetwork().equipItem(equip);
         updateSlots();
     }
     public void setEquipCloth(Equip equip) {
-        int index = ((equip.getID() / Tools.ITEM_INTERVAL) * -1 + 1);
+        int index = (equip.getID() / Tools.ITEM_INTERVAL) - 2;
+        Equip item;
         //equips[index];
         GameObject itemEquip = Instantiate(Resources.Load<GameObject>(ItemDataProvider.getInstance().getStats(equip.getID()).getString("pathToModel")));
-        itemEquip.transform.SetParent(player.getEquipSlot(index).transform);
-        itemEquip.transform.localScale = Vector3.one;
-        itemEquip.transform.localPosition = Vector3.zero;
+        GameObject slot = player.getSkinSlot(equip);
+        slot.GetComponent<SkinnedMeshRenderer>().sharedMesh = itemEquip.GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        slot.GetComponent<SkinnedMeshRenderer>().sharedMaterial = itemEquip.GetComponent<SkinnedMeshRenderer>().sharedMaterial;
+        player.updateSkinSlot(equip, slot);
+        Destroy(itemEquip);
+        if ((item = equips[index]) != null)
+        {
+            item.setPosition(equip.getPosition());
+            player.getInventory().addItem(item);
+        }
+        equips[index] = equip;
         player.getNetwork().equipItem(equip);
         updateSlots();
     }
@@ -81,25 +92,40 @@ public class EquipmentHandler : UIHandler {
         hasLoaded = true;
     }
     public void onClick(int pos, Equip equip) {
-        Debug.Log("EQUIP CLICKED");
         Inventory inventory = player.getInventory();
         int closestFree = inventory.getClosestSlot((int)inventoryTabs.EQUIP);
         equip.setPosition(closestFree);
-        Debug.Log("slot: " + closestFree);
         inventory.addItem(equip);
-        clearSlot(pos);
+        clearSlot(pos, equip);
         this.equips[pos] = null;
         updateSlots();
         this.player.getNetwork().unEquipItem(equip);
     }
-    private void clearSlot(int slot) {
+    private void clearEquipSlot(Item item)
+    {
+
+        GameObject equipSlot = player.getEquipSlot(item);
+        foreach (Transform child in equipSlot.transform.getAllChildren())
+        {
+            Destroy(child.gameObject);
+        }
+    }
+    private void clearClothesSlot(Item item) {
+        GameObject itemEquip = Instantiate(Resources.Load<GameObject>(Tools.getBasicModelPath(item)));
+        GameObject slot = player.getSkinSlot(item);
+        slot.GetComponent<SkinnedMeshRenderer>().sharedMesh = itemEquip.GetComponent<SkinnedMeshRenderer>().sharedMesh;
+        slot.GetComponent<SkinnedMeshRenderer>().sharedMaterial = itemEquip.GetComponent<SkinnedMeshRenderer>().sharedMaterial;
+        player.updateSkinSlot(item, slot);
+        Destroy(itemEquip);
+    }
+    private void clearSlot(int slot, Item item) {
         Image image = slots[slot].transform.GetChild(0).GetComponent<Image>();
         image.sprite = null;
         image.color = new Color(0, 0, 0, 0);
-		GameObject equipSlot = player.getEquipSlot(slot);
-		foreach (Transform child in equipSlot.transform.getAllChildren()) {
-			Destroy(child.gameObject);
-		}
+        if (item.getID().isItemType(e_itemTypes.HATS) || item.getID().isItemType(e_itemTypes.WEAPON))
+            clearEquipSlot(item);
+        else
+            clearClothesSlot(item);
     }
     public void updateSlots() {
         int countSize = 0;
@@ -108,10 +134,10 @@ public class EquipmentHandler : UIHandler {
         for (int i = 0; i < equips.Count; i++) {
             if (equips[i] == null) continue;
             equip = equips[i];
-            Debug.Log("equip id position: " + ((equip.getID() / 500) - 2));
             Image image = slots[(equip.getID() / Tools.ITEM_INTERVAL) - 2].transform.GetChild(0).GetComponent<Image>();
             image.sprite = (Sprite)equip.getID().getSprite();
             image.color = Color.white;
+            image.preserveAspect = true;
         }
     }
     public void clear() {

@@ -20,6 +20,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4586211107689650}
   - component: {fileID: 137928703418080440}
+  - component: {fileID: 114756027454220296}
+  - component: {fileID: 33134937461027616}
   m_Layer: 0
   m_Name: White_Pants
   m_TagString: Untagged
@@ -40,6 +42,45 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &33134937461027616
+MeshFilter:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1220682297604214}
+  m_Mesh: {fileID: 4300004, guid: 073430c612c0d64489ad6c3e423cb94b, type: 3}
+--- !u!114 &114756027454220296
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1220682297604214}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 13
+    i1: 197
+    i2: 201
+    i3: 97
+    i4: 174
+    i5: 233
+    i6: 149
+    i7: 212
+    i8: 249
+    i9: 76
+    i10: 177
+    i11: 181
+    i12: 42
+    i13: 235
+    i14: 215
+    i15: 64
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0
 --- !u!137 &137928703418080440
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
@@ -95,7 +136,7 @@ SkinnedMeshRenderer:
   - {fileID: 0}
   - {fileID: 0}
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 0}
+  m_RootBone: {fileID: 4666600396779528, guid: fdf04f14e76f75745a6273e96e73097b, type: 2}
   m_AABB:
     m_Center: {x: 0.00041365856, y: -0.018328048, z: -0.0035461646}
     m_Extent: {x: 0.011988765, y: 0.0096790455, z: 0.0061745094}

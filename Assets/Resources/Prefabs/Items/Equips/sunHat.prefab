@@ -36,6 +36,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4609361197073366}
+  - component: {fileID: 114152542154346304}
   m_Layer: 0
   m_Name: sunHat
   m_TagString: Untagged
@@ -109,3 +110,35 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1013612973803826}
   m_Mesh: {fileID: 4300000, guid: b03035035ba86fc46b6646c76a13342d, type: 3}
+--- !u!114 &114152542154346304
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1899403939462986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 372142912, guid: dc443db3e92b4983b9738c1131f555cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SceneId:
+    m_Value: 0
+  m_AssetId:
+    i0: 191
+    i1: 106
+    i2: 215
+    i3: 117
+    i4: 151
+    i5: 229
+    i6: 159
+    i7: 196
+    i8: 75
+    i9: 215
+    i10: 111
+    i11: 4
+    i12: 36
+    i13: 183
+    i14: 75
+    i15: 191
+  m_ServerOnly: 0
+  m_LocalPlayerAuthority: 0

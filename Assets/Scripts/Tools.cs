@@ -13,7 +13,7 @@ public enum ErrorID
 };
 public enum e_itemTypes
 {
-   EQUIP=-1, USE = 500, ETC = 1000, HATS = 1500, ACCESSORY = 2000, FACE = 2500, WEAPON = 3000, SHIELD = 3500, BODY = 4000, GLOVE = 4500, PANTS = 5000, BOOTS = 5500, NPC = 6000, QUESTS = 6500, MOBS, COIN = 9500
+   EQUIP=-1, USE = 500, ETC = 1000, HATS = 1500, ACCESSORY = 2000, FACE = 2500, WEAPON = 3000, SHIELD = 3500, BODY = 4000, GLOVE = 4500, PANTS = 5000, BOOTS = 5500, NPC = 6000, QUESTS = 6500, MOBS, COIN = 10000
 };
 public enum EquipSlot {
     HAT, ACCESSORY, FACE, WEAPON, SHIELD, TOP, GLOVES, PANTS, BOOTS
@@ -75,7 +75,7 @@ public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
-	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
+	public static UnityEngine.Object[] sprites = Resources.LoadAll("itemSprites");
 
 	public static bool classExists<T>(T obj){
 		if(obj != null){
@@ -137,6 +137,14 @@ public static class Tools
 		object obj = (object)bf.Deserialize (memStream);
 		return obj;
 	}
+    public static string getBasicModelPath(Item item) {
+        if (item.getID().isItemType(e_itemTypes.BODY))
+            return "Prefabs/Items/Equips/Blue_Shirt";
+        if (item.getID().isItemType(e_itemTypes.PANTS))
+            return "Prefabs/Items/Equips/Jeans";
+
+        return "null";
+    }
 	public static object[] byteArrayToObjectArray(byte[] byteArray){
 		MemoryStream memStream = new MemoryStream ();
 		BinaryFormatter bf = new BinaryFormatter ();

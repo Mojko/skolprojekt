@@ -23,24 +23,32 @@ public class CreateCharacterButton : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        buttons = this.transform.parent.getAllChildren().getComponent<CreateCharacterButton>();
-        Debug.Log("children lengfth: " + buttons.Length);
-        btn = this.gameObject.GetComponent<Image>();
         if (isItem)
         {
-            this.btn.sprite = ItemDataProvider.getInstance().getStats(itemID).getInt("imageIndex").getSprite();
+            buttons = this.transform.parent.getAllChildren().getComponent<CreateCharacterButton>();
+            btn = this.gameObject.GetComponent<Image>();
+            Debug.Log("itemID: " + itemID);
+            this.btn.sprite = itemID.getSprite();
+            this.btn.preserveAspect = true;
+            this.characterUI.addButton(this);
         }
-        else
+        else if(isColor)
         {
+            buttons = this.transform.parent.getAllChildren().getComponent<CreateCharacterButton>();
+            btn = this.gameObject.GetComponent<Image>();
             this.btn.color = color;
+            this.characterUI.addButton(this);
         }
-        this.characterUI.addButton(this);
     }
 
     // Update is called once per frame
     void Update()
     {
 
+    }
+    public void onGoBack() {
+        characterUI.getLogin().camera.panTo(new Vector3(12, 1.5f, 33f), Quaternion.Euler(0, -50, 0), 2f, 3f);
+        characterUI.slideOut();
     }
     public void onClick()
     {

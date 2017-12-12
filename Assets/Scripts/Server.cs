@@ -39,7 +39,15 @@ public class Server : NetworkManager
     public string database, username, password, host;
 	private QuestManager questManager;
     string connectionString;
-
+    new void Start()
+    {
+        UnityEngine.Object[] registeredPrefabs = Resources.LoadAll("Prefabs/Drops/");
+        GameObject obj;
+        for (int i = 0; i < registeredPrefabs.Length; i++) {
+            obj = (GameObject)registeredPrefabs[i];
+            this.spawnPrefabs.Add(obj);
+        }
+    }
     public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
     {
         addPlayer(conn, playerControllerId);
@@ -97,7 +105,7 @@ public class Server : NetworkManager
         NetworkServer.RegisterHandler(PacketTypes.SAVE_INVENTORY, onSaveInventory);
         NetworkServer.RegisterHandler(PacketTypes.INVENTORY_MOVE_ITEM, onChangeItem);
         NetworkServer.RegisterHandler(PacketTypes.INVENTORY_DROP_ITEM, onDropItem);
-        NetworkServer.RegisterHandler(PacketTypes.INVENTORY_PICKUP_ITEM, onPickupItem);
+        NetworkServer.RegisterHandler(PacketTypes.PICKUP, onPickupItem);
         NetworkServer.RegisterHandler(PacketTypes.SEND_MESSAGE, onReciveMessage);
         NetworkServer.RegisterHandler(PacketTypes.NPC_INTERACT, onNPCInteract);
         NetworkServer.RegisterHandler(PacketTypes.PICK_CHAR, onCharPicked);
@@ -587,13 +595,13 @@ public class Server : NetworkManager
     }
     void onLoadCharacter(NetworkMessage msg)
     {
-		Debug.Log("Trying to load charccter");
         PlayerInfo packet = msg.ReadMessage<PlayerInfo>();
+        Debug.Log("Trying to load charccter : " + packet.id);
         int id = getCharacterID(packet.characterName);
         //PlayerServer player = getPlayerObject(msg.conn.connectionId);
-        PlayerServer player = PlayerServer.GetDefaultCharacter(msg.conn.connectionId);
+        PlayerServer player = PlayerServer.GetDefaultCharacter(msg.conn.connectionId, packet.id);
         int characterID = getCharacterID(packet.characterName);
-        PlayerServer playerReal = new PlayerServer(id, msg.conn.connectionId);
+        PlayerServer playerReal = new PlayerServer(id, msg.conn.connectionId, packet.id);
         playerReal.setPlayerID(characterID);
 
         connections.Add(msg.conn.connectionId, packet.name);
@@ -666,18 +674,36 @@ public class Server : NetworkManager
         Debug.Log("color: " + color.Count + " : " + color[1] + " : " + color[2]);
         oInfo.equipment = packet.equipment;
         packet.color = Tools.objectToByteArray(color);
+        PlayerNetworkObject[] objs = getAllPlayerInformation();
+        packet.otherPlayers = Tools.objectToByteArray(objs);
         oInfo.color = packet.color;
         oInfo.id = packet.id;
-
 		NetworkServer.SendToAll(PacketTypes.LOAD_OTHER_PLAYER, oInfo);
 
         packet.questClasses = Tools.objectArrayToByteArray(playerReal.questList.ToArray());
-
         NetworkServer.SendToClient(msg.conn.connectionId, PacketTypes.LOAD_PLAYER, packet);
 		Debug.Log("loaded character on server, sending to client");
         conn.Close();
 		reader.Close();
 
+    }
+    private PlayerNetworkObject[] getAllPlayerInformation() {
+        PlayerNetworkObject[] equipments = new PlayerNetworkObject[playerObjects.Count];
+        int i = 0;
+        PlayerServer player;
+        foreach (KeyValuePair<int, PlayerServer> entry in playerObjects)
+        {
+            player = entry.Value;
+            List<Equip> equips = player.getEquips();
+            List<int> item = new List<int>();
+            for (int x = 0; x < equips.Count; x++) {
+                if (equips[x] == null) { item.Add(-1); continue; }
+                item.Add(equips[x].getID());
+            }
+            equipments[i] = new PlayerNetworkObject(player.netID, item,new string[] { player.getPlayerStats().hairColor, player.getPlayerStats().skinColor, player.getPlayerStats().eyeColor}, player.playerName);
+            i++;
+        }
+        return equipments;
     }
     void onReciveMessage(NetworkMessage msg)
     {
@@ -719,7 +745,7 @@ public class Server : NetworkManager
         MySqlDataReader reader;
         mysqlReader(out conn, out reader, "SELECT * FROM inventory LEFT JOIN inventoryEquipment ON inventory.id = inventoryEquipment.inventoryID WHERE characterID = '" + characterID + "'");
         while (reader.Read())
-        {
+        {   
             int invType = reader.GetInt32("inventoryType");
             if (invType == (int)inventoryTabs.EQUIP)
             {
@@ -838,35 +864,54 @@ public class Server : NetworkManager
     {
 		MySqlConnection conn = null;
 		MySqlDataReader reader;
-
         //moveItem moveItem = netMsg.ReadMessage<moveItem>();
 		ItemInfo itemInfo = netMsg.ReadMessage<ItemInfo>();
 		Item item = (Item)Tools.byteArrayToObject(itemInfo.item);
-        PlayerServer player = playerObjects[netMsg.conn.connectionId];
+        Debug.Log("PICKUP!!!!!!!!!!!!!: " + item.isMoney() + " : " + item.getID().isItemType(e_itemTypes.EQUIP));
+        PlayerServer player = getPlayerObject(netMsg.conn.connectionId);
         int playerID = player.getPlayerID();
-		if(item.isMoney()) {
-			mysqlNonQuerySelector(out conn, "UPDATE characters SET money = '"+item.getQuantity()+"' WHERE id = '"+playerID+"'");
-			NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.INVENTORY_PICKUP_ITEM, itemInfo);
-			Debug.Log("MONEY ADDED!!! " + item.getQuantity());
-			conn.Close();
-			return;
-		}
-        int[] stats = item.getStats();
-		/*
-        if (item.getInventoryType() == (int)e_ItemTypes.EQUIP)
+        if (item.isMoney())
         {
-            mysqlNonQuerySelector(out conn, "INSERT INTO inventory (playerID, itemID, inventoryType, quantity, position) VALUES ('" + player.getPlayerID() + "','" + item.getID() + "','" + item.getInventoryType() + "','" + item.getQuantity() + "','" + item.getPosition() + "')");
+            mysqlNonQuerySelector(out conn, "UPDATE characters SET money = '" + item.getQuantity() + "' WHERE id = '" + playerID + "'");
+            NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.INVENTORY_PICKUP_ITEM, itemInfo);
+            Debug.Log("MONEY ADDED!!! " + item.getQuantity());
+            conn.Close();
+            return;
+        }
+        int closest = player.getClosestSlot(item.getInventoryType());
+        int id = 0;
+        if (item.getID().isItemType(e_itemTypes.EQUIP))
+        {
+            Debug.Log("itemid: " + item.getID());
+            ItemVariables stats = ItemDataProvider.getInstance().getStats(item.getID());
+            item.setItemVariables(stats);
+            Debug.Log("closest: " + closest);
+            mysqlNonQuerySelector(out conn, "INSERT INTO inventory (characterID, itemID, inventoryType, quantity, position) VALUES ('" + player.getPlayerID() + "','" + item.getID() + "','" + item.getInventoryType() + "','" + item.getQuantity() + "','" + closest + "')");
             //int itemID =
-            mysqlReader(out conn, out reader, "SELECT id FROM inventory WHERE position = '" + item.getPosition() + "' AND inventoryType = '" + item.getInventoryType() + "'");
-            int id = 0;
+            mysqlReader(out conn, out reader, "SELECT id FROM inventory WHERE position = '" + closest + "' AND inventoryType = '" + item.getInventoryType() + "'");
+            id = 0;
             while (reader.Read()) {
                 id = reader.GetInt32("id");
             }
-            mysqlNonQuerySelector(out conn, "INSERT INTO inventoryequipment (inventoryID, Watt, Matt, Luk) VALUES ('" + id + "','" + stats[1] + "','" + stats[2] + "','" + stats[3] + "')");
+            mysqlNonQuerySelector(out conn, "INSERT INTO inventoryequipment (inventoryID, Watt, Matt, luk, str, dex, intell) VALUES ('" + id + "','" + stats.getInt("Watt") + "','" + stats.getInt("Matt") + "','" + stats.getInt("luk") + "','" + stats.getInt("str") + "','" + stats.getInt("dex") + "','" + stats.getInt("Int") + "')");
         }
         else {
-            mysqlNonQuerySelector(out conn, "INSERT INTO inventory (playerID, itemID, inventoryType, quantity, position) VALUES ('" + player.getPlayerID() + "','" + item.getID() + "','" + item.getInventoryType() + "','" + item.getQuantity() + "','" + item.getPosition() + "')");
-        }*/
+            mysqlNonQuerySelector(out conn, "INSERT INTO inventory (playerID, itemID, inventoryType, quantity, position) VALUES ('" + player.getPlayerID() + "','" + item.getID() + "','" + item.getInventoryType() + "','" + item.getQuantity() + "','" + closest + "')");
+        }
+        item.setPosition(closest);
+        if (item.getID().isItemType(e_itemTypes.EQUIP)) {
+            Item temp;
+            temp = new Equip(id, item.getPosition(), item.getInventoryType(), item.stats);
+            temp.setPosition(closest);
+            temp.setItemVariables(item.getVariables());
+            temp.stats = item.stats;
+            temp.setID(item.getID());
+            temp.setKeyID(id);
+            item = temp;
+        }
+        player.items.Add(item);
+        itemInfo.item = Tools.objectToByteArray(item);
+        NetworkServer.SendToClient(netMsg.conn.connectionId,PacketTypes.PICKUP, itemInfo);
     }
     public void onChangeItem(NetworkMessage netMsg)
     {
@@ -876,16 +921,21 @@ public class Server : NetworkManager
         Item item1 = (Item)Tools.byteArrayToObject(item.item1);
         Item item2 = (Item)Tools.byteArrayToObject(item.item2);
         Debug.Log("player connection: " + player.connectionID + " : " + netMsg.conn.connectionId);
+
         if ((!player.hasItem(item1) || !player.hasItem(item2)) && item2.getID() != -1) {
             Debug.Log(player.hasItem(item1) + " | " + player.hasItem(item2));
             sendError(player,ErrorID.INVALID_ITEM, true, "Item doesnt match database");
         }
         Debug.Log(item1.getKeyID() + " : " + item1.getPosition() + " | " + item2.getKeyID() + " : " + item2.getPosition());
-        //ServerDebug("hello from server");
+
         mysqlNonQuerySelector(out conn, "UPDATE inventory SET position = '" + item1.getPosition() + "' WHERE id = '" + item1.getKeyID() + "'");
+        player.items[player.items.IndexOf(player.findItemWithKey(item1.getKeyID()))].setPosition(item1.getPosition());
 		conn.Close();
         if (item2.getID() != -1)
+        {
             mysqlNonQuerySelector(out conn, "UPDATE inventory SET position = '" + item2.getPosition() + "' WHERE id = '" + item2.getKeyID() + "'");
+            player.items[player.items.IndexOf(player.findItemWithKey(item2.getKeyID()))].setPosition(item2.getPosition());
+        }
         conn.Close();
     }
 
@@ -1137,4 +1187,17 @@ public class QuestStatusMobData
     public int questID;
     public int mobID;
     public int count;
+}
+[Serializable]
+public class PlayerNetworkObject {
+    public NetworkInstanceId netID;
+    public List<int> equipsID;
+    public string[] colors;
+    public string name;
+    public PlayerNetworkObject(NetworkInstanceId netID, List<int> equipsID, string[] colors, string name) {
+        this.netID = netID;
+        this.colors = colors;
+        this.equipsID = equipsID;
+        this.name = name;
+    }
 }
