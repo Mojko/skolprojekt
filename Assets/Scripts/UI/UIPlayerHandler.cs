@@ -33,13 +33,13 @@ public class UIPlayerHandler : MonoBehaviour {
     }
     public void onExpChange()
     {
-        expBar.offsetMax = new Vector2(-150 * (((float)player.stats.expRequiredForNextLevel - (float)player.stats.exp) / (float)player.stats.expRequiredForNextLevel), 0);
+		new Vector2(-380 * (((float)player.stats.expRequiredForNextLevel - (float)player.stats.exp) / (float)player.stats.expRequiredForNextLevel), 0);
         this.expBarText[0].text = player.stats.exp + " / " + player.stats.expRequiredForNextLevel;
         this.expBarText[1].text = player.stats.exp + " / " + player.stats.expRequiredForNextLevel;
     }
     public void onLevelChange()
     {
-        this.levelUI.text = "Level " + player.stats.level;
+        this.levelUI.text = " Level \n" + player.stats.level;
     }
     public void onHealthChange() {
         healthBar.offsetMax = new Vector2(-150 * (((float)player.stats.maxHealth - (float)player.stats.health) / (float)player.stats.maxHealth), 0);
@@ -52,4 +52,14 @@ public class UIPlayerHandler : MonoBehaviour {
         manaBarText[0].text = player.stats.mana + "/" + player.stats.maxMana;
         manaBarText[0].text = player.stats.mana + "/" + player.stats.maxMana;
     }
+	public void spawnActionText(Vector3 startPosition, string text, Color color, int speed){
+		GameObject o = Instantiate(ResourceStructure.getGameObjectFromObject(e_Objects.SYSTEM_ACTION_TEXT));
+		o.transform.position = startPosition;
+		o.transform.SetParent(GameObject.Find("WorldSpaceCanvas").transform);
+		Text t = o.GetComponent<Text>();
+		t.text = text;
+		t.color = color;
+		o.GetComponent<TextFade>().speed = speed;
+	}
+
 }

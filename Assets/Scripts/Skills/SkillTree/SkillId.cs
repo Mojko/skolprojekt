@@ -11,9 +11,11 @@ public class SkillId : MonoBehaviour {
 	public Skill skill;
     public Text pointsText;
 	public MouseOverUI mouse;
+	public float damageMultiplier;
 	[HideInInspector] public SkillTree skillTree;
     [HideInInspector] public Image image;
 	public string pathToSkillModel;
+	public SkillStats stats = new SkillStats();
 
 	void Start(){
 		this.mouse = this.GetComponent<MouseOverUI>();
@@ -32,7 +34,7 @@ public class SkillId : MonoBehaviour {
 	}
 
 
-    bool isMouseHoveringOverUIElement(Vector3 pos)
+    public bool isMouseHoveringOverUIElement(Vector3 pos)
     {
         float x1 = pos.x;
         float y1 = pos.y;
@@ -50,7 +52,7 @@ public class SkillId : MonoBehaviour {
         return (x1 < x2 + width && x1 + mouseWidth > x2 && y1 < y2 + mouseHeight && height + y1 > y2);
     }
 	void Update(){
-
+		
 		if(isMouseHoveringOverUIElement(this.transform.position)){
 			if(Input.GetMouseButtonDown(0)){
 				skillTree.hasSkillBoxBeenClicked(this.gameObject, skill);
@@ -63,4 +65,10 @@ public class SkillId : MonoBehaviour {
             pointsText.text = points.ToString() + " / " + maxPoints.ToString();
         }
 	}
+}
+
+public class SkillStats {
+	public int STR = 0;
+	public int INT = 0;
+	public int DEX = 0;
 }

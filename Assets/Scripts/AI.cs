@@ -13,17 +13,18 @@ using UnityEngine.Networking;
 	Datum: 2017-09-24
 */
 
+public enum e_BossStates {
+	SKILL_USE,
+	TARGET
+}
+
 
 public class AI : MobManager {
 	int range = 4;		
 	
 	//Oldpos behövs för att veta vart enemyn spawnade, så den kan patrullera runt där
-	[Header("AI")]
-	[Header("Leave alone")]
+	[HideInInspector]
 	public Vector3 oldPos;
-
-	[Space(10)]
-	[Header("Fill in")]
 	public GameObject biteEffectPrefab;
     public GameObject body;
 	public GameObject angerLight;
@@ -42,11 +43,30 @@ public class AI : MobManager {
 	private Renderer[] childRenderers;
     private Renderer bodyRenderer;
     private FaceManager faceManager;
+	private NetworkIdentity identity;
+	private e_BossStates bossState = e_BossStates.TARGET;
+	private float bossTimer = 10f;
 
+	[Header("Special Properties")]
+	[Space(10)]
+	public bool friendly;
+	public bool charge;
+	public bool isBoss;
+	public GameObject magicBubble;
+	bool startBossFight;
 
 	void Start () {
-		if(!isServer) return;
+		if(isClient){
+			this.GetComponent<NavMeshAgent>().enabled = false;
+		}
+
+		this.body = this.transform.Find(body.name).gameObject;
+		this.bodyRenderer = body.GetComponent<Renderer>();
+		this.faceManager = GetComponent<FaceManager>();
+		faceManager.initilize(this);
 		animator = GetComponent<Animator>();
+
+		if(!isServer) return;
         oldPos = this.transform.position;
         setNewDestination(chooseDestination());
         this.spawner = GameObject.FindWithTag("Spawner").GetComponent<Spawner>();
@@ -57,9 +77,15 @@ public class AI : MobManager {
 		this.server = GameObject.FindWithTag("Server").GetComponent<Server>();
 		this.renderer = GetComponent<Renderer>();
 		this.childRenderers = GetComponentsInChildren<Renderer>(true);
-        this.faceManager = GetComponent<FaceManager>();
-        body = this.transform.Find(body.name).gameObject;
-        this.bodyRenderer = body.GetComponent<Renderer>();
+		this.identity = GetComponent<NetworkIdentity>();
+
+		if(this.getId() == 0){
+			this.setId(10000);
+		}
+		this.monster = lookupMonster(this.getId());
+		this.health = this.monster.health;
+
+		Debug.Log("HEALTH MONSTER OMG : " + this.health + " | " + this.monster.health);
 	}
 
 	void Update () {
@@ -71,23 +97,49 @@ public class AI : MobManager {
             //if(timer.isFinished()) timer = null;
         }
         
-		switch (state) {
-		case e_States.IDLE:
-			idleState();
-			break;
-		case e_States.CHASE:
-			chaseState();
-			break;
+		if(!isBoss){
+			switch (state) {
+			case e_States.IDLE:
+				idleState();
+				break;
+			case e_States.CHASE:
+				chaseState();
+				break;
 
-		case e_States.ATTACK:
-			attackState();
-			break;
-		case e_States.DIE:
-			dieState();
-			break;
+			case e_States.ATTACK:
+				attackState();
+				break;
+			case e_States.DIE:
+				dieState();
+				break;
+			} 
+		} else {
+
+			Collider[] col = Physics.OverlapSphere(this.transform.position, 40);
+			foreach(Collider c in col){
+				if(c.CompareTag("Player")){
+					startBossFight = true;
+				}
+			}
+
+			if(startBossFight){
+				bossTimer -= 1 * Time.deltaTime;
+				if(bossTimer <= 0){
+					bossState = e_BossStates.SKILL_USE;
+				}
+				switch(bossState){
+				case e_BossStates.SKILL_USE:
+					skillUseBossState();
+					break;
+
+				case e_BossStates.TARGET:
+					chaseBossState();
+					break;
+				}
+			}
 		}
 
-		if(newPos != null && state != e_States.DIE) {
+		if(newPos != null && state != e_States.DIE && !isBoss) {
             this.GetComponent<NavMeshAgent>().destination = newPos;
         }
 	}
@@ -121,9 +173,20 @@ public class AI : MobManager {
 			toggleAngry(false);
             faceManager.setFace(this.bodyRenderer, e_Faces.DEFAULT);
 			animator.Play("Idle", 0, 0);
+			RpcSyncAnimation("Idle");
 		}
 
-		if(this.target != null){
+		if(charge){
+			Collider[] c = Physics.OverlapSphere(this.transform.position, 5);
+			foreach(Collider col in c){
+				if(col.CompareTag("Player")){
+					target = col.gameObject;
+					break;
+				}
+			}
+		}
+
+		if(this.target != null && !friendly){
 			animator.Play("Idle");
 			setState(e_States.CHASE);
 		}
@@ -136,6 +199,34 @@ public class AI : MobManager {
 	void toggleAngry(bool toggle){
 		if(angerLight != null){
 			angerLight.SetActive(toggle);
+		}
+	}
+
+	void skillUseBossState(){
+		int rand = Random.Range(0,2);
+		if(rand <= 1){
+			for(int i=0;i<3;i++){
+				Vector3 pos = Vector3.zero;;
+				if(i == 0){
+					pos = new Vector3(this.transform.position.x - (transform.lossyScale.x * 5), this.transform.position.y,this.transform.position.z);
+				}
+				if(i == 1){
+					pos = new Vector3(this.transform.position.x + (transform.lossyScale.x * 5), this.transform.position.y,this.transform.position.z);
+				}
+				if(i == 2){
+					pos = new Vector3(this.transform.position.x, this.transform.position.y,this.transform.position.z + (this.transform.lossyScale.z * 5));
+				}
+				Server.spawnMonster(10000, pos);
+				Server.spawnObject(e_Objects.PARTICLE_DEATH, pos);
+				this.bossTimer = 10;
+				this.bossState = e_BossStates.TARGET;
+			}
+		}
+	}
+
+	void chaseBossState(){
+		if(faceManager.getFace() != e_Faces.ANGRY){
+			faceManager.setFace(this.bodyRenderer,e_Faces.ANGRY);
 		}
 	}
 
@@ -155,7 +246,6 @@ public class AI : MobManager {
         RaycastHit rayHit;
         if (canAttack(out rayHit, "Player")) {
             //Then attack lol
-			Debug.Log("ATTEMPTING TO ATTACK");
 			setState(e_States.ATTACK);
 			return;
         }
@@ -169,8 +259,8 @@ public class AI : MobManager {
 	void dieState(){
 		freeze();
 		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Die")){
-			animator.Play("Die");
-			if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Die")) kill();
+			animator.Play("Die",0,0);
+			RpcSyncAnimation("Die");
 		} else {
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1){
 				kill();
@@ -178,8 +268,27 @@ public class AI : MobManager {
 		}
 		foreach(Renderer renderer in childRenderers){
 			float a = renderer.material.color.a;
-			a -= 1f * Time.deltaTime;
+			a -= 100f * Time.deltaTime;
 			renderer.material.color = new Color(renderer.material.color.r, renderer.material.color.g, renderer.material.color.b, a);
+		}
+	}
+
+	[ClientRpc]
+	public void RpcSetFace(e_Faces face){
+		if(this.faceManager != null && this.bodyRenderer != null){
+			this.faceManager.setFace(this.bodyRenderer, face);
+		}
+	}
+	[ClientRpc]
+	public void RpcInstansiateBite(){
+		GameObject o = Instantiate(this.biteEffectPrefab);
+		Instantiate(o);
+		o.transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z) + (transform.forward*1.2f);
+	}
+	[ClientRpc]
+	public void RpcSyncAnimation(string animationName){
+		if(animator != null){
+			animator.Play(animationName,0,0);
 		}
 	}
 
@@ -204,15 +313,15 @@ public class AI : MobManager {
 			freeze();
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.7f && !hasDamaged){
 				hasDamaged = true;
-
+				RpcInstansiateBite();
                 RaycastHit rayHit;
                 if(canAttack(out rayHit, "Player")) {
-                   	this.target.GetComponent<Player>().damage(5, this.gameObject);
+					this.dealDamage();
                 }
 			}
 
 			if(animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 0.7f && !hasActivatedEffect){
-				Instantiate(biteEffectPrefab).transform.position = new Vector3(this.transform.position.x, this.transform.position.y+1, this.transform.position.z) + (transform.forward*1.2f);
+				
 				faceManager.setFace(this.bodyRenderer, e_Faces.ANGRY);
 				hasActivatedEffect = true;
 			}
@@ -221,6 +330,7 @@ public class AI : MobManager {
 				RaycastHit rayHit;
                 if(canAttack(out rayHit, "Player")){
 					animator.Play("Bite", 0, 0);
+					RpcSyncAnimation("Bite");
 				} else {
 					setState(e_States.IDLE);
 					unfreeze();
@@ -228,36 +338,7 @@ public class AI : MobManager {
 				hasDamaged = false;
 				hasActivatedEffect = false;
 			}
-			Debug.Log("ATTACKING " + animator.GetCurrentAnimatorStateInfo(0).normalizedTime + " | " + hasDamaged + " | rotate:; " + shouldRotate);
 		}
-
-
-		/*if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
-			animator.Play("Bite");
-			freeze();
-		}
-
-		if(animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
-			freeze();
-		}
-
-		if(!hasDamaged && animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 0.8f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")){
-			target.GetComponent<Player>().damage(5);
-			hasDamaged = true;
-		}
-
-		if (animator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1f && animator.GetCurrentAnimatorStateInfo(0).IsName("Bite")) {
-			//Deal damage
-			target.GetComponent<Player>().damage(5);
-			animator.Play("Bite", 0, 0);
-
-			if(!canAttack()){
-				setState(e_States.IDLE);
-				unfreeze();
-			}
-
-			Debug.Log("attacking!!!");
-		}*/
     }
 
 	public void freeze(){
@@ -285,7 +366,7 @@ public class AI : MobManager {
 	bool canAttack(out RaycastHit rayHit, string tag)
     {
         if(Physics.Raycast(this.transform.position, this.transform.forward, out rayHit, this.attackRange)) {
-			if(rayHit.collider.gameObject.CompareTag("Player")){
+			if(rayHit.collider.gameObject.CompareTag(tag)){
             	return true;
 			}
         }
@@ -324,5 +405,21 @@ public class AI : MobManager {
 	[ClientRpc]
 	public void RpcSendDestinationToClients(Vector3 pos){
 		this.GetComponent<NavMeshAgent>().destination = pos;
+	}
+
+	[Command]
+	public void CmdSyncGameObject(NetworkInstanceId netId, Vector3 position, Quaternion rot)
+	{
+		/*GameObject o = NetworkServer.FindLocalObject(netId);
+		o.transform.position = position;
+		o.transform.rotation = rot;
+		RpcSyncGameObject(netId, position, rot);*/
+
+	}
+	[ClientRpc]
+	public void RpcSyncGameObject(Vector3 position, Quaternion rot)
+	{
+		this.transform.position = position;
+		this.transform.rotation = rot;
 	}
 }

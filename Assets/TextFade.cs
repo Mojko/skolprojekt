@@ -12,6 +12,7 @@ public class TextFade : MonoBehaviour {
 	float b;
 	Text text;
 	float a = 1;
+	[HideInInspector] public float speed = 10f;
 
 	void Start(){
 		this.text = this.GetComponent<Text>();
@@ -29,9 +30,9 @@ public class TextFade : MonoBehaviour {
 	}
 
 	void Update () {
-		this.GetComponent<RectTransform>().anchoredPosition += new Vector2(0,10f * Time.deltaTime);
+		this.GetComponent<RectTransform>().anchoredPosition += new Vector2(0,speed * Time.deltaTime);
 		if(a > 0){
-			a -= 0.25f * Time.deltaTime;
+			a -= 0.7f * Time.deltaTime;
 		} else {
 			//this.transform.root.Find("Quest_UI").GetComponent<QuestUI>().removeToolTip();
 			Destroy(this.gameObject);

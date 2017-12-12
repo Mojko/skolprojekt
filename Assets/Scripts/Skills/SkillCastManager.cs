@@ -15,6 +15,9 @@ public class SkillCastManager : NetworkBehaviour {
 	string type;
 	MethodInfo methodInfo;
 
+	[HideInInspector]
+	public MobManager targetEntity;
+
 	public void cast(string type, GameObject targetObject){
 		this.methodInfo = this.GetType().GetMethod(type);
 	}

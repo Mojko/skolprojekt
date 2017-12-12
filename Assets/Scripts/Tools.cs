@@ -71,10 +71,18 @@ public static class JsonManager {
 	}
 }
 
+public static class ColorExt {
+	public static Color xpColor(){
+		return Tools.hexColor(0x9422D0);
+	}
+}
+
 public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
+	public static readonly int TEXT_SPEED = 2;
+	public static readonly int MAX_DAMAGE = 1000000;
 	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
 
 	public static bool classExists<T>(T obj){

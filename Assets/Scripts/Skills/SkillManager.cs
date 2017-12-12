@@ -64,14 +64,10 @@ public class SkillManager : NetworkBehaviour {
 		if(isAnimationFinished(this.currentAnimationPlayingName)) {
 			Debug.Log("sending skillscast..");
 			Vector3 offset = Tools.arrayToVector3(skill.positionOffset);
-			/*if(offset.x > 0) offset = player.transform.right;
-			if(offset.x < 0) offset = -player.transform.right;
-			if(offset.y > 0) offset = player.transform.up;
-			if(offset.y < 0) offset = -player.transform.up;
-			if(offset.z > 0) offset = -player.transform.forward;
-			if(offset.z < 0) offset = player.transform.forward;
-			*/
-			player.getNetwork().sendSkillCast(this.skill.pathToSkillModel, offset, player.getPlayerMovement().rot.eulerAngles, this.skill.type);
+
+			Vector3 relativePosition = transform.TransformDirection(offset) * offset.magnitude;
+
+			player.getNetwork().sendSkillCast(this.skill.pathToSkillModel, relativePosition, player.getPlayerMovement().rot.eulerAngles, this.skill.type, this.skill.range, (e_DamageType)this.skill.damageType, this.skill.damageMultiplier);
 
             stopCooldown();
 			player.getPlayerMovement().unfreeze();

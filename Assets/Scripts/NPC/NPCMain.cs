@@ -12,6 +12,7 @@ using UnityEngine.UI;
 public class DialogueMain {
 	public string[] dialogues;
 	public Quest[] questsToAcess;
+	public Quest[] questsToGiveOut;
 	private int state = 0;
 	private bool finished;
 	private int id;
@@ -77,6 +78,7 @@ public class NPCMain : NetworkBehaviour {
 	private DialogueMain currentDialoguePlaying;
 	private bool canTalk = true;
 	private bool isTalking = false;
+	private Animator animator;
 
 	[HideInInspector]public int[] questIds;
 	[HideInInspector]public Text dialogueUI_questDescription;
@@ -86,29 +88,77 @@ public class NPCMain : NetworkBehaviour {
 	[HideInInspector]public int uniqueId;
 	[HideInInspector]public Sprite faceImage;
 
+	[Header("System")]
+	[Space(10)]
+	public GameObject exclamationMark;
+	private Renderer[] exclamationMarkRenderers;
+	public GameObject questionMark;
+	private Renderer[] questionMarkRenderers;
+	public Color goldColor;
+	public Color silverColor;
+
+	private void Start(){
+		this.gameObject.SetActive(true);
+		this.animator = GetComponent<Animator>();
+		this.exclamationMarkRenderers = exclamationMark.GetComponentsInChildren<Renderer>();
+		this.questionMarkRenderers = questionMark.GetComponentsInChildren<Renderer>();
+	}
+
 	private void Update(){
-		if(currentDialoguePlaying != null && Input.GetMouseButtonDown(0)){
+
+		Collider[] col = Physics.OverlapSphere(this.transform.position, 1);
+		foreach(Collider c in col){
+			if(c.gameObject.CompareTag("Player")){
+				if(currentDialoguePlaying == null && canTalk && !isTalking){
+					if(player == null){
+						this.player = c.gameObject.GetComponent<Player>();
+						this.player.npcTalkingTo = this.gameObject;
+					}
+					talk();
+				}
+			}
+		}
+
+		if(currentDialoguePlaying != null && Input.GetKeyDown(KeyCode.Z)){
 			if(!currentDialoguePlaying.isFinished()){
-				this.dialogueUI_questDescription.text = currentDialoguePlaying.execute();
+				
 				if(dialogueUI.activeInHierarchy == false){
 					dialogueUI.SetActive(true);
 					dialogueUI_questGiverName.text = this.nickname;
 					dialogueUI_questGiverFace.sprite = (Resources.LoadAll<Sprite>("spritesheet_NpcIcons"))[this.uniqueId];
 					this.player.getPlayerMovement().freeze();
 				}
+
+				this.dialogueUI_questDescription.text = currentDialoguePlaying.execute();
+				if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Talk")){
+					animator.Play("Talk");
+				}
 				return;
 			} else {
 				Debug.Log("QUESTS_LENGTH: " + quests.Length + " | " + currentDialoguePlaying.getId());
-				/*if(this.quests.Length > currentDialoguePlaying.getId()){
-					giveQuestToPlayer(this.quests[currentDialoguePlaying.getId()]);
-					dispose();
-					return;
-				}*/
-				for(int i=0;i<this.quests.Length;i++){
-					if(!player.hasQuest(this.quests[i])){
-						giveQuestToPlayer(new Quest(this.quests[i].id, player.getCharacterName()));
+
+				foreach(Quest q in this.currentDialoguePlaying.questsToGiveOut){
+					if(!player.hasQuest(q)){
+						giveQuestToPlayer(new Quest(q.id, player.getCharacterName()));
 						dispose();
 						return;
+					}
+				}
+
+				/*for(int i=0;i<this.quests.Length;i++){
+					if(this.quests[i].getStatus() == e_QuestStatus.COMPLETED){
+						onQuestTurnIn(this.quests[i]);
+						dispose();
+						return;
+					}
+				}*/
+				if(player != null){
+					foreach(Quest q in this.player.quests){
+						if(q.getStatus() == e_QuestStatus.COMPLETED){
+							this.player.getNetwork().sendQuestToServer(q, PacketTypes.QUEST_TURN_IN);
+							dispose();
+							return;
+						}
 					}
 				}
 			}
@@ -118,30 +168,55 @@ public class NPCMain : NetworkBehaviour {
 
 	public void dispose(){
 		this.player.getPlayerMovement().unfreeze();
-		this.currentDialoguePlaying.dispose();
-		currentDialoguePlaying = null;
+		if(currentDialoguePlaying != null){
+			this.currentDialoguePlaying.dispose();
+			currentDialoguePlaying = null;
+		}
 		dialogueUI.SetActive(false);
 		isTalking = false;
+		canTalk = false;
+
+		if(!animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+			animator.Play("Idle");
+		}
 	}
 
 	public void talk(){
 		
 		for(int i=dialogues.Length-1;i>=0;i--){
+			
 			bool skipFirst = false;
 			foreach(Quest q in dialogues[i].questsToAcess){
-				if(player.hasQuest(q)){
-					skipFirst = true;
-					continue;
+				Debug.Log("FIRST_DIALOGUE: " + dialogues[i].dialogues[0] + " | " + q.getStatus() + " | " + q.getId());
+				Quest playerq = player.lookupQuest(q.getId());
+				if(playerq != null){
+					if(playerq.getStatus() != e_QuestStatus.TURNED_IN){
+						skipFirst = true;
+						continue;
+					}
+				}
+				if(q.getStatus() == e_QuestStatus.NOT_STARTED){
+					//skipFirst = true;
+					//continue;
+				} else {
+					if(playerq != null){
+						if(playerq.getStatus() != q.getStatus()){
+							skipFirst = true;
+							continue;
+						}
+					} else {
+						skipFirst = true;
+						continue;
+					}
 				}
 			}
-			Debug.Log("hi im hereee!!!!!!!!!!!! : " + (dialogues.Length-1) + " | " + dialogues[i].questsToAcess.Length);
 			if(skipFirst) continue;
-			Debug.Log("hi im hereee!!!!");
 
 			currentDialoguePlaying = dialogues[i];
 			currentDialoguePlaying.setId(i);
 			canTalk = false;
 			isTalking = true;
+			Debug.Log("REAL_DIALOGUE: " + dialogues[i].dialogues[0] + " | "  + currentDialoguePlaying);
 			return;
 		}
 	}
@@ -153,32 +228,127 @@ public class NPCMain : NetworkBehaviour {
 	}
 	private void OnCollisionStay(Collision collision)
 	{
-		if(collision.gameObject.CompareTag("Player") && currentDialoguePlaying == null && canTalk && !isTalking){
+		/*if(collision.gameObject.CompareTag("Player") && currentDialoguePlaying == null && canTalk && !isTalking){
 			if(player == null){
 				this.player = collision.gameObject.GetComponent<Player>();
 				this.player.npcTalkingTo = this.gameObject;
 			}
 			talk();
 			return;
-		}
+		}*/
 	}
 
-	private void OnCollisionExit(Collision collision){
-		canTalk = true;
+	private void OnTriggerExit(Collider collision){
 		isTalking = false;
+		dispose();
+		canTalk = true;
 	}
 
 	public Sprite getSprite(){
 		return this.faceImage;
 	}
-	public void setQuestMarker(Player player){
-	}
-	public void setQuestMarker(Quest quest){
-	}
 	public void onQuestTurnIn(Quest q){
+		questCompletedEffect(q);
+		//this.player.turnInQuest(q);
+		dispose();
 	}
 	public void stopTalking(){
 	}
+	public void questCompletedEffect(Quest q)
+	{
+		GameObject o = (GameObject)Instantiate(Resources.Load("SpecialEffects/QuestTurnedIn"));
+		o.transform.position = this.player.transform.position;
+		ParticleScaler s = o.GetComponent<ParticleScaler>();
+		s.objectAttachedTo = this.player.gameObject;
+
+		if(s.levelUpUI != null){
+			Text t = s.levelUpUI.transform.Find("Panel").Find("QuestName").GetComponent<Text>();
+			t.text = "Quest Completed " + q.getName();
+		}
+	}
+
+
+
+
+
+
+	//SPaghetti codeieo
+
+
+	public void setQuestMarker(Player player){
+		foreach(Quest q in player.getQuests()){
+			if(q.getStatus() == e_QuestStatus.COMPLETED){
+				setQuestionMarkCompleted();
+				return;
+			} else if(q.getStatus() == e_QuestStatus.STARTED){
+				setQuestionMarkPending();
+				return;
+			}
+		}
+
+		int j = 0;
+		foreach(Quest q in this.quests){
+			if(player.hasQuest(q)){
+				j++;
+			}
+		}
+		if(j <= 0){
+			setExclamationMarkHasQuest();
+			return;
+		}
+		setQuestionMarkDisabled();
+	}
+	public void setQuestMarker(Quest quest){
+		Debug.Log("QUEST COMPLETION: " + quest.getStatus().ToString());
+		if(quest.getStatus() == e_QuestStatus.COMPLETED){
+			setQuestionMarkCompleted();
+			return;
+		} else if(quest.getStatus() == e_QuestStatus.STARTED){
+			setQuestionMarkPending();
+			return;
+		}
+
+		int j = 0;
+		foreach(Quest q in this.quests){
+			if(player.hasQuest(q)){
+				j++;
+			}
+		}
+		if(j <= 0){
+			setExclamationMarkHasQuest();
+			return;
+		}
+		setQuestionMarkDisabled();
+	}
+
+	void setQuestionMarkCompleted(){
+		this.questionMark.SetActive(true);
+		foreach(Renderer r in this.questionMarkRenderers){
+			r.material.color = this.goldColor;
+		}
+		setExclamationMarkDisabled();
+	}
+	void setQuestionMarkPending(){
+		this.questionMark.SetActive(true);
+		foreach(Renderer r in this.questionMarkRenderers){
+			r.material.color = this.silverColor;
+		}
+	}
+	void setQuestionMarkDisabled(){
+		this.questionMark.SetActive(false);
+	}
+	void setExclamationMarkHasQuest(){
+		this.exclamationMark.SetActive(true);
+		foreach(Renderer r in this.exclamationMarkRenderers){
+			r.material.color = this.goldColor;
+			return;
+		}
+		setQuestionMarkDisabled();
+	}
+	void setExclamationMarkDisabled(){
+		this.exclamationMark.SetActive(false);
+	}
+
 
 }
 

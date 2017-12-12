@@ -12,8 +12,6 @@ public class PacketTypes{
     public static readonly short NPC_INTERACT = 1004;
     public static readonly short PICK_CHAR = 1005;
 	public static readonly short GIVE_EXP = 1006;
-	public static readonly short LEVEL_UP = 1007;
-    //# INVENTORY
 	public static readonly short SAVE_INVENTORY = 1006;
 	public static readonly short LOAD_OTHER_PLAYER = 1007;
     public static readonly short INVENTORY_MOVE_ITEM = 1008;
@@ -22,6 +20,10 @@ public class PacketTypes{
     public static readonly short ITEM_USE = 1011;
     public static readonly short ITEM_UNEQUIP = 1012;
     public static readonly short ITEM_EQUIP = 1013;
+	public static readonly short LEVEL_UP = 1014;
+	public static readonly short ENEMY_SYNC_MOVEMENT = 1015;
+	public static readonly short RESPAWN = 1016;
+
     //# CHAT
     public static readonly short SEND_MESSAGE = 1100;
 
@@ -34,6 +36,7 @@ public class PacketTypes{
 
 	//#ENEMIES
 	public static readonly short MONSTER_SPAWN = 1301;
+	public static readonly short MONSTER_KILL = 1302;
 
 	//#STAT ALLOCATOR
 	public static readonly short PLAYER_BUFF = 1401;

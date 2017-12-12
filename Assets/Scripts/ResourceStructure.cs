@@ -5,12 +5,14 @@ using UnityEngine;
 public enum e_Objects
 {
     SYSTEM_RESPAWNER,
+	SYSTEM_ACTION_TEXT,
     MONSTER_SQUIRRLE,
     PARTICLE_DEATH,
     PARTICLE_GROUNDDUST,
     SKILL_PREFAB,
     VFX_IMPACT_MELEE_1,
 	VFX_IMPACT_SKILL_MAGE_DEFUALT
+
 }
 
 public class ResourceStructure {
@@ -25,6 +27,7 @@ public class ResourceStructure {
 			paths.Add(e_Objects.SKILL_PREFAB, "Particles/Skills/Skill");
 			paths.Add(e_Objects.VFX_IMPACT_MELEE_1, "SpecialEffects/Impact");
 			paths.Add(e_Objects.VFX_IMPACT_SKILL_MAGE_DEFUALT, "SpecialEffects/ImpactMageSkillDefault");
+			paths.Add(e_Objects.SYSTEM_ACTION_TEXT, "System/RewardText");
 		}
 	}
 

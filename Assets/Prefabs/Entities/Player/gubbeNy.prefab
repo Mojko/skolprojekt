@@ -1068,8 +1068,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.7764384, y: 11.694, z: 3.45003}
-  m_Center: {x: -0.033890527, y: 5.716436, z: 0.077928066}
+  m_Size: {x: 4.8478966, y: 11.694, z: 4.99728}
+  m_Center: {x: 0.055374082, y: 5.716436, z: -0.43114594}
 --- !u!95 &95390616485541244
 Animator:
   serializedVersion: 3
@@ -1183,6 +1183,8 @@ MonoBehaviour:
     mana: 0
     maxHealth: 100
     maxMana: 100
+    money: 0
+    expRequiredForNextLevel: 999999999
     hairColor: 
     skinColor: 
     eyeColor: 
@@ -1190,10 +1192,13 @@ MonoBehaviour:
     s_str: 0
     s_int: 0
     s_dex: 0
+    maxAttackDamage: 0
+    minAttackDamage: 0
+    maxMagicDamage: 0
+    minMagicDamage: 0
+    s_watt: 0
+    s_matt: 0
   playerName: 
-  money: 0
-  exp: 0
-  level: 0
   quests: []
   quest_UI: {fileID: 1200795492654618, guid: fe1f21a7fcee7fb48a9eb0a6c378c3ec, type: 2}
   skillPrefab: {fileID: 1909951923887278, guid: ed4b4b59595e5684780483c6c30c1f67,
@@ -1214,6 +1219,9 @@ MonoBehaviour:
   - {fileID: 1830622779039518, guid: 33db9a5d66fe92c44acd005547adc7cb, type: 2}
   - {fileID: 1042986856325850, guid: c7116ceb0cd83b4469d2e7fe355a8e63, type: 2}
   - {fileID: 1909951923887278, guid: ed4b4b59595e5684780483c6c30c1f67, type: 2}
+  gravestone: {fileID: 1860867516035642, guid: d068c6ef547d0fd46803fc6159572d64, type: 2}
+  UIDeath: {fileID: 1740376331010144, guid: 4c81d8dff637fe34daf6eb65485c94e0, type: 2}
+  nameTag: {fileID: 1562364752586936, guid: f58a8d80e67999c4095b54e3fc0ec0dd, type: 2}
   impactHitPrefab: {fileID: 1937750126230048, guid: 66171f45dd003e0449dfa2c09607fbf6,
     type: 2}
   levelUpPrefab: {fileID: 1599866367325428, guid: 5bf7b31dc0edb3f49bef9e606a79bb9e,
@@ -1222,6 +1230,9 @@ MonoBehaviour:
     type: 2}
   npcMain: {fileID: 0}
   npcController: {fileID: 0}
+  UIPlayer: {fileID: 0}
+  uiStats: {fileID: 0}
+  otherPlayers: []
 --- !u!114 &114676889078383612
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1267,6 +1278,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1282,6 +1294,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1327,6 +1340,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1342,6 +1356,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1387,6 +1402,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1402,6 +1418,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1447,6 +1464,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1462,6 +1480,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1507,6 +1526,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1522,6 +1542,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1567,6 +1588,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1582,6 +1604,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1627,6 +1650,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1642,6 +1666,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -1687,6 +1712,7 @@ SkinnedMeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -1702,6 +1728,7 @@ SkinnedMeshRenderer:
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5

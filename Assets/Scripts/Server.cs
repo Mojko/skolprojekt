@@ -16,8 +16,13 @@ using NPCObject = System.Func<NPCManager.NPCConversationManager, int, bool>;
 
 public enum e_DamageType
 {
-    PLAYER,
-    MOB
+	STRENGTH,
+	MAGIC
+}
+public enum e_DamageTarget
+{
+	PLAYER,
+	MOB
 }
 
 public class Server : NetworkManager
@@ -59,21 +64,18 @@ public class Server : NetworkManager
         if (connections.ContainsKey(conn.connectionId))
         {
             PlayerServer pServer = getPlayerObject(conn.connectionId);
-            //List<byte[]> questList = (List<byte[]>)Tools.byteArrayToObject(pServer.questListInBytes);
-
-            /*foreach(byte[] b in questList.ToArray()) {
-                questArray = (Quest[])Tools.byteArrayToObjectArray(b);
-            }*/
-
             foreach(Quest q in pServer.questList.ToArray()){
 				addOrUpdateQuestStatusToDatabase(q, pServer, false, PacketTypes.QUEST_START);
 				Debug.Log("Updating quest... " + q.getId());
             }
 			MySqlConnection mysqlConn;
-			mysqlNonQuerySelector(out mysqlConn, "UPDATE characters SET money = '"+pServer.money+"' WHERE id = '"+pServer.getPlayerID()+"'");
+			mysqlNonQuerySelector(out mysqlConn, "UPDATE characters SET money = '"+pServer.getPlayerStats().money+"' WHERE id = '"+pServer.getPlayerID()+"'");
 			mysqlConn.Close();
-
-            Debug.Log("disconnect server func");
+			mysqlNonQuerySelector(out mysqlConn, "UPDATE characters SET exp = '"+pServer.getPlayerStats().exp+"' WHERE id = '"+pServer.getPlayerID()+"'");
+			mysqlConn.Close();
+			mysqlNonQuerySelector(out mysqlConn, "UPDATE characters SET level = '"+pServer.getPlayerStats().level+"' WHERE id = '"+pServer.getPlayerID()+"'");
+			mysqlConn.Close();
+			Debug.Log("disconnect server func " + pServer.getSkills().Length);
             string name = connections[conn.connectionId];
             charactersOnline.Remove(characterConnections[conn.connectionId]);
             playerID.Remove(connections[conn.connectionId]);
@@ -88,6 +90,7 @@ public class Server : NetworkManager
     //#SETUP
     public override void OnStartServer()
     {
+		NetworkServer.Reset();
 		questManager = new QuestManager(this);
         connectionString = "Server=" + host + ";Database=" + database + ";Uid=" + username + ";Pwd=" + password + ";";
         base.OnStartServer();
@@ -116,7 +119,8 @@ public class Server : NetworkManager
 		NetworkServer.RegisterHandler(PacketTypes.EMPTY, onLevelUp);
         NetworkServer.RegisterHandler(PacketTypes.CHARACTER_CREATE, onCharacterCreate);
 		NetworkServer.RegisterHandler(PacketTypes.CREATE_SKILL, onSkillCreate);
-
+		NetworkServer.RegisterHandler(PacketTypes.RESPAWN, onRespawn);
+		NetworkServer.RegisterHandler(PacketTypes.GIVE_EXP, onGiveExp);
         
         //Create system objects
 		ResourceStructure.initilize();
@@ -146,6 +150,9 @@ public class Server : NetworkManager
 			conn.Close();
         }
     }
+	private void onRespawn(NetworkMessage netMsg){
+		this.getPlayerObject(netMsg.conn.connectionId).getPlayerStats().health = this.getPlayerObject(netMsg.conn.connectionId).getPlayerStats().maxHealth;
+	}
     private int getInventoryID(int id, int position) {
         MySqlConnection conn;
         MySqlDataReader reader;
@@ -180,12 +187,27 @@ public class Server : NetworkManager
 
         PlayerServer pServer = playerObjects[netMsg.conn.connectionId];
 
-        if(damageInfo.damageType == e_DamageType.MOB) {
-			Debug.Log("wew reached here without error");
-            MobManager enemyMobManager = enemy.GetComponent<MobManager>();
-            enemyMobManager.damage(5, player, pServer);
-			enemyMobManager.setTarget(netMsg.conn.connectionId, player.gameObject);
-        }
+		MobManager enemyMobManager = enemy.GetComponent<MobManager>();
+		damageInfo.textPosition = new Vector3(enemy.transform.position.x, enemy.transform.position.y + (1 * (enemy.transform.lossyScale.y)), enemy.transform.position.z);
+
+
+		if(damageInfo.damageType == e_DamageType.STRENGTH){
+			int minAttackDamage = (pServer.getPlayerStats().s_dex/2) + pServer.getPlayerStats().s_watt;
+			int maxAttackDamage = (pServer.getPlayerStats().s_str/2) + pServer.getPlayerStats().s_watt;
+			int attackDamage = UnityEngine.Random.Range(minAttackDamage, minAttackDamage + maxAttackDamage);
+			enemyMobManager.damage(attackDamage, player, pServer);
+			damageInfo.damage = Mathf.CeilToInt(attackDamage * damageInfo.damageMultiplier);
+		} else if(damageInfo.damageType == e_DamageType.MAGIC){
+			int minMagicDamage = Mathf.Clamp((pServer.getPlayerStats().s_matt - pServer.getPlayerStats().s_int), 0, Tools.MAX_DAMAGE);
+			int maxMagicDamage = (pServer.getPlayerStats().s_matt + pServer.getPlayerStats().s_int);
+			int magicDamage = UnityEngine.Random.Range(minMagicDamage, minMagicDamage + maxMagicDamage);
+			enemyMobManager.damage(magicDamage, player, pServer);
+			damageInfo.damage = Mathf.CeilToInt(magicDamage * damageInfo.damageMultiplier);
+		} else {
+			Debug.LogError("Damage error Server.cs");
+		}
+		NetworkServer.SendToClient(netMsg.conn.connectionId, PacketTypes.DEAL_DAMAGE, damageInfo);
+		enemyMobManager.setTarget(netMsg.conn.connectionId, player.gameObject);
     }
 		
     public void OnQuestRecieveFromClient(NetworkMessage netMsg)
@@ -208,6 +230,18 @@ public class Server : NetworkManager
 		pServer.giveExp(exp);
 		NetworkServer.SendToClient(pServer.connectionID, PacketTypes.GIVE_EXP, killInfo);
 	}
+	public static void giveExpToPlayer(int exp, PlayerServer pServer, Vector3 position){
+		KillInfo killInfo = new KillInfo();
+		killInfo.exp = exp;
+		pServer.giveExp(exp);
+		killInfo.rewardTextPosition = position;
+		NetworkServer.SendToClient(pServer.connectionID, PacketTypes.GIVE_EXP, killInfo);
+	}
+	public void onGiveExp(NetworkMessage netMsg){
+		PlayerInfo info = netMsg.ReadMessage<PlayerInfo>();
+		giveExpToPlayer(info.exp, playerObjects[netMsg.conn.connectionId], info.position);
+	}
+
 
 	public void onLevelUp(NetworkMessage netMsg){
 		playerObjects[netMsg.conn.connectionId].levelUp();
@@ -440,6 +474,27 @@ public class Server : NetworkManager
         }
 		return null;
     }
+	/*public static MobManager spawnMonsterWithEffect(int id, Vector3 pos, e_Objects effect)
+	{
+		Monster monsterToFind = getMonsterFromJson(id);
+		if(monsterToFind != null){
+			GameObject enemy = Instantiate(ResourceStructure.getGameObjectFromPath(monsterToFind.pathToModel));
+			NavMeshAgent agent = enemy.GetComponent<NavMeshAgent>();
+			MobManager m = enemy.GetComponent<MobManager>();
+			m.setId(monsterToFind.id);
+
+			if(agent){
+				agent.Warp(pos);
+			}
+
+			NetworkServer.Spawn(enemy);
+			MonsterInfo info = new MonsterInfo();
+			info.position = enemy.transform.position;
+			NetworkServer.SendToAll(PacketTypes.MONSTER_SPAWN, info);
+			return m;
+		}
+		return null;
+	}*/
     /*public static void spawnParticle(e_Objects obj, Vector3 position){
         GameObject part = Tools.loadObjectFromResources(obj);
         part.transform.position = position;
@@ -486,7 +541,7 @@ public class Server : NetworkManager
         MySqlConnection conn;
         MySqlDataReader reader;
 		int playerID = getCharacterIDFromDir(skillInfo.playerName);
-        mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE skillId='" + skillInfo.id + "'");
+		mysqlReader(out conn, out reader, "SELECT * FROM skills WHERE skillId='" + skillInfo.id + "' AND characterID = '"+playerID+"'");
 
         int skillIdFromDatabase = 0;
         int playerIdFromDatabase = 0;
@@ -569,12 +624,14 @@ public class Server : NetworkManager
 			player.getPlayerStats().exp = reader.GetInt16("exp");
             player.getPlayerStats().money = reader.GetInt16("money");
             player.getPlayerStats().expRequiredForNextLevel = ((player.getPlayerStats().level * 2))*10;
+			Debug.Log("SERVER: EXP REQUIRED: " + player.getPlayerStats().expRequiredForNextLevel);
 
 
             player.getPlayerStats().s_luk = reader.GetInt16("luk");
             player.getPlayerStats().s_int = reader.GetInt16("intell");
             player.getPlayerStats().s_str = reader.GetInt16("str");
             player.getPlayerStats().s_dex = reader.GetInt16("dex");
+
             player.getPlayerStats().hairColor = reader.GetString("hairColor");
             player.getPlayerStats().eyeColor = reader.GetString("eyeColor");
             player.getPlayerStats().skinColor = reader.GetString("skinColor");
@@ -591,12 +648,24 @@ public class Server : NetworkManager
     {
 		Debug.Log("Trying to load charccter");
         PlayerInfo packet = msg.ReadMessage<PlayerInfo>();
+		//List<string> names = new List<string>();
+		//List<NetworkInstanceId> netIds = new List<NetworkInstanceId>();
+		List<PlayerServerData> playerdata = new List<PlayerServerData>();
+
+		foreach(PlayerServer p in playerObjects.Values){
+			playerdata.Add(new PlayerServerData(p.netId, p.playerName));
+		}
+		packet.otherPlayers = Tools.objectArrayToByteArray(playerdata.ToArray());
+
+		//packet.otherPlayerNames = names.ToArray();
+
         int id = getCharacterID(packet.characterName);
         //PlayerServer player = getPlayerObject(msg.conn.connectionId);
         PlayerServer player = PlayerServer.GetDefaultCharacter(msg.conn.connectionId);
         int characterID = getCharacterID(packet.characterName);
         PlayerServer playerReal = new PlayerServer(id, msg.conn.connectionId);
         playerReal.setPlayerID(characterID);
+		playerReal.netId = packet.id;
 
         connections.Add(msg.conn.connectionId, packet.name);
         conns.Add(packet.name, msg.conn.connectionId);
@@ -621,7 +690,6 @@ public class Server : NetworkManager
             skillProperties.Add(reader.GetInt16("currentPoints"));
             skillProperties.Add(reader.GetInt16("maxPoints"));
         }
-        player.setSkills(skillProperties.ToArray());
         packet.skillProperties = skillProperties.ToArray();
 		conn.Close();
 		reader.Close();
@@ -658,6 +726,7 @@ public class Server : NetworkManager
         packet.color = Tools.objectToByteArray(color);
         oInfo.color = packet.color;
         oInfo.id = packet.id;
+		oInfo.characterName = playerReal.playerName;
 
 		NetworkServer.SendToAll(PacketTypes.LOAD_OTHER_PLAYER, oInfo);
 
@@ -1127,4 +1196,14 @@ public class QuestStatusMobData
     public int questID;
     public int mobID;
     public int count;
+}
+
+[System.Serializable]
+public class PlayerServerData {
+	public PlayerServerData(NetworkInstanceId netId, string name){
+		this.netId = netId;
+		this.name = name;
+	}
+	public NetworkInstanceId netId;
+	public string name;
 }

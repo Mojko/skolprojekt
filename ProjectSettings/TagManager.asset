@@ -21,6 +21,7 @@ TagManager:
   - Server
   - QuestWrapper
   - NPCManager
+  - GraveStone
   layers:
   - Default
   - TransparentFX
