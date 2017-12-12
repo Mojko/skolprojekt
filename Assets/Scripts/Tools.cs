@@ -81,13 +81,9 @@ public static class Tools
 {
     public static readonly int ITEM_PROPERTY_SIZE = 15;
     public static readonly int ITEM_INTERVAL = 500;
-<<<<<<< HEAD
 	public static UnityEngine.Object[] sprites = Resources.LoadAll("itemSprites");
-=======
 	public static readonly int TEXT_SPEED = 2;
 	public static readonly int MAX_DAMAGE = 1000000;
-	public static UnityEngine.Object[] sprites = Resources.LoadAll("use");
->>>>>>> 7b03551a97d41fb0a42e36cc781ca3ad6f6cf463
 
 	public static bool classExists<T>(T obj){
 		if(obj != null){

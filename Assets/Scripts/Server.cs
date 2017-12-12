@@ -76,6 +76,7 @@ public class Server : NetworkManager
 				addOrUpdateQuestStatusToDatabase(q, pServer, false, PacketTypes.QUEST_START);
 				Debug.Log("Updating quest... " + q.getId());
             }
+            /*
 			MySqlConnection mysqlConn;
 			mysqlNonQuerySelector(out mysqlConn, "UPDATE characters SET money = '"+pServer.getPlayerStats().money+"' WHERE id = '"+pServer.getPlayerID()+"'");
 			mysqlConn.Close();
@@ -84,6 +85,7 @@ public class Server : NetworkManager
 			mysqlNonQuerySelector(out mysqlConn, "UPDATE characters SET level = '"+pServer.getPlayerStats().level+"' WHERE id = '"+pServer.getPlayerID()+"'");
 			mysqlConn.Close();
 			Debug.Log("disconnect server func " + pServer.getSkills().Length);
+            */
             string name = connections[conn.connectionId];
             charactersOnline.Remove(characterConnections[conn.connectionId]);
             playerID.Remove(connections[conn.connectionId]);

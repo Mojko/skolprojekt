@@ -46,6 +46,8 @@ MonoBehaviour:
   player: {fileID: 0}
   skillUi: {fileID: 0}
   linePrefab: {fileID: 1991389676454712, guid: 50afc7f8c338e74488f64f29987c1b5e, type: 2}
+  spritesheet: []
+  spritesheet_transparent: []
   pointsTextPrefab: {fileID: 1850210427706716, guid: 778d0dfa6dfbfdd4e9cfa15aec53fafe,
     type: 2}
   grayScaledMaterial: {fileID: 2100000, guid: 00e716ede71032144933579c4625508a, type: 2}
@@ -53,12 +55,9 @@ MonoBehaviour:
   masterSpellHeightOffset: 110
   otherSpellWidthOffset: 50
   otherSpellHeightOffset: 125
-  images:
-  - {fileID: 21300000, guid: ccf6b4335aeb9384c9bf674e04440c93, type: 3}
-  - {fileID: 21300000, guid: 5c94482eb69039941a86af8abae235c6, type: 3}
-  - {fileID: 21300000, guid: 1bfa6a579828b9b47bf6378e71b063da, type: 3}
-  - {fileID: 21300000, guid: 319b24e1e3ca81240b7f80ef926caa32, type: 3}
-  - {fileID: 21300000, guid: 073f420520884354896ab034ee2236e9, type: 3}
+  UISkillStats: {fileID: 0}
+  skillsObjects: []
+  UISkillStatsWatcher: {fileID: 0}
 --- !u!224 &224992722775307322
 RectTransform:
   m_ObjectHideFlags: 1

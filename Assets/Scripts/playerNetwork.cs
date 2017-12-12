@@ -131,7 +131,7 @@ public class playerNetwork : NetworkBehaviour{
         Debug.Log("IJTENJDSFGJSDIKJF GBHNSKJDHLFGBHNKHJSDNFGBJKHLSDFGB LJKHSDFG B");
         if (item.isMoney())
         {
-            this.player.money += item.getQuantity();
+            this.player.stats.money += item.getQuantity();
             return;
         }
         else {
@@ -553,16 +553,6 @@ public class playerNetwork : NetworkBehaviour{
         } else {
             player = this.GetComponent<Player>();
         }
-
-		PlayerServerData[] playerData = (PlayerServerData[])Tools.byteArrayToObjectArray(m.otherPlayers);
-		foreach(PlayerServerData pData in playerData){
-			GameObject p = ClientScene.FindLocalObject(pData.netId);
-			GameObject o = Instantiate(this.player.nameTag);
-			o.GetComponent<NameTag>().player = p.GetComponent<Player>();
-			o.GetComponent<Text>().text = pData.name;
-		}
-
-
 		Quest[] questArray = (Quest[])Tools.byteArrayToObjectArray(m.questClasses);
 		QuestJson clientJson = JsonManager.readJson<QuestJson>(e_Paths.JSON_QUESTS);
 

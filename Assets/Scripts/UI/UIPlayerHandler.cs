@@ -33,7 +33,7 @@ public class UIPlayerHandler : MonoBehaviour {
     }
     public void onExpChange()
     {
-		new Vector2(-380 * (((float)player.stats.expRequiredForNextLevel - (float)player.stats.exp) / (float)player.stats.expRequiredForNextLevel), 0);
+        expBar.offsetMax = new Vector2(-380 * (((float)player.stats.expRequiredForNextLevel - (float)player.stats.exp) / (float)player.stats.expRequiredForNextLevel), 0);
         this.expBarText[0].text = player.stats.exp + " / " + player.stats.expRequiredForNextLevel;
         this.expBarText[1].text = player.stats.exp + " / " + player.stats.expRequiredForNextLevel;
     }

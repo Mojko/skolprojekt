@@ -185,8 +185,6 @@ public class MobManager : NetworkBehaviour {
 		List<Quest> questsToSend = new List<Quest>();
 		spawner.totalEnemiesInArea--;
 
-        spawnDrop("Coin_gold", pos);
-
 		/*GameObject o = Instantiate(rewardText);
 		o.transform.position = this.transform.position;
 		o.transform.SetParent(GameObject.Find("WorldSpaceCanvas").transform);

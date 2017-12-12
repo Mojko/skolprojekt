@@ -17,15 +17,6 @@ public class PacketTypes{
 
     //# INVENTORY
     public static readonly short SAVE_INVENTORY = 1006;
-    public static readonly short CHARACTER_CREATE = 999;
-    public static readonly short DISCONNECT = 1000;
-    public static readonly short LOAD_PLAYER = 1001;
-    public static readonly short SAVE_PLAYER = 1002;
-    public static readonly short LOGIN = 1003;
-    public static readonly short NPC_INTERACT = 1004;
-    public static readonly short PICK_CHAR = 1005;
-	public static readonly short GIVE_EXP = 1006;
-	public static readonly short SAVE_INVENTORY = 1006;
 	public static readonly short LOAD_OTHER_PLAYER = 1007;
     public static readonly short INVENTORY_MOVE_ITEM = 1008;
     public static readonly short INVENTORY_DROP_ITEM = 1009;
@@ -33,7 +24,6 @@ public class PacketTypes{
     public static readonly short ITEM_USE = 1011;
     public static readonly short ITEM_UNEQUIP = 1012;
     public static readonly short ITEM_EQUIP = 1013;
-	public static readonly short LEVEL_UP = 1014;
 	public static readonly short ENEMY_SYNC_MOVEMENT = 1015;
 	public static readonly short RESPAWN = 1016;
 
