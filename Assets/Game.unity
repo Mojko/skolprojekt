@@ -265,12 +265,12 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114606870750219450, guid: 67c8cfbb9fdbff04c9fdba776dda2455,
+    - target: {fileID: 114174121196119172, guid: 67c8cfbb9fdbff04c9fdba776dda2455,
         type: 2}
       propertyPath: login
       value: 
       objectReference: {fileID: 592063028}
-    - target: {fileID: 114174121196119172, guid: 67c8cfbb9fdbff04c9fdba776dda2455,
+    - target: {fileID: 114606870750219450, guid: 67c8cfbb9fdbff04c9fdba776dda2455,
         type: 2}
       propertyPath: login
       value: 
@@ -704,7 +704,7 @@ Prefab:
     - target: {fileID: 224379196662771844, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 15
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 224434450609431100, guid: 4c81d8dff637fe34daf6eb65485c94e0,
         type: 2}
